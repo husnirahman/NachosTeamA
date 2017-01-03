@@ -17,6 +17,8 @@ main ()
 {
     Halt ();
 
+		// hello
+		
     /* not reached */
     return 0;
 }
