@@ -49,6 +49,15 @@ Halt:
 	j	$31
 	.end Halt
 
+#ifdef CHANGED
+        .globl PutChar
+	.ent	PutChar
+PutChar:
+	addiu $2,$0,SC_PutChar
+	syscall
+	j	$31
+	.end PutChar
+#endif 
 	.globl Exit
 	.ent	Exit
 Exit:

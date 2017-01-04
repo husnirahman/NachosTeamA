@@ -29,7 +29,9 @@
 #define SC_Close	8
 #define SC_Fork		9
 #define SC_Yield	10
+#ifdef CHANGED
 #define SC_PutChar      11
+#endif //CHANGED
 
 #ifdef IN_USER_MODE
 
@@ -110,7 +112,9 @@ void Write (char *buffer, int size, OpenFileId id);
  */
 int Read (char *buffer, int size, OpenFileId id);
 
-void PutChar(char c)
+#ifdef CHANGED
+void function PutChar(char c)
+#endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */
 void Close (OpenFileId id);
