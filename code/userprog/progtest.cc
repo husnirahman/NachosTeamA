@@ -13,13 +13,13 @@
 #include "console.h"
 #include "addrspace.h"
 #include "synch.h"
+#include "synchconsole.h"
 
 //----------------------------------------------------------------------
 // StartProcess
 //      Run a user program.  Open the executable, load it into
 //      memory, and jump to it.
 //----------------------------------------------------------------------
-
 void
 StartProcess (char *filename)
 {
@@ -87,9 +87,37 @@ ConsoleTest (char *in, char *out)
       {
 	  readAvail->P ();	// wait for character to arrive
 	  ch = console->GetChar ();
-	  console->PutChar (ch);	// echo it!
-	  writeDone->P ();	// wait for write to finish
-	  if (ch == 'q')
+          if (ch == EOF)
 	      return;		// if q, quit
+          if(ch =='c'){
+            console->PutChar ('<');
+            writeDone->P ();	// wait for write to finish
+            console->PutChar (ch);
+            writeDone->P ();	// wait for write to finish
+            console->PutChar ('>');
+              
+        }
+        else{
+	  console->PutChar (ch);	// echo it!
+        }
+	  writeDone->P ();	// wait for write to finish
+	  
       }
 }
+
+//----------------------------------------------------------------------
+// SynchConsoleTest
+//      Test the console by echoing characters typed at the input onto
+//      the output.  Stop when the user types a 'q'.
+//---------------------------------------------------------------------
+
+#ifdef CHANGED
+void SynchConsoleTest (char *in, char *out)
+{
+    char ch;
+    SynchConsole *synchconsole = new SynchConsole(in, out);
+    while ((ch = synchconsole->SynchGetChar()) != EOF)
+        synchconsole->SynchPutChar(ch);
+    fprintf(stderr, "Solaris: EOF detected in SynchConsole!\n");
+}
+#endif // CHANGED
