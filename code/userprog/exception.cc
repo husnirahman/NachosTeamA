@@ -26,9 +26,9 @@
 #include "syscall.h"
 
 #ifdef CHANGED
+//#include "machine.h"
 char buffer[MAX_STRING_SIZE];
 #endif //CHANGED
-
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -97,9 +97,7 @@ ExceptionHandler (ExceptionType which)
             }
             case SC_Puts: {
                 int from = machine->ReadRegister (4);
-                int size = machine->ReadRegister (5);
-                //char *to = buffer;
-                copyStringFromMachine(from, buffer, size);
+                copyStringFromMachine(from, buffer, MAX_STRING_SIZE);
                 sc->SynchPutString (buffer);
                 break;
             }
@@ -118,6 +116,7 @@ ExceptionHandler (ExceptionType which)
     }
     
     #endif // CHANGED
+    
     // LB: Do not forget to increment the pc before returning!
     UpdatePC();
     // End of addition

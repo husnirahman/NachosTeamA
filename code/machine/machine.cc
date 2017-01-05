@@ -217,4 +217,17 @@ void Machine::WriteRegister(int num, int value)
 	// DEBUG('m', "WriteRegister %d, value %d\n", num, value);
 	registers[num] = value;
     }
-
+#ifdef CHANGED
+void copyStringFromMachine(int from, char *to, unsigned size)
+{   
+    bool b= TRUE;
+    unsigned int i =0;
+    while(i < size && b == TRUE){
+        b = machine->ReadMem(from, 1, (int*)to);
+        to++;
+        from++;
+        i++;
+    }
+    
+}
+#endif

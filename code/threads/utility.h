@@ -65,9 +65,10 @@ extern bool DebugIsEnabled (char flag);	// Is this debug flag enabled?
 extern void DEBUG (char flag, const char *format, ...);	// Print debug message 
 							// if flag is enabled
 
-#ifdef CHANGED
-extern void copyStringFromMachine(int from, char *to, unsigned size);   //copies a string from the MIPS mode to the Linux mode
-#endif //CHANGED
+//#ifdef CHANGED
+//extern void copyStringFromMachine(int from, char *to, unsigned size);   //copies a string from the MIPS mode to the Linux mode
+//extern bool ReadMem(int addr, int size, int* value);
+//#endif //CHANGED
 //----------------------------------------------------------------------
 // ASSERT
 //      If condition is false,  print a message and dump core.

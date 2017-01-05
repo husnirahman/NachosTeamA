@@ -9,6 +9,8 @@
 #include "copyright.h"
 #include "utility.h"
 
+
+
 // this seems to be dependent on how the compiler is configured.
 // if you have problems with va_start, try both of these alternatives
 #if defined(HOST_SNAKE) || defined(HOST_SPARC) || defined(HOST_i386)
@@ -71,15 +73,3 @@ DEBUG (char flag, const char *format, ...)
       }
 }
 
-#ifdef CHANGED
-void copyStringFromMachine(int from, char *to, unsigned size)
-{   
-    //to = (char*)from;
-    unsigned int i = 0;
-    while(i < size && (char)from != EOF){
-        to[i] = from;
-        from += 8;
-        i++;
-    }
-}
-#endif
