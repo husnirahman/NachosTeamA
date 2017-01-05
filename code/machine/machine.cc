@@ -228,6 +228,9 @@ void copyStringFromMachine(int from, char *to, unsigned size)
         from++;
         i++;
     }
+    if(i==size){
+        fprintf(stderr, "String overflow\n");
+    }
     
 }
 #endif

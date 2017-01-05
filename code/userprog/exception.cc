@@ -27,7 +27,7 @@
 
 #ifdef CHANGED
 //#include "machine.h"
-char buffer[MAX_STRING_SIZE];
+
 #endif //CHANGED
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
@@ -96,9 +96,12 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_Puts: {
+                //char buffer[MAX_STRING_SIZE];
+                char *buffer = new char[MAX_STRING_SIZE];
                 int from = machine->ReadRegister (4);
-                copyStringFromMachine(from, buffer, MAX_STRING_SIZE);
+                copyStringFromMachine(from, buffer, MAX_STRING_SIZE +1);
                 sc->SynchPutString (buffer);
+                delete buffer;
                 break;
             }
             case SC_GetChar: {

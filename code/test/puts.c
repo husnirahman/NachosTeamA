@@ -4,6 +4,6 @@
 int main()
 {
     
-    Puts("ab");
+    Puts("abcdef");
     Halt();
 }

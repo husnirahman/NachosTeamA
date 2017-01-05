@@ -87,7 +87,7 @@ Initialize (int argc, char **argv)
     const char *debugArgs = "";
     bool randomYield = FALSE;
 #ifdef CHANGED
-    //bool console_detect = FALSE;
+    bool console_detect = FALSE;
 #endif
 
 #ifdef USER_PROGRAM
@@ -132,8 +132,8 @@ Initialize (int argc, char **argv)
 #endif
 /*--------------------sc = new SynchConsole(NULL,NULL);-------------------------------*/
 #ifdef CHANGED
-        //if (!strcmp (*argv, "-c"))
-          //  console_detect = TRUE;
+        if (!strcmp (*argv, "-c"))
+            console_detect = TRUE;
 #endif
 /*---------------------------------------------------*/
 #ifdef NETWORK
@@ -189,7 +189,7 @@ Initialize (int argc, char **argv)
     
 /*---------------------------------------------------*/
 #ifdef CHANGED
-        //if (console_detect == FALSE)
+        if (console_detect == FALSE)
             sc = new SynchConsole(NULL,NULL);
 #endif
 /*---------------------------------------------------*/
