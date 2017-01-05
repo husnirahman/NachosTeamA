@@ -29,12 +29,18 @@ SynchDisk *synchDisk;
 
 #ifdef USER_PROGRAM		// requires either FILESYS or FILESYS_STUB
 Machine *machine;		// user program memory and registers
+#ifdef CHANGED
+SynchConsole *sc; 
+#endif
 #endif
 
 #ifdef NETWORK
 PostOffice *postOffice;
 #endif
 
+/*---------------------------------------------------*/
+
+/*---------------------------------------------------*/
 
 // External definition, to allow us to take a pointer to this function
 extern void Cleanup ();
@@ -52,7 +58,7 @@ extern void Cleanup ();
 //      which is what we wanted to context switch), we set a flag
 //      so that once the interrupt handler is done, it will appear as 
 //      if the interrupted thread called Yield at the point it is 
-//      was interrupted.
+//      was interrupted.Initiali
 //
 //      "dummy" is because every interrupt handler takes one argument,
 //              whether it needs it or not.
@@ -170,6 +176,13 @@ Initialize (int argc, char **argv)
 #ifdef NETWORK
     postOffice = new PostOffice (netname, rely, 10);
 #endif
+    
+/*---------------------------------------------------*/
+#ifdef CHANGED
+    sc = new SynchConsole(NULL,NULL);
+#endif
+/*---------------------------------------------------*/
+
 }
 
 //----------------------------------------------------------------------
@@ -186,6 +199,9 @@ Cleanup ()
 
 #ifdef USER_PROGRAM
     delete machine;
+#ifdef CHANGED
+    delete sc;
+#endif //CHANGED
 #endif
 
 #ifdef FILESYS_NEEDED

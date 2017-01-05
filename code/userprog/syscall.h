@@ -113,7 +113,7 @@ void Write (char *buffer, int size, OpenFileId id);
 int Read (char *buffer, int size, OpenFileId id);
 
 #ifdef CHANGED
-void function PutChar(char c)
+void PutChar(char c);
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */
