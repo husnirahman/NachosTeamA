@@ -70,3 +70,16 @@ DEBUG (char flag, const char *format, ...)
 	  fflush (stdout);
       }
 }
+
+#ifdef CHANGED
+void copyStringFromMachine(int from, char *to, unsigned size)
+{   
+    //to = (char*)from;
+    unsigned int i = 0;
+    while(i < size && (char)from != EOF){
+        to[i] = from;
+        from += 8;
+        i++;
+    }
+}
+#endif

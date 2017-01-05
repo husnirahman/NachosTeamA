@@ -25,6 +25,9 @@
 #include "system.h"
 #include "syscall.h"
 
+#ifdef CHANGED
+char buffer[MAX_STRING_SIZE];
+#endif //CHANGED
 
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
@@ -90,6 +93,21 @@ ExceptionHandler (ExceptionType which)
             case SC_PutChar: {
                 int c = machine->ReadRegister (4);
                 sc->SynchPutChar ((char)c);
+                break;
+            }
+            case SC_Puts: {
+                int from = machine->ReadRegister (4);
+                int size = machine->ReadRegister (5);
+                //char *to = buffer;
+                copyStringFromMachine(from, buffer, size);
+                sc->SynchPutString (buffer);
+                break;
+            }
+            case SC_GetChar: {
+                char c = sc->SynchGetChar();
+                if (c == EOF)
+                    c = ' ';
+                machine->WriteRegister (2, (int)c);
                 break;
             }
             default: {

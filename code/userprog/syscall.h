@@ -31,6 +31,8 @@
 #define SC_Yield	10
 #ifdef CHANGED
 #define SC_PutChar      11
+#define SC_Puts         12
+#define SC_GetChar      13
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -114,6 +116,9 @@ int Read (char *buffer, int size, OpenFileId id);
 
 #ifdef CHANGED
 void PutChar(char c);
+void Puts(char *c, int size);
+
+char GetChar();
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */

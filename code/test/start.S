@@ -57,6 +57,22 @@ PutChar:
 	syscall
 	j	$31
 	.end PutChar
+	
+	.globl GetChar
+	.ent	GetChar
+GetChar:
+	addiu $2,$0,SC_GetChar
+	syscall
+	j	$31
+	.end GetChar
+	
+	.globl Puts
+	.ent	Puts
+Puts:
+	addiu $2,$0,SC_Puts
+	syscall
+	j	$31
+	.end Puts
 #endif 
 	.globl Exit
 	.ent	Exit

@@ -35,7 +35,7 @@ char SynchConsole::SynchGetChar()
 void SynchConsole::SynchPutString(const char s[])
 {   
     int i = 0;
-    while(s[i]!=EOF){
+    while(s[i]!=EOF && i < MAX_STRING_SIZE){
         SynchPutChar(s[i]);
         i++;
     }
