@@ -42,6 +42,7 @@ extern Machine *machine;	// user program memory and registers
 extern SynchConsole *sc; 
 #include "console.h"
 extern Console *cons; 
+#include "userthread.h"
 #endif
 
 #endif

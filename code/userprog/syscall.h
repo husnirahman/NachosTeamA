@@ -34,6 +34,8 @@
 #define SC_Puts         12
 #define SC_GetChar      13
 #define SC_Gets         14
+#define SC_ThdCreate    20
+#define SC_ThdExit	    21
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -120,6 +122,8 @@ void PutChar(char c);
 void Puts(char *c);
 char* Gets(char *c,int size);
 char GetChar();
+int UserThreadCreate(void f(void*arg), void*arg);
+void UserThreadExit();
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */

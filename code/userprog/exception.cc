@@ -24,6 +24,9 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#ifdef CHANGED
+#include "userthread.h"
+#endif
 
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
@@ -115,13 +118,22 @@ ExceptionHandler (ExceptionType which)
                 delete buffer;
                 break;
             }
+            case SC_ThdCreate: {           		
+                int f = machine->ReadRegister(4);
+                int args = machine->ReadRegister(5);                
+            		do_UserThreadCreate(f, args);
+            	break;
+            }
+            case SC_ThdExit: {
+            		do_UserThreadExit();
+            	break;
+            }
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);
                 ASSERT(FALSE);
             }
         }
-    }
-    
+    }    
     #endif // CHANGED
     
     // LB: Do not forget to increment the pc before returning!

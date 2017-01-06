@@ -81,6 +81,22 @@ Gets:
 	syscall
 	j	$31
 	.end Gets
+	
+	.globl UserThreadCreate
+	.ent	UserThreadCreate
+UserThreadCreate:
+	addiu $2,$0,SC_ThdCreate
+	syscall
+	j	$31
+	.end UserThreadCreate
+	
+	.globl UserThreadExit
+	.ent	UserThreadExit
+UserThreadExit:
+	addiu $2,$0,SC_ThdExit
+	syscall
+	j	$31
+	.end UserThreadExit
 #endif 
 	.globl Exit
 	.ent	Exit

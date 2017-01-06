@@ -235,8 +235,7 @@ void copyStringFromMachine(int from, char *to, unsigned size)
 }
 
 void copyStringToMachine(int to, char *from, unsigned size)
-{
-    
+{    
     bool b= TRUE;
     unsigned int i =0;
     while(i < size && b == TRUE){
@@ -246,7 +245,6 @@ void copyStringToMachine(int to, char *from, unsigned size)
         to+=1;
         from++;
         i++;
-    }
-    
+    }    
 }
 #endif
