@@ -224,7 +224,6 @@ void copyStringFromMachine(int from, char *to, unsigned size)
     unsigned int i =0;
     while(i < size && b == TRUE){
         b = machine->ReadMem(from, 1, (int*)to);
-        fprintf(stderr, "%c",*to);
         to++;
         from++;
         i++;
@@ -242,17 +241,12 @@ void copyStringToMachine(int to, char *from, unsigned size)
     unsigned int i =0;
     while(i < size && b == TRUE){
         b = machine->WriteMem(to, 1, (int)(*from));
-        fprintf(stderr, "%c",*from);
         if(*from == EOF)
             break;
         to+=1;
         from++;
         i++;
     }
-    //return (to-size);
-    //if(i==size){
-    //    fprintf(stderr, "String overflow\n");
-    //}
     
 }
 #endif

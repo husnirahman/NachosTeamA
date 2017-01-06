@@ -118,7 +118,7 @@ int Read (char *buffer, int size, OpenFileId id);
 #ifdef CHANGED
 void PutChar(char c);
 void Puts(char *c);
-char* Gets();
+char* Gets(char *c,int size);
 char GetChar();
 #endif //CHANGED
 

@@ -92,7 +92,6 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_Puts: {
-                //char buffer[MAX_STRING_SIZE];
                 char *buffer = new char[MAX_STRING_SIZE];
                 int from = machine->ReadRegister (4);
                 copyStringFromMachine(from, buffer, MAX_STRING_SIZE);
@@ -102,20 +101,17 @@ ExceptionHandler (ExceptionType which)
             }
             case SC_GetChar: {
                 char c = sc->SynchGetChar();
-               // printf("hisfsqdq ");
                 if (c == EOF)
                     c = ' ';
                 machine->WriteRegister (2, (int)c);
                 break;
             }
             case SC_Gets: {
-               // printf("hisfsqdq ");
                 int to = machine->ReadRegister(4);
-                //int size = machine->ReadRegister(5);
-                
+                int size = machine->ReadRegister(5);
                 char *buffer = new char[MAX_STRING_SIZE];
-                sc->SynchGetString(buffer, MAX_STRING_SIZE);
-                copyStringToMachine(to, buffer, MAX_STRING_SIZE);
+                sc->SynchGetString(buffer, size);
+                copyStringToMachine(to, buffer, size);
                 delete buffer;
                 break;
             }

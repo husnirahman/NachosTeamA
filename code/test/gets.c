@@ -3,7 +3,8 @@
 
 int main()
 {
-    char* s= Gets();
+    char s[5] ;
+    Gets(s, 5);
     Puts(s);
     Halt();
 }
