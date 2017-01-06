@@ -33,6 +33,7 @@
 #define SC_PutChar      11
 #define SC_Puts         12
 #define SC_GetChar      13
+#define SC_Gets         14
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -117,7 +118,7 @@ int Read (char *buffer, int size, OpenFileId id);
 #ifdef CHANGED
 void PutChar(char c);
 void Puts(char *c);
-
+char* Gets();
 char GetChar();
 #endif //CHANGED
 

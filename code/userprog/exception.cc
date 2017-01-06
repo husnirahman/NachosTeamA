@@ -25,10 +25,6 @@
 #include "system.h"
 #include "syscall.h"
 
-#ifdef CHANGED
-//#include "machine.h"
-
-#endif //CHANGED
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -79,7 +75,7 @@ ExceptionHandler (ExceptionType which)
         DEBUG('a', "Shutdown, initiated by user program.\n");
         interrupt->Halt();
     } else {
-        printf("Unexpected user mode exception %d %d\n", which, type);
+        printf("Unexpected user mode exceptioCHANGEDn %d %d\n", which, type);
         ASSERT(FALSE);
     }
     #else // CHANGED
@@ -99,16 +95,28 @@ ExceptionHandler (ExceptionType which)
                 //char buffer[MAX_STRING_SIZE];
                 char *buffer = new char[MAX_STRING_SIZE];
                 int from = machine->ReadRegister (4);
-                copyStringFromMachine(from, buffer, MAX_STRING_SIZE +1);
+                copyStringFromMachine(from, buffer, MAX_STRING_SIZE);
                 sc->SynchPutString (buffer);
                 delete buffer;
                 break;
             }
             case SC_GetChar: {
                 char c = sc->SynchGetChar();
+               // printf("hisfsqdq ");
                 if (c == EOF)
                     c = ' ';
                 machine->WriteRegister (2, (int)c);
+                break;
+            }
+            case SC_Gets: {
+               // printf("hisfsqdq ");
+                int to = machine->ReadRegister(4);
+                //int size = machine->ReadRegister(5);
+                
+                char *buffer = new char[MAX_STRING_SIZE];
+                sc->SynchGetString(buffer, MAX_STRING_SIZE);
+                copyStringToMachine(to, buffer, MAX_STRING_SIZE);
+                delete buffer;
                 break;
             }
             default: {

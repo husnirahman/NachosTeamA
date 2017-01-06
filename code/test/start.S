@@ -73,6 +73,14 @@ Puts:
 	syscall
 	j	$31
 	.end Puts
+	
+	.globl Gets
+	.ent	Gets
+Gets:
+	addiu $2,$0,SC_Gets
+	syscall
+	j	$31
+	.end Gets
 #endif 
 	.globl Exit
 	.ent	Exit

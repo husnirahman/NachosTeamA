@@ -3,7 +3,7 @@
 
 int main()
 {
-    char c[] = "abcdefghh";
-    Puts(c);
+    char* s= Gets();
+    Puts(s);
     Halt();
 }

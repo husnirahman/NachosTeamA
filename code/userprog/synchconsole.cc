@@ -44,6 +44,9 @@ void SynchConsole::SynchGetString(char *s, int n)
 {
     for(int i =0; i<n; i++){
         s[i]=SynchGetChar();
+        //fprintf(stderr, "1%c",s[i]);
+        if(s[i]== EOF)
+            break;
         
     }
 }

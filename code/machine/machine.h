@@ -212,5 +212,6 @@ unsigned int WordToMachine(unsigned int word);
 unsigned short ShortToMachine(unsigned short shortword);
 #ifdef CHANGED
 void copyStringFromMachine(int from, char *to, unsigned size);   //copies a string from the MIPS mode to the Linux mode
+void copyStringToMachine(int to, char *from, unsigned size);   //copies a string from the Linux mode to the MIPS mode
 #endif //CHANGED
 #endif // MACHINE_H
