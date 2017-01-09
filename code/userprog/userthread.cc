@@ -5,7 +5,7 @@
 
 int do_UserThreadCreate(int f, int args) {
 
-	//Thread *newThread = Thread("new");
+	//Thread *newThread = new Thread("new");
 	//newThread->Fork(f,args);
 	return 0;
 }

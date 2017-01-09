@@ -121,7 +121,8 @@ ExceptionHandler (ExceptionType which)
             case SC_ThdCreate: {           		
                 int f = machine->ReadRegister(4);
                 int args = machine->ReadRegister(5);                
-            		do_UserThreadCreate(f, args);
+            		int err = do_UserThreadCreate(f, args); 
+                machine->WriteRegister (2, err); 
             	break;
             }
             case SC_ThdExit: {
