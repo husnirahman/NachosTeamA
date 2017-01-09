@@ -50,4 +50,15 @@ void SynchConsole::SynchGetString(char *s, int n)
         
     }
 }
+void SynchConsole::SynchPutInt(int n){
+    char buffer[MAX_STRING_SIZE];
+    snprintf(buffer, MAX_STRING_SIZE + 1, "%d", n);
+    SynchPutString(buffer);
+}
+
+void SynchConsole::SynchGetInt(int *n){
+    char buffer[MAX_STRING_SIZE];
+    SynchGetString(buffer, MAX_STRING_SIZE);
+    sscanf(buffer, "%d", n);
+}
 #endif // CHANGED
