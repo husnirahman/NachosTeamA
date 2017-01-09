@@ -90,6 +90,7 @@ ExceptionHandler (ExceptionType which)
             break;
             }
             case SC_PutChar: {
+                printf("hi from putchar\n");
                 int c = machine->ReadRegister (4);
                 sc->SynchPutChar ((char)c);
                 break;
@@ -119,6 +120,7 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_PutInt: {
+                printf("hi from putint\n");
                 int integer = machine->ReadRegister(4);
                 sc->SynchPutInt(integer);
                 break;
@@ -130,10 +132,14 @@ ExceptionHandler (ExceptionType which)
                 machine->WriteMem(address, 4, integer);
                 break;
             }
-            case SC_ThdCreate: {           		
+            case SC_ThdCreate: { 
+                
                 int f = machine->ReadRegister(4);
-                int args = machine->ReadRegister(5);                
+                int args = machine->ReadRegister(5); 
+                printf("hi \n");
                 int n = do_UserThreadCreate(f, args);
+                machine->WriteRegister(2, n);
+                printf("hi %d\n",n);
                 if(n == -1 )
                     printf("Error");
             	break;
