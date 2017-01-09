@@ -1,7 +1,8 @@
 #include "syscall.h"
 
-void print(char c)
+void print(void* ch)
 {
+    char c = (char)ch;
     int i;
     for (i = 0; i < 5; i++) {
         PutChar(c+i);
@@ -11,8 +12,8 @@ void print(char c)
 int main()
 {
     //do_UserThreadCreate(int f, int arg);
-    char c = 'a';
-    int n = UserThreadCreate(print((void*)c), (void*)c);
+    void* c = (void*)'a';
+    int n = UserThreadCreate(print, c);
     //print('a');
     Halt();
     return 0;

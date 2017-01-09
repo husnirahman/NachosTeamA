@@ -17,7 +17,7 @@ static void StartUserThread(int f){
     Thread *newThread = fn->thr;
     int func = fn->fun;
     int args = fn ->args;
-    newThread->Fork((void)(*func)(args),args);
+    newThread->Fork((VoidFunctionPtr)func ,args);
 }
 
 int do_UserThreadCreate(int f, int args) {
