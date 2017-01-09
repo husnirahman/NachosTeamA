@@ -3,10 +3,30 @@
 #include "system.h"
 #include "userthread.h"
 
-int do_UserThreadCreate(int f, int args) {
+class Func_args{
+public:
+    Thread *thr;
+    int fun;
+    int args;
+};
 
-	//Thread *newThread = Thread("new");
-	//newThread->Fork(f,args);
+//static Thread *newThread = Thread("new");
+static void StartUserThread(int f){
+    Func_args* fn = new (Func_args); 
+    fn = (Func_args*)f;
+    Thread *newThread = fn->thr;
+    int func = fn->fun;
+    int args = fn ->args;
+    newThread->Fork((void)(*func)(args),args);
+}
+
+int do_UserThreadCreate(int f, int args) {
+    
+    Func_args *fn = new (Func_args);
+    fn->thr = new Thread("new");
+    fn->fun    = f; 
+    fn->args = args;
+	StartUserThread((int)fn);
 	return 0;
 }
 

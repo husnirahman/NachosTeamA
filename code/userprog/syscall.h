@@ -35,7 +35,7 @@
 #define SC_GetChar      13
 #define SC_Gets         14
 #define SC_ThdCreate    20
-#define SC_ThdExit	    21
+#define SC_ThdExit	21
 #endif //CHANGED
 
 #ifdef IN_USER_MODE

@@ -121,11 +121,13 @@ ExceptionHandler (ExceptionType which)
             case SC_ThdCreate: {           		
                 int f = machine->ReadRegister(4);
                 int args = machine->ReadRegister(5);                
-            		do_UserThreadCreate(f, args);
+                int n = do_UserThreadCreate(f, args);
+                if(n == -1 )
+                    printf("Error");
             	break;
             }
             case SC_ThdExit: {
-            		do_UserThreadExit();
+                do_UserThreadExit();
             	break;
             }
             default: {
