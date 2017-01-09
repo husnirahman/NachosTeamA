@@ -118,6 +118,18 @@ ExceptionHandler (ExceptionType which)
                 delete buffer;
                 break;
             }
+            case SC_PutInt: {
+                int integer = machine->ReadRegister(4);
+                sc->SynchPutInt(integer);
+                break;
+            }
+            case SC_GetInt: {
+                int integer;
+                int address = machine->ReadRegister(4);
+                sc->SynchGetInt(&integer);
+                machine->WriteMem(address, 4, integer);
+                break;
+            }
             case SC_ThdCreate: {           		
                 int f = machine->ReadRegister(4);
                 int args = machine->ReadRegister(5);                
