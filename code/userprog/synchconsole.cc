@@ -40,12 +40,19 @@ void SynchConsole::SynchPutChar(const char ch)
     writeDone->P ();
     lockWrite->Release();
 }
-char SynchConsole::SynchGetChar()
+char SynchConsole::InterGetChar()
 {
     lockRead->Acquire();
     readAvail->P ();
     char c = console->GetChar();
     lockRead->Release();
+    return c;
+}
+char SynchConsole::SynchGetChar()
+{
+    char c = InterGetChar();
+    while(c=='\n')
+     	c = InterGetChar();
     return c;
 }
 void SynchConsole::SynchPutString(const char s[])
@@ -59,7 +66,7 @@ void SynchConsole::SynchPutString(const char s[])
 void SynchConsole::SynchGetString(char *s, int n)
 {
     for(int i =0; i<n; i++){
-        s[i]=SynchGetChar();
+        s[i]=InterGetChar();
          if(s[i]== '\0')
             break;
         

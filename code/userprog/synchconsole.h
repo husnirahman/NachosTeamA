@@ -12,6 +12,7 @@ class SynchConsole {
     ~SynchConsole();                    // clean up console emulation
     void SynchPutChar(const char ch);   // Unix putchar(3S)
     char SynchGetChar();                // Unix getchar(3S)
+    char InterGetChar();
     void SynchPutString(const char *s); // Unix puts(3S)
     void SynchGetString(char *s, int n);       // Unix fgets(3S)
     void SynchPutInt(int n);

@@ -3,7 +3,7 @@
 
 int main()
 {
-    char c[] = "abc\0";
+    char c[] = "abc\n";
     Puts(c);
     PutChar('a');
     Halt();
