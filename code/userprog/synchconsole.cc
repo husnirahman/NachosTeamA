@@ -44,15 +44,14 @@ char SynchConsole::SynchGetChar()
 {
     lockRead->Acquire();
     readAvail->P ();
-    
-    console->GetChar();
+    char c = console->GetChar();
     lockRead->Release();
     return c;
 }
 void SynchConsole::SynchPutString(const char s[])
 {   
     int i = 0;
-    while(s[i]!=EOF && i < MAX_STRING_SIZE){
+    while(s[i]!='\0' && i < MAX_STRING_SIZE){
         SynchPutChar(s[i]);
         i++;
     }
@@ -61,20 +60,22 @@ void SynchConsole::SynchGetString(char *s, int n)
 {
     for(int i =0; i<n; i++){
         s[i]=SynchGetChar();
-         if(s[i]== EOF)
+         if(s[i]== '\0')
             break;
         
     }
 }
 void SynchConsole::SynchPutInt(int n){
-    char buffer[MAX_STRING_SIZE];
+	char *buffer = new char[MAX_STRING_SIZE];
     snprintf(buffer, MAX_STRING_SIZE + 1, "%d", n);
     SynchPutString(buffer);
+    delete buffer;
 }
 
 void SynchConsole::SynchGetInt(int *n){
-    char buffer[MAX_STRING_SIZE];
+    char *buffer = new char[MAX_STRING_SIZE];
     SynchGetString(buffer, MAX_STRING_SIZE);
     sscanf(buffer, "%d", n);
+    delete buffer;
 }
 #endif // CHANGED

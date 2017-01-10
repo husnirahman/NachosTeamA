@@ -133,7 +133,6 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_ThdCreate: { 
-                
                 int f = machine->ReadRegister(4);
                 int args = machine->ReadRegister(5); 
                 int n = do_UserThreadCreate(f, args);
