@@ -90,6 +90,7 @@ ExceptionHandler (ExceptionType which)
             break;
             }
             case SC_PutChar: {
+                printf("hi from putchar\n");
                 int c = machine->ReadRegister (4);
                 sc->SynchPutChar ((char)c);
                 break;
@@ -118,15 +119,32 @@ ExceptionHandler (ExceptionType which)
                 delete buffer;
                 break;
             }
-            case SC_ThdCreate: {           		
+            case SC_PutInt: {
+                printf("hi from putint\n");
+                int integer = machine->ReadRegister(4);
+                sc->SynchPutInt(integer);
+                break;
+            }
+            case SC_GetInt: {
+                int integer;
+                int address = machine->ReadRegister(4);
+                sc->SynchGetInt(&integer);
+                machine->WriteMem(address, 4, integer);
+                break;
+            }
+            case SC_ThdCreate: {                 
                 int f = machine->ReadRegister(4);
-                int args = machine->ReadRegister(5);                
-            		int err = do_UserThreadCreate(f, args); 
-                machine->WriteRegister (2, err); 
+                int args = machine->ReadRegister(5); 
+                printf("hi \n");
+                int n = do_UserThreadCreate(f, args);
+                machine->WriteRegister(2, n);
+                printf("hi %d\n",n);
+                if(n == -1 )
+                    printf("Error");
             	break;
             }
             case SC_ThdExit: {
-            		do_UserThreadExit();
+                do_UserThreadExit();
             	break;
             }
             default: {

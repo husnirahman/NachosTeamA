@@ -10,7 +10,7 @@ void print(char c, int n)
 }
 int main()
 {
-    print('a',26);
-    //Halt();
+    print('a',5);
+    Halt();
     return 0;
 }
