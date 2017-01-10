@@ -139,7 +139,7 @@ ExceptionHandler (ExceptionType which)
                 printf("hi \n");
                 int n = do_UserThreadCreate(f, args);
                 machine->WriteRegister(2, n);
-                printf("hi %d\n",n);
+                //printf("hi %d\n",n);
                 if(n == -1 )
                     printf("Error");
             	break;
