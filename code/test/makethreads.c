@@ -2,27 +2,20 @@
 
 void print(void* ch)
 {
-    //char *c = (char*)(ch);
-    char p = 'a';
-    PutChar(p);
-    PutChar('\n');
-   UserThreadExit();
+    char* p = (char*)ch;
+    PutChar(*p);
+    //PutChar('\n');
+    PutChar(GetChar());
+    UserThreadExit();
 }
+
 int main()
 {
-    //do_UserThreadCreate(int f, int arg);
-    char c = 'a';
-    //void* p = &c;
-    UserThreadCreate(print, (void*) &c);
+  //// void* p = c;
+    char c = GetChar();
+    UserThreadCreate(print, (void*)&c);
     
-    //PutInt(n);
-    //UserThreadExit();
-    
-    Puts("help\n");
-    
-    //while(counter>0 ){Yield();}
-    //PutChar('\n');
-    //GetChar();
+    Join(1);
     Halt();
     return 0;
 }

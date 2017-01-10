@@ -17,7 +17,7 @@
 #include "timer.h"
 
 #ifdef CHANGED
-#define MAX_STRING_SIZE 5  //buffer size of string for SynchConsole
+#define MAX_STRING_SIZE 10  //buffer size of string for SynchConsole
 #endif //CHANGED
 
 // Initialization and cleanup routines

@@ -6,7 +6,10 @@
 
 static Semaphore *readAvail;
 static Semaphore *writeDone;
-static Semaphore *locksem;
+static Lock *lockRead;
+static Lock *lockWrite;
+static Lock *lockReadS;
+static Lock *lockWriteS;
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
 
@@ -14,7 +17,10 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 {
     readAvail = new Semaphore("read avail", 0);
     writeDone = new Semaphore("write done", 0);
-    locksem = new Semaphore("locksem", 1);
+    lockRead = new Lock("lock read");
+    lockWrite = new Lock("lock write");
+    lockReadS = new Lock("lock read string");
+    lockWriteS = new Lock("locks write string");
     console = new Console (readFile, writeFile, ReadAvail, WriteDone, 0);
 }
 SynchConsole::~SynchConsole()
@@ -22,19 +28,26 @@ SynchConsole::~SynchConsole()
     delete console;
     delete writeDone;
     delete readAvail;
-    delete locksem;
+    delete lockRead;
+    delete lockWrite;
+    delete lockReadS;
+    delete lockWriteS;
 }
 void SynchConsole::SynchPutChar(const char ch)
 {   
-    locksem->P();
+    lockWrite->Acquire();
     console->PutChar(ch);
     writeDone->P ();
-    locksem->V();
+    lockWrite->Release();
 }
 char SynchConsole::SynchGetChar()
 {
+    lockRead->Acquire();
     readAvail->P ();
-    return(console->GetChar());
+    
+    console->GetChar();
+    lockRead->Release();
+    return c;
 }
 void SynchConsole::SynchPutString(const char s[])
 {   
@@ -48,8 +61,7 @@ void SynchConsole::SynchGetString(char *s, int n)
 {
     for(int i =0; i<n; i++){
         s[i]=SynchGetChar();
-        //fprintf(stderr, "1%c",s[i]);
-        if(s[i]== EOF)
+         if(s[i]== EOF)
             break;
         
     }
