@@ -4,11 +4,9 @@ void print(void* ch)
 {
     //char *c = (char*)(ch);
     char p = 'a';
-    int i;
-    for (i = 0; i < 1; i++) {
-        PutChar(p+i);
-    }
+    PutChar(p);
     PutChar('\n');
+   UserThreadExit();
 }
 int main()
 {
@@ -17,10 +15,14 @@ int main()
     //void* p = &c;
     UserThreadCreate(print, (void*) &c);
     
-     UserThreadExit();
+    //PutInt(n);
+    //UserThreadExit();
+    
+    Puts("help\n");
     
     //while(counter>0 ){Yield();}
     //PutChar('\n');
+    //GetChar();
     Halt();
     return 0;
 }
