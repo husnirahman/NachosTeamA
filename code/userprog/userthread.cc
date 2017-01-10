@@ -26,7 +26,7 @@ static void StartUserThread(int f){
     printf("Hi from StartUserThread3 %d\n",main_pointer - 3 * PageSize - 16 );
     
     machine->pageTable = pageTable;
-    machine->pageTableSize = numPages;
+    machine->pageTableSize = main_pointer - 3;
     
     machine->Run();
     printf("Hi from StartUserThread4\n");

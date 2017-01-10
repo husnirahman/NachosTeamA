@@ -103,18 +103,28 @@ Semaphore::V ()
 // the test case in the network assignment won't work!
 Lock::Lock (const char *debugName)
 {
+		name = debugName;		
+		count = 0;
+		sem = new Semaphore("lock", 1);
 }
 
 Lock::~Lock ()
 {
+		delete sem;
 }
 void
 Lock::Acquire ()
 {
+		sem->P();
+		count--;
 }
 void
 Lock::Release ()
 {
+		if(count < 0) {
+			count++;
+			sem->V();
+		}
 }
 
 Condition::Condition (const char *debugName)
