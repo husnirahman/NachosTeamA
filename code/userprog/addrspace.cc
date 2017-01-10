@@ -29,6 +29,10 @@
 //      endian machine, and we're now running on a big endian machine.
 //----------------------------------------------------------------------
 
+#ifdef CHANGED
+static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, int position,TranslationEntry *pageTable,unsigned numPages);
+#endif //CHANGED
+
 static void
 SwapHeader (NoffHeader * noffH)
 {
@@ -195,3 +199,22 @@ AddrSpace::RestoreState ()
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
 }
+#ifdef CHANGED
+static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, 
+    int position,TranslationEntry *pageTable,unsigned numPages){
+    TranslationEntry *storePageTable = machine->pageTable;
+    unsigned storeNumPages = numPages;
+    char buffer[numBytes];
+    executable->ReadAt(buffer, numBytes, position);
+    machine->pageTable = pageTable;
+    machine->pageTableSize = numPages;
+    int i = 0;
+    while(i < numBytes){
+        machine->WriteMem(virtualaddr + i, 4, (int)buffer[i]);
+        i++;
+    }
+    machine->pageTable = storePageTable;
+    machine->pageTableSize = storeNumPages;
+
+}
+#endif //CHANGED
