@@ -146,8 +146,11 @@ ExceptionHandler (ExceptionType which)
                 do_UserThreadExit();
             	break;
             }
-            case SC_Join: {
-                do_UserThreadJoin();
+            case SC_ThdJoin: {
+            	//printf("hi from exception\n");
+            	int id = machine->ReadRegister(4);
+            	
+                do_UserThreadJoin(id);
                 break;
             }
             default: {
