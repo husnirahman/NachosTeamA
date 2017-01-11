@@ -96,11 +96,11 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_Puts: {
-                char buffer[MAX_STRING_SIZE];
+                char *buffer = new char [MAX_STRING_SIZE];
                 int from = machine->ReadRegister (4);
                 copyStringFromMachine(from, buffer, MAX_STRING_SIZE);
                 sc->SynchPutString (buffer);
-                //delete buffer;
+                delete buffer;
                 break;
             }
             case SC_GetChar: {

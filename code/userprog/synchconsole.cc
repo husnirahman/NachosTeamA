@@ -35,17 +35,17 @@ SynchConsole::~SynchConsole()
 }
 void SynchConsole::SynchPutChar(const char ch)
 {   
-
+    lockWrite->Acquire();
     console->PutChar(ch);
     writeDone->P ();
-
+    lockWrite->Release();
 }
 char SynchConsole::InterGetChar()
 {
-
+    lockRead->Acquire();
     readAvail->P ();
     char c = console->GetChar();
-
+    lockRead->Release();
     return c;
 }
 char SynchConsole::SynchGetChar()
