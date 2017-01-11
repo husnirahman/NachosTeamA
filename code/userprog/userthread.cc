@@ -25,8 +25,8 @@ static void StartUserThread(int f){
     Func_args *fa = (Func_args*)f;
     machine->WriteRegister (PCReg, fa->fun);
     machine->WriteRegister (NextPCReg, fa->fun + 4);
-    machine->WriteRegister (StackReg, (machine->pageTableSize - 5*(stack_counter)) * PageSize - 16);
-    printf("Page table size = %d\n", machine->pageTableSize);
+    machine->WriteRegister (StackReg, (machine->pageTableSize - 3*(stack_counter)) * PageSize - 16);
+    //printf("Page table size = %d\n", machine->pageTableSize);
     machine->WriteRegister(4, fa->args);
     currentThread->space->RestoreState();
     lockAddrSpace->Release();

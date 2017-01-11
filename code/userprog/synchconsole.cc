@@ -35,17 +35,17 @@ SynchConsole::~SynchConsole()
 }
 void SynchConsole::SynchPutChar(const char ch)
 {   
-    lockWrite->Acquire();
+
     console->PutChar(ch);
     writeDone->P ();
-    lockWrite->Release();
+
 }
 char SynchConsole::InterGetChar()
 {
-    lockRead->Acquire();
+
     readAvail->P ();
     char c = console->GetChar();
-    lockRead->Release();
+
     return c;
 }
 char SynchConsole::SynchGetChar()
@@ -82,6 +82,7 @@ void SynchConsole::SynchPutInt(int n){
 void SynchConsole::SynchGetInt(int *n){
     char *buffer = new char[MAX_STRING_SIZE];
     SynchGetString(buffer, MAX_STRING_SIZE);
+    //printf("Check = %s\n",buffer);
     sscanf(buffer, "%d", n);
     delete buffer;
 }

@@ -117,16 +117,18 @@ AddrSpace::AddrSpace (OpenFile * executable)
 #endif //CHANGED
       }
 
-
+#ifdef CHANGED
     if (noffH.initData.size > 0)
       {
 	  DEBUG ('a', "Initializing data segment, at 0x%x, size %d\n",
 		 noffH.initData.virtualAddr, noffH.initData.size);
-#ifdef CHANGED
 	  ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
-#endif //CHANGED
       }
+      
+// Creating a bitmap for the stack status
+	stackBitMap = new BitMap(numPages); 
 
+#endif //CHANGED
 }
 
 //----------------------------------------------------------------------
@@ -139,6 +141,10 @@ AddrSpace::~AddrSpace ()
   // LB: Missing [] for delete
   // delete pageTable;
   delete [] pageTable;
+
+#ifdef CHANGED
+  delete stackBitMap;
+#endif //CHANGED
   // End of modification
 }
 
@@ -219,5 +225,6 @@ static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, in
     machine->pageTableSize = storeNumPages;//
     //currentThread->space->RestoreState();
 }
+
 #endif //CHANGED
 

@@ -223,15 +223,13 @@ void copyStringFromMachine(int from, char *to, unsigned size)
     bool b= TRUE;
     unsigned int i =0;
     while(i < size && b == TRUE){
-        b = machine->ReadMem(from, 1, (int*)to);
-        to++;
-        from++;
+    	b = machine->ReadMem(from+i, 1, (int*)(to+i));
+		if(*(to+i) == '\0'){
+			*(to+i) = '\0';
+			break;
+		}
         i++;
     }
-    //if(i==size){
-      fprintf(stderr, "\n");
-    //}
-    
 }
 
 void copyStringToMachine(int to, char *from, unsigned size)
