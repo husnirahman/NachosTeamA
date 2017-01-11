@@ -37,7 +37,8 @@
 #define SC_PutInt       15
 #define SC_GetInt       16
 #define SC_ThdCreate    20
-#define SC_ThdExit	21
+#define SC_ThdExit	    21
+#define SC_ThdJoin	    22
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -128,6 +129,7 @@ void PutInt (int n);
 int GetInt (int *n);
 int UserThreadCreate(void f(void*arg), void*arg);
 void UserThreadExit();
+void UserThreadJoin(int id);
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */
