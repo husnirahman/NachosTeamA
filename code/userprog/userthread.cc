@@ -12,6 +12,8 @@ int id_buffer[no_Threads];
 int id_status[no_Threads];
 int Thread_id = 1000;
 int counter = 0;
+int stack_counter = 0;
+
 struct Func_args{
     int fun;
     int args;
@@ -23,7 +25,8 @@ static void StartUserThread(int f){
     Func_args *fa = (Func_args*)f;
     machine->WriteRegister (PCReg, fa->fun);
     machine->WriteRegister (NextPCReg, fa->fun + 4);
-    machine->WriteRegister (StackReg, (machine->pageTableSize - 3) * PageSize - 16);
+    machine->WriteRegister (StackReg, (machine->pageTableSize - 5*(stack_counter)) * PageSize - 16);
+    printf("Page table size = %d\n", machine->pageTableSize);
     machine->WriteRegister(4, fa->args);
     currentThread->space->RestoreState();
     lockAddrSpace->Release();
@@ -51,6 +54,7 @@ int do_UserThreadCreate(int f, int args) {
     id_buffer[counter] = Thread_id;
     id_status[counter] = 0;
     counter++;
+    stack_counter++;
     lockAddrSpace->Release();
     newThread->Fork(StartUserThread, (int)fa);
     return Thread_id;
