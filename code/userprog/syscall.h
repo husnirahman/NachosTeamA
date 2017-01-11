@@ -121,13 +121,43 @@ void Write (char *buffer, int size, OpenFileId id);
 int Read (char *buffer, int size, OpenFileId id);
 
 #ifdef CHANGED
+/* Writes the character "c" to the standard output */
 void PutChar(char c);
-void Puts(char *c);
-char* Gets(char *c,int size);
+
+/* Reads a character from the standard input and give it as the return value */
 char GetChar();
+
+/* Writes the string "s" to the standard output, the maximum 
+ * number of characters allowed to be written is defined with 
+ * MAX_STRING_SIZE in "system.h" which is defaulted to 100
+ */
+void Puts(char *s);
+
+/* Reads the string "s" from the standard input with the number of character 
+ * precised in "size", the maximum number of characters allowed to be read 
+ * is defined with MAX_STRING_SIZE in "system.h" which is defaulted to 100
+ */
+char* Gets(char *s,int size);
+
+/* Writes an integer "n" to the standard output, the maximum 
+ * number of integers allowed to be written is defined with 
+ * MAX_STRING_SIZE in "system.h" which is defaulted to 100
+ */
 void PutInt (int n);
+
+/* Reads the integer "n" from the standard input, the maximum number of 
+ * integers allowed to be read is defined with MAX_STRING_SIZE in 
+ * "system.h" which is defaulted to 100
+ */
 int GetInt (int *n);
+
+/* Creates a thread which executes the function "f" and takes arguments 
+ * "args" as input. The return value is the "id" of the thread which is created.*/
 int UserThreadCreate(void f(void*arg), void*arg);
+
+/* Clears the memory which is used by the calling thread and 
+ * exits the thread. Executes another thread which is waiting.
+ */
 void UserThreadExit();
 void UserThreadJoin(int id);
 #endif //CHANGED
