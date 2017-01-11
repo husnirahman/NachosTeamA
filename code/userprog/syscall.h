@@ -163,8 +163,6 @@ void UserThreadExit();
 /* Close the file, we're done reading and writing to it. */
 void Close (OpenFileId id);
 
-
-
 /* User-level thread operations: Fork and Yield.  To allow multiple
  * threads to run within a user program. 
  */
