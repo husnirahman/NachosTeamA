@@ -35,7 +35,7 @@ int main()
     
     Thread_id[10] = UserThreadCreate(print2, (void*)&c);
     //PutInt(Thread_id[10]);
-    for(i = 0 ; i<2*n ; i++)
+    for( i = 0 ; i<2*n ; i++)
     	UserThreadJoin(Thread_id[i]);
     Halt();
     return 0;
