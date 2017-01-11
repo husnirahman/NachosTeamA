@@ -32,7 +32,6 @@
 #ifdef CHANGED
 static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, int position,TranslationEntry *pageTable,unsigned numPages);
 #endif //CHANGED
-
 static void
 SwapHeader (NoffHeader * noffH)
 {
@@ -111,17 +110,19 @@ AddrSpace::AddrSpace (OpenFile * executable)
       {
 	  DEBUG ('a', "Initializing code segment, at 0x%x, size %d\n",
 		 noffH.code.virtualAddr, noffH.code.size);
-	  executable->ReadAt (&(machine->mainMemory[noffH.code.virtualAddr]),
-			      noffH.code.size, noffH.code.inFileAddr);
+          #ifdef CHANGED
+	  ReadAtVirtual(executable, noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr, pageTable, numPages);
+          #endif //CHANGED
       }
+
+
     if (noffH.initData.size > 0)
       {
 	  DEBUG ('a', "Initializing data segment, at 0x%x, size %d\n",
 		 noffH.initData.virtualAddr, noffH.initData.size);
-	  executable->ReadAt (&
-			      (machine->mainMemory
-			       [noffH.initData.virtualAddr]),
-			      noffH.initData.size, noffH.initData.inFileAddr);
+          #ifdef CHANGED
+	  ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
+          #endif //CHANGED
       }
 
 }
@@ -200,21 +201,21 @@ AddrSpace::RestoreState ()
     machine->pageTableSize = numPages;
 }
 #ifdef CHANGED
-static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, 
-    int position,TranslationEntry *pageTable,unsigned numPages){
-    TranslationEntry *storePageTable = machine->pageTable;
-    unsigned storeNumPages = numPages;
+static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, int position,TranslationEntry *pageTable,unsigned numPages){
+    TranslationEntry *storePageTable = machine->pageTable;//
+    unsigned storeNumPages = machine->pageTableSize;//
     char buffer[numBytes];
     executable->ReadAt(buffer, numBytes, position);
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
     int i = 0;
-    while(i < numBytes){
-        machine->WriteMem(virtualaddr + i, 4, (int)buffer[i]);
+    while (i < numBytes){
+        machine->WriteMem(virtualaddr + i, 1, (int)buffer[i]);
         i++;
     }
-    machine->pageTable = storePageTable;
-    machine->pageTableSize = storeNumPages;
-
+    machine->pageTable = storePageTable;//
+    machine->pageTableSize = storeNumPages;//
+    //currentThread->space->RestoreState();
 }
 #endif //CHANGED
+
