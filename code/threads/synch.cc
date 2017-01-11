@@ -98,35 +98,63 @@ Semaphore::V ()
     (void) interrupt->SetLevel (oldLevel);
 }
 
-// Dummy functions -- so we can compile our later assignments 
-// Note -- without a correct implementation of Condition::Wait(), 
-// the test case in the network assignment won't work!
+//----------------------------------------------------------------------
+// Lock::Lock
+//      Initialize a lock, so that it can be used for synchronization.
+//
+//      "debugName" is an arbitrary name, useful for debugging.
+//----------------------------------------------------------------------
+
 Lock::Lock (const char *debugName)
 {
 		name = debugName;		
-		count = 0;
+		status = FREE;
 		sem = new Semaphore("lock", 1);
 }
+
+//----------------------------------------------------------------------
+// Lock::Lock
+//      De-allocate lock, when no longer needed.  Assume no one
+//      is still waiting on the lock!
+//----------------------------------------------------------------------
 
 Lock::~Lock ()
 {
 		delete sem;
 }
+
+//----------------------------------------------------------------------
+// Lock::Acquire
+//      wait until the lock is FREE, then set it to BUSY.  
+//----------------------------------------------------------------------
 void
 Lock::Acquire ()
-{
+{		
+    IntStatus oldLevel = interrupt->SetLevel (IntOff); // Disable interrupts
 		sem->P();
-		count--;
+		status = BUSY;
+		(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
+
+//----------------------------------------------------------------------
+// Lock::Release
+//      set lock to be FREE, waking up a thread waiting
+//      in Acquire if necessary  
+//----------------------------------------------------------------------
 void
 Lock::Release ()
 {
-		if(count < 0) {
-			count++;
+		IntStatus oldLevel = interrupt->SetLevel (IntOff); // Disable interrupts
+		if(status == BUSY) {
+			status = FREE;
 			sem->V();
 		}
+		(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 
+// Dummy functions -- so we can compile our later assignments 
+// Note -- without a correct implementation of Condition::Wait(), 
+// the test case in the network assignment won't work!
 Condition::Condition (const char *debugName)
 {
 }
