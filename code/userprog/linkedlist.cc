@@ -9,7 +9,6 @@ Node::Node (int n)
 {
 	value = n;
 	next = NULL;
-	prev = NULL;
 }
 
 //----------------------------------------------------------------------
@@ -19,7 +18,6 @@ Node::Node (int n)
 Node::~Node ()
 {
 	delete next;
-	delete prev;
 }
 
 class LinkedList
@@ -43,14 +41,65 @@ LinkedList::LinkedList (int n)
 {
 	next = NULL;
 	listSize = n;
-	thhdCount = 0;
+	thdCount = 0;
 }
 
 //----------------------------------------------------------------------
 // LinkedList::~LinkedList
-//		De-allocate list, when no longer needed.
+//		De-allocate list, when no longer needed
 //----------------------------------------------------------------------
 LinkedList::~LinkedList (int n) 
 {
 	delete next;
+}
+
+//----------------------------------------------------------------------
+// LinkedList::addNode
+//		Add a node to the linked list
+//----------------------------------------------------------------------
+void LinkedList::addNode (Node* node) 
+{
+	switch(thdCount) {
+		case (0) :
+			next = node;
+			thdCount++;
+			break;
+		case (listSize) :
+			fprintf(stderr, "Number of threads created have reached its limit.\n" );
+			break;
+		default :			
+			Node* tmp = next;
+			while(tmp->nextNode() != NULL) {
+				tmp = tmp->nextNode();
+			}
+			tmp->setNext(node);
+			thdCount++;
+	}
+}
+
+//----------------------------------------------------------------------
+// LinkedList::removeNode
+//		Add a node to the linked list
+//----------------------------------------------------------------------
+void LinkedList::removeNode (Node* node) 
+{
+	if (next == node) {		
+		next = next->nextNode();
+		// not sure about the delete
+		thdCount--;
+	} else {
+		Node* tmp;
+		tmp = next;
+		while((tmp->nextNode() != NULL) && (tmp->nextNode() != node)) {
+			tmp = tmp->nextNode();
+		}
+		if(tmp->nextNode() == NULL) {
+			fprintf(stderr, "The node to be removed is not in the list.\n" );
+		} else {
+			Node* x = tmp->nextNode();
+			tmp->setNext(x->nextNode());
+			thdCount--;
+		}
+	} 
+
 }

@@ -1,3 +1,5 @@
+#ifndef LINKEDLIST_H
+#define LINKEDLIST_H
 #include "copyright.h"
 
 class Node 
@@ -8,18 +10,11 @@ class Node
 		Node* nextNode () {
 			return next;
 		}
-		Node prevNode () {
-			return prev;
-		}
 		void setNext (Node* node) {
 			next = node;
 		}
-		void setPrev (Node* node) {
-			prev = node;
-		}
 	private:
 		Node* next;
-		Node* prev;
 		int value;
 
 }
@@ -37,8 +32,11 @@ class LinkedList
 		}
 		void addNode (Node* node);
 		void removeNode (Node* node);
+		bool searchThread (int i);
 	private:
 		Node* next;
 		int thdCount; // Number of threads in the list
 		int listSize;  // Maximum number of threads
 }
+
+#endif // LINKEDLIST_H
