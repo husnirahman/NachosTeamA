@@ -237,11 +237,9 @@ void copyStringToMachine(int to, char *from, unsigned size)
     bool b= TRUE;
     unsigned int i =0;
     while(i < size && b == TRUE){
-        b = machine->WriteMem(to, 1, (int)(*from));
+        b = machine->WriteMem(to+i, 1, (int)(*(from+i)));
         if(*from == EOF)
             break;
-        to+=1;
-        from++;
         i++;
     }    
 }
