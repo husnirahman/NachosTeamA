@@ -133,6 +133,7 @@ Lock::Acquire ()
     IntStatus oldLevel = interrupt->SetLevel (IntOff); // Disable interrupts
 		sem->P();
 		status = BUSY;
+		holder = currentThread;
 		(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 
@@ -150,6 +151,19 @@ Lock::Release ()
 			sem->V();
 		}
 		(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
+}
+
+//----------------------------------------------------------------------
+// Lock::isHeldByCurrentThread
+// 			true if the current thread holds this lock.  Useful for
+// 			checking in Release, and in Condition variable ops below.
+//----------------------------------------------------------------------
+
+bool
+Lock::isHeldByCurrentThread ()
+{
+		if (currentThread == holder) return true;
+		else return false;
 }
 
 // Dummy functions -- so we can compile our later assignments 

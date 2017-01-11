@@ -21,8 +21,8 @@
 #include "thread.h"
 #include "list.h"
 
-#define FREE 1
-#define BUSY 0
+#define FREE true
+#define BUSY false
 
 // The following class defines a "semaphore" whose value is a non-negative
 // integer.  The semaphore has only two operations P() and V():
@@ -92,6 +92,7 @@ class Lock
     const char *name;		// for debugging
     bool status;
     Semaphore* sem;
+    Thread* holder;
     // plus some other stuff you'll need to define
 };
 
