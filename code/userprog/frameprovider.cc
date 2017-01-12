@@ -4,13 +4,7 @@
 #include "frameprovider.h"
 
 FrameProvider::FrameProvider(){
-	FrameMap = new frame_info[NumPhysPages];
-	int i;
-	for(i = 0; i < NumPhysPages; i++){
-		FrameMap[i].status = TRUE;
-		FrameMap[i].id     = i;
-	} 
-	AvailFrame = NumPhysPages;
+	FrameMap = new BitMap(NumPhysPages);
 }
 
 FrameProvider::~FrameProvider(){
@@ -19,25 +13,15 @@ FrameProvider::~FrameProvider(){
 
 unsigned int
 FrameProvider::NumAvailFrame(){
-	return AvailFrame;
+	return FrameMap->NumClear ();
 }
 
 int 
 FrameProvider::GetEmptyFrame(){
-	int j = 0;
-	while(j < NumPhysPages){
-		if(FrameMap[j].status == TRUE){
-			FrameMap[j].status = FALSE;
-			AvailFrame--;
-			break;
-		}
-		j++;
-	}
-	return (FrameMap[j].id);
+	return FrameMap->Find();
 }
 
 void FrameProvider::ReleaseFrame(int n){
-	FrameMap[n].status = TRUE;
-	AvailFrame++;
+	FrameMap->Clear(n);
 }
 #endif //CHANGED1

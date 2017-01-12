@@ -26,6 +26,7 @@
 #include "syscall.h"
 #ifdef CHANGED
 #include "userthread.h"
+extern void StartProcess (char *filename);
 #endif
 
 //----------------------------------------------------------------------
@@ -152,6 +153,13 @@ ExceptionHandler (ExceptionType which)
             	
                 do_UserThreadJoin(id);
                 break;
+            }
+            case SC_ForkE:{
+            	int exec = machine->ReadRegister(4);
+            	char *buffer = new char [MAX_STRING_SIZE];
+                copyStringFromMachine(exec, buffer, MAX_STRING_SIZE);
+            	StartProcess(buffer);
+            	break;
             }
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);

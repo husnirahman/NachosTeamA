@@ -4,11 +4,8 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include "bitmap.h"
 
-struct frame_info{
-	bool status;
-	int id;
-};
 
 class FrameProvider{
 	public:
@@ -20,8 +17,7 @@ class FrameProvider{
 		unsigned int NumAvailFrame();
 	
 	private: 
-		frame_info* FrameMap;
-		unsigned int AvailFrame;
+		BitMap* FrameMap;
 };
 #endif	// FRAMEPROVIDER_H
 #endif //CHANGED

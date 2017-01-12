@@ -39,6 +39,7 @@
 #define SC_ThdCreate    20
 #define SC_ThdExit	    21
 #define SC_ThdJoin	    22
+#define SC_ForkE	    23
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -160,6 +161,8 @@ int UserThreadCreate(void f(void*arg), void*arg);
  */
 void UserThreadExit();
 void UserThreadJoin(int id);
+
+int ForkExec(char* s);
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */

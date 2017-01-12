@@ -133,7 +133,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
       }
       
 // Creating a bitmap for the stack status
-	stackBitMap = new BitMap(numPages); 
+	stackBitMap = new BitMap(MAX_THREAD); 
 
 #endif //CHANGED
 }

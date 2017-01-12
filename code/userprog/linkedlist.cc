@@ -51,6 +51,7 @@ void LinkedList::addNode (Node* node)
 		case (0) :
 			next = node;
 			thdCount++;
+			printf("hi from linklist\n");
 			break;
 		case (MAX_THREAD) :
 			fprintf(stderr, "Number of threads created have reached its limit.\n" );
