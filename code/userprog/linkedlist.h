@@ -1,6 +1,12 @@
+#ifdef CHANGED
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 #include "copyright.h"
+#include "system.h"
+
+enum nodeStatus {
+	LIVE, DEAD
+};
 
 class Node 
 {
@@ -13,16 +19,26 @@ class Node
 		void setNext (Node* node) {
 			next = node;
 		}
+		int getID () {
+			return value;
+		}
+		bool getStatus () {
+			return status;
+		}
+		void setStatus (nodeStatus b) {
+			status = b;
+		}
 	private:
 		Node* next;
 		int value;
+		nodeStatus status;
 
-}
+};
 
 class LinkedList
 {
 	public:
-		LinkedList (int n); // Initialize a linked list with a size of n
+		LinkedList (); // Initialize a linked list with a size of n
 		~LinkedList (); // de-allocate the linked list		
 		Node* nextNode () {
 			return next;
@@ -30,13 +46,16 @@ class LinkedList
 		void setNext (Node* node) {
 			next = node;
 		}
+		int getCount () {
+			return thdCount;
+		}
 		void addNode (Node* node);
 		void removeNode (Node* node);
-		bool searchThread (int i);
+		Node* searchNode (int i);
 	private:
 		Node* next;
 		int thdCount; // Number of threads in the list
-		int listSize;  // Maximum number of threads
-}
+};
 
 #endif // LINKEDLIST_H
+#endif //CHANGED

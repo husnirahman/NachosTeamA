@@ -147,7 +147,7 @@ ExceptionHandler (ExceptionType which)
             	break;
             }
             case SC_ThdJoin: {
-            	//printf("hi from exception\n");
+            	//printf("hi from exception Join\n");
             	int id = machine->ReadRegister(4);
             	
                 do_UserThreadJoin(id);

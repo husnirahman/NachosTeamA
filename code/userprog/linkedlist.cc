@@ -1,4 +1,5 @@
 #include "copyright.h"
+#include "system.h"
 #include "linkedlist.h"
 
 //----------------------------------------------------------------------
@@ -9,6 +10,7 @@ Node::Node (int n)
 {
 	value = n;
 	next = NULL;
+	status = LIVE;
 }
 
 //----------------------------------------------------------------------
@@ -20,27 +22,13 @@ Node::~Node ()
 	delete next;
 }
 
-class LinkedList
-{
-	public:
-		LinkedList (int n); // Initialize the linked list with number of integer "size". 
-		~LinkedList (); // de-allocate the linked list
-		void addNode (Node* node);
-		void removeNode (Node* node);
-	private:
-		Node* next;
-		int thdCount; // Number of threads in the list
-		int listSize; 
-}
-
 //----------------------------------------------------------------------
 // LinkedList::LinkedList
 //		Initialize a linked list with a size of n
 //----------------------------------------------------------------------
-LinkedList::LinkedList (int n) 
+LinkedList::LinkedList () 
 {
 	next = NULL;
-	listSize = n;
 	thdCount = 0;
 }
 
@@ -48,7 +36,7 @@ LinkedList::LinkedList (int n)
 // LinkedList::~LinkedList
 //		De-allocate list, when no longer needed
 //----------------------------------------------------------------------
-LinkedList::~LinkedList (int n) 
+LinkedList::~LinkedList () 
 {
 	delete next;
 }
@@ -64,7 +52,7 @@ void LinkedList::addNode (Node* node)
 			next = node;
 			thdCount++;
 			break;
-		case (listSize) :
+		case (MAX_THREAD) :
 			fprintf(stderr, "Number of threads created have reached its limit.\n" );
 			break;
 		default :			
@@ -102,4 +90,25 @@ void LinkedList::removeNode (Node* node)
 		}
 	} 
 
+}
+
+//----------------------------------------------------------------------
+// LinkedList::searchNode
+//		Returns a node with the value "i"
+//----------------------------------------------------------------------
+Node* LinkedList::searchNode (int i) 
+{
+	if (next->getID() == i) {		
+		return next;
+	} else {
+		Node* tmp;
+		tmp = next->nextNode();
+		while((tmp != NULL) && (tmp->getID() != i)) {
+			tmp = tmp->nextNode();
+		}
+		if(tmp == NULL) {
+			fprintf(stderr, "The node is not in the list.\n" );
+		} 
+		return tmp;
+	} 
 }
