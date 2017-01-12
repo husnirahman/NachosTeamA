@@ -112,7 +112,12 @@ class Thread
     {
 	printf ("%s, ", name);
     }
-
+    void setID (int n) {
+        id = n;
+    }
+    int getID () {
+        return id;
+    }
   private:
     // some of the private data for this class is listed above
 
@@ -121,6 +126,7 @@ class Thread
     // (If NULL, don't deallocate stack)
     ThreadStatus status;	// ready, running or blocked
     const char *name;
+    int id;
 
     void StackAllocate (VoidFunctionPtr func, int arg);
     // Allocate a stack for thread.

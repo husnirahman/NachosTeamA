@@ -10,7 +10,7 @@ Node::Node (int n)
 {
 	value = n;
 	next = NULL;
-	status = ACTIVE;
+	status = LIVE;
 }
 
 //----------------------------------------------------------------------

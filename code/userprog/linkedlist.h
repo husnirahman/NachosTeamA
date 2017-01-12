@@ -4,8 +4,9 @@
 #include "copyright.h"
 #include "system.h"
 
-#define ACTIVE true
-#define DEAD false
+enum nodeStatus {
+	LIVE, DEAD
+};
 
 class Node 
 {
@@ -24,13 +25,13 @@ class Node
 		bool getStatus () {
 			return status;
 		}
-		void setStatus (bool b) {
+		void setStatus (nodeStatus b) {
 			status = b;
 		}
 	private:
 		Node* next;
 		int value;
-		bool status;
+		nodeStatus status;
 
 };
 
@@ -44,6 +45,9 @@ class LinkedList
 		}
 		void setNext (Node* node) {
 			next = node;
+		}
+		int getCount () {
+			return thdCount;
 		}
 		void addNode (Node* node);
 		void removeNode (Node* node);

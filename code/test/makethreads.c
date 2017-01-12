@@ -2,11 +2,12 @@
 
 void print(void* ch)
 {
-	UserThreadJoin(1003);
+	//UserThreadJoin(1003);
     char* p = (char*)ch;
     PutChar(*p);
     PutChar(' ');
-    Puts("hello");
+    PutChar('\n');
+    Puts("hello\n");
     UserThreadExit();
 }
 void print2(void* ch)
@@ -14,7 +15,7 @@ void print2(void* ch)
     char* p = (char*)ch;
     PutChar(*p +1);
     PutChar(' ');
-    
+    PutChar('\n');
     UserThreadExit();
 }
 
@@ -35,8 +36,7 @@ int main()
     	UserThreadJoin(Thread_id[i]);
     PutInt(Thread_id[0]);
     	
-    	
-    Puts("Bye");
+    Puts("Bye\n");
     Halt();
     return 0;
 }
