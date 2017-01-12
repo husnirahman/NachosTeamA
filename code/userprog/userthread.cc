@@ -3,6 +3,7 @@
 #include "system.h"
 #include "userthread.h"
 #include "synch.h"
+
 #include <string>
 
 static Lock *thdLock = new Lock("ThreadLock");
@@ -54,9 +55,7 @@ int do_UserThreadCreate(int f, int args) {
 	} else {
 		fprintf(stderr, "Maximum thread count reached. Can't create new thread.\n");
 		return -1;
-	}
-
-	
+	}	
 }
 
 void do_UserThreadExit() {
@@ -77,6 +76,9 @@ void do_UserThreadExit() {
 		currentThread->Finish();
 		currentThread->space->stackBitMap->Clear(id);
     }
+
+	thdLock->Release();
+    currentThread->Finish();    
 }
 
 void do_UserThreadJoin(int id) {
@@ -94,7 +96,6 @@ void do_UserThreadJoin(int id) {
 		}
 		thdList->removeNode(node);
 	}
-
 	thdLock->Release();
 }
 
