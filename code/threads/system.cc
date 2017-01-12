@@ -31,6 +31,7 @@ SynchDisk *synchDisk;
 Machine *machine;		// user program memory and registers
 #ifdef CHANGED
 SynchConsole *sc; 
+LinkedList *thdList;
 #endif
 #endif
 
@@ -191,6 +192,9 @@ Initialize (int argc, char **argv)
 #ifdef CHANGED
         if (console_detect == FALSE)
             sc = new SynchConsole(NULL,NULL);
+
+        // LinkedList init
+        thdList = new LinkedList();
 #endif
 /*---------------------------------------------------*/
 
@@ -212,6 +216,7 @@ Cleanup ()
     delete machine;
 #ifdef CHANGED
     delete sc;
+    delete thdList;
 #endif //CHANGED
 #endif
 
