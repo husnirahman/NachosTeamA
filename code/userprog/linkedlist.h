@@ -24,6 +24,9 @@ class Node
 		bool getStatus () {
 			return status;
 		}
+		void setStatus (bool b) {
+			status = b;
+		}
 	private:
 		Node* next;
 		int value;
