@@ -62,7 +62,7 @@ void SynchConsole::InterPutChar(const char ch)
 void SynchConsole::SynchPutChar(const char ch)
 {   
     lockWrite->Acquire();
-    console->InterPutChar(ch);
+    InterPutChar(ch);
     lockWrite->Release();
 }
 
