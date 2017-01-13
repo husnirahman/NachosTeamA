@@ -30,7 +30,9 @@
 //----------------------------------------------------------------------
 
 #ifdef CHANGED
+#include "frameprovider.h"
 static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, int position,TranslationEntry *pageTable,unsigned numPages);
+FrameProvider* FrameP = new FrameProvider();
 #endif //CHANGED
 static void
 SwapHeader (NoffHeader * noffH)
@@ -67,7 +69,8 @@ AddrSpace::AddrSpace (OpenFile * executable)
 {
     NoffHeader noffH;
     unsigned int i, size;
-
+	
+	printf("hi from Address space\n");
     executable->ReadAt ((char *) &noffH, sizeof (noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
 	(WordToHost (noffH.noffMagic) == NOFFMAGIC))
@@ -80,7 +83,13 @@ AddrSpace::AddrSpace (OpenFile * executable)
     numPages = divRoundUp (size, PageSize);
     size = numPages * PageSize;
 
+#ifndef CHANGED
     ASSERT (numPages <= NumPhysPages);	// check we're not trying
+#else
+	printf("Number of Avail frames = %d %d\n",FrameP->NumAvailFrame(), numPages);
+	ASSERT (numPages <= FrameP->NumAvailFrame());
+#endif //CHANGED   
+    
     // to run anything too big --
     // at least until we have
     // virtual memory
@@ -93,7 +102,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
       {
 	  pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 #ifdef CHANGED
-	  pageTable[i].physicalPage = i + 1;//physical page number = virtual page number + 1
+	  pageTable[i].physicalPage = FrameP->GetEmptyFrame();//physical page number = virtual page number + 1
 #endif //CHANGED
 	  pageTable[i].valid = TRUE;
 	  pageTable[i].use = FALSE;
@@ -122,11 +131,11 @@ AddrSpace::AddrSpace (OpenFile * executable)
       {
 	  DEBUG ('a', "Initializing data segment, at 0x%x, size %d\n",
 		 noffH.initData.virtualAddr, noffH.initData.size);
-	  ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
+	  	ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
       }
       
 // Creating a bitmap for the stack status
-	stackBitMap = new BitMap(numPages); 
+	stackBitMap = new BitMap(MAX_THREADS); 
 
 #endif //CHANGED
 }
@@ -140,7 +149,13 @@ AddrSpace::~AddrSpace ()
 {
   // LB: Missing [] for delete
   // delete pageTable;
-  delete [] pageTable;
+ #ifdef CHANGED
+ 	unsigned int i;
+  	for (i = 0; i < numPages; i++){
+  		FrameP->ReleaseFrame(pageTable[i].physicalPage);
+  	}
+#endif //CHANGED	
+  	delete [] pageTable;
 
 #ifdef CHANGED
   delete stackBitMap;

@@ -24,8 +24,11 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "synch.h"
 #ifdef CHANGED
 #include "userthread.h"
+extern void StartProcess (char *filename);
+static Lock *ProcessLock = new Lock("Process Lock");
 #endif
 
 //----------------------------------------------------------------------
@@ -138,8 +141,7 @@ ExceptionHandler (ExceptionType which)
                 int n = do_UserThreadCreate(f, args);
                 machine->WriteRegister(2, n);
                 //printf("hi %d\n",n);
-                if(n == -1 )
-                    printf("Error");
+                ASSERT(n != -1);
             	break;
             }
             case SC_ThdExit: {
@@ -152,6 +154,17 @@ ExceptionHandler (ExceptionType which)
             	
                 do_UserThreadJoin(id);
                 break;
+            }
+            case SC_ForkE: {
+            	ProcessLock->Acquire();
+            	char *buffer = new char [MAX_STRING_SIZE];
+                int file = machine->ReadRegister (4);
+                copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+            	printf("hi from ForkE %s\n", buffer);
+            	ProcessLock->Release();
+            	StartProcess(buffer);
+            	delete buffer;
+            	break;
             }
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);
