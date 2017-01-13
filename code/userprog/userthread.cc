@@ -7,6 +7,7 @@
 #include <string>
 
 static Lock *thdLock = new Lock("ThreadLock");
+static Condition* joinCond = new Condition("JoinCOndition");
 
 struct Func_args{
     int fun;
@@ -89,10 +90,7 @@ void do_UserThreadJoin(int id) {
 		fprintf(stderr, "The thread to be joined doesn't exist.\n");		
 	} else {
 		while(node->getStatus() == LIVE) {
-				thdLock->Release();
-				currentThread->Yield();
-				node = thdList->searchNode(id);
-				thdLock->Acquire ();
+			joinCond->Wait(thdLock);
 		}
 		thdList->removeNode(node);
 	}

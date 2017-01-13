@@ -21,6 +21,5 @@ int main()
 	f((void*) THAT);
 	
 	UserThreadJoin(id);
-	//Halt();
 	return 0;
 }

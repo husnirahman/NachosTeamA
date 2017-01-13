@@ -157,7 +157,7 @@ ExceptionHandler (ExceptionType which)
             case SC_ForkE:{
             	int exec = machine->ReadRegister(4);
             	char *buffer = new char [MAX_STRING_SIZE];
-                copyStringFromMachine(exec, buffer, MAX_STRING_SIZE);
+              copyStringFromMachine(exec, buffer, MAX_STRING_SIZE);
             	StartProcess(buffer);
             	break;
             }
