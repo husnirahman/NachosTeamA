@@ -63,10 +63,8 @@ void SynchConsole::SynchPutChar(const char ch)
 //----------------------------------------------------------------------
 char SynchConsole::InterGetChar()
 {
-    lockRead->Acquire();
     readAvail->P ();
     char c = console->GetChar();
-    lockRead->Release();
     return c;
 }
 
@@ -76,10 +74,12 @@ char SynchConsole::InterGetChar()
 //      Ignores the read of "ENTER" / "\n"
 //----------------------------------------------------------------------
 char SynchConsole::SynchGetChar()
-{
+{		
+    lockRead->Acquire();    
     char c = InterGetChar();
     while(c=='\n')
      	c = InterGetChar();
+    lockRead->Release();
     return c;
 }
 
@@ -90,11 +90,13 @@ char SynchConsole::SynchGetChar()
 //----------------------------------------------------------------------
 void SynchConsole::SynchPutString(const char s[])
 {   
+		lockRead->Acquire();  
     int i = 0;
     while(s[i]!='\0' && i < MAX_STRING_SIZE){
         SynchPutChar(s[i]);
         i++;
     }
+    lockRead->Release();
 }
 
 //----------------------------------------------------------------------
