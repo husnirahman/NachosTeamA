@@ -44,6 +44,17 @@ SynchConsole::~SynchConsole()
     delete lockWriteS;
 }
 
+
+//----------------------------------------------------------------------
+// SynchConsole::InterPutChar
+//      Writes the character "ch" to the console output
+//----------------------------------------------------------------------
+void SynchConsole::InterPutChar(const char ch)
+{   
+    console->PutChar(ch);
+    writeDone->P ();
+}
+
 //----------------------------------------------------------------------
 // SynchConsole::SynchPutChar
 //      Writes the character "ch" to the console output
@@ -51,8 +62,7 @@ SynchConsole::~SynchConsole()
 void SynchConsole::SynchPutChar(const char ch)
 {   
     lockWrite->Acquire();
-    console->PutChar(ch);
-    writeDone->P ();
+    console->InterPutChar(ch);
     lockWrite->Release();
 }
 
@@ -90,13 +100,13 @@ char SynchConsole::SynchGetChar()
 //----------------------------------------------------------------------
 void SynchConsole::SynchPutString(const char s[])
 {   
-		lockRead->Acquire();  
+    lockWrite->Acquire();
     int i = 0;
     while(s[i]!='\0' && i < MAX_STRING_SIZE){
-        SynchPutChar(s[i]);
+        InterPutChar(s[i]);
         i++;
     }
-    lockRead->Release();
+    lockWrite->Release();
 }
 
 //----------------------------------------------------------------------
@@ -104,13 +114,14 @@ void SynchConsole::SynchPutString(const char s[])
 //      Reads a string with "n" number of character and stores it in "s"
 //----------------------------------------------------------------------
 void SynchConsole::SynchGetString(char *s, int n)
-{
+{		
+		lockRead->Acquire();  
     for(int i =0; i<n; i++){
         s[i]=InterGetChar();
          if(s[i]== '\0')
-            break;
-        
-    }
+            break;        
+    }    
+    lockRead->Release();
 }
 
 //----------------------------------------------------------------------
