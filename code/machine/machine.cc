@@ -234,8 +234,7 @@ void copyStringToMachine(int to, char *from, unsigned size)
     unsigned int i =0;
     while(i < size && b == TRUE){
         b = machine->WriteMem(to+i, 1, (int)(*(from+i)));
-        if(*from == EOF)
-            break;
+        if(*from == EOF) wbreak;
         i++;
     }    
 }
