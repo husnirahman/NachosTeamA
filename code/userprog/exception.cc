@@ -26,6 +26,7 @@
 #include "syscall.h"
 #ifdef CHANGED
 #include "userthread.h"
+extern void StartProcess (char *filename);
 #endif
 
 //----------------------------------------------------------------------
@@ -96,7 +97,7 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_Puts: {
-                char *buffer = new char[MAX_STRING_SIZE];
+                char *buffer = new char [MAX_STRING_SIZE];
                 int from = machine->ReadRegister (4);
                 copyStringFromMachine(from, buffer, MAX_STRING_SIZE);
                 sc->SynchPutString (buffer);
@@ -147,11 +148,18 @@ ExceptionHandler (ExceptionType which)
             	break;
             }
             case SC_ThdJoin: {
-            	//printf("hi from exception\n");
+            	//printf("hi from exception Join\n");
             	int id = machine->ReadRegister(4);
             	
                 do_UserThreadJoin(id);
                 break;
+            }
+            case SC_ForkE:{
+            	int exec = machine->ReadRegister(4);
+            	char *buffer = new char [MAX_STRING_SIZE];
+                copyStringFromMachine(exec, buffer, MAX_STRING_SIZE);
+            	StartProcess(buffer);
+            	break;
             }
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);

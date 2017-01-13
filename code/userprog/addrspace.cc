@@ -30,7 +30,9 @@
 //----------------------------------------------------------------------
 
 #ifdef CHANGED
+#include "frameprovider.h"
 static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, int position,TranslationEntry *pageTable,unsigned numPages);
+FrameProvider* FrameP = new FrameProvider();
 #endif //CHANGED
 static void
 SwapHeader (NoffHeader * noffH)
@@ -80,7 +82,12 @@ AddrSpace::AddrSpace (OpenFile * executable)
     numPages = divRoundUp (size, PageSize);
     size = numPages * PageSize;
 
+#ifndef CHANGED
     ASSERT (numPages <= NumPhysPages);	// check we're not trying
+#else
+	ASSERT (numPages <= FrameP->NumAvailFrame());
+#endif //CHANGED   
+    
     // to run anything too big --
     // at least until we have
     // virtual memory
@@ -93,7 +100,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
       {
 	  pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 #ifdef CHANGED
-	  pageTable[i].physicalPage = i + 1;//physical page number = virtual page number + 1
+	  pageTable[i].physicalPage = FrameP->GetEmptyFrame();//physical page number = virtual page number + 1
 #endif //CHANGED
 	  pageTable[i].valid = TRUE;
 	  pageTable[i].use = FALSE;
@@ -117,16 +124,18 @@ AddrSpace::AddrSpace (OpenFile * executable)
 #endif //CHANGED
       }
 
-
+#ifdef CHANGED
     if (noffH.initData.size > 0)
       {
 	  DEBUG ('a', "Initializing data segment, at 0x%x, size %d\n",
 		 noffH.initData.virtualAddr, noffH.initData.size);
-#ifdef CHANGED
-	  ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
-#endif //CHANGED
+	  	ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
       }
+      
+// Creating a bitmap for the stack status
+	stackBitMap = new BitMap(MAX_THREAD); 
 
+#endif //CHANGED
 }
 
 //----------------------------------------------------------------------
@@ -138,7 +147,17 @@ AddrSpace::~AddrSpace ()
 {
   // LB: Missing [] for delete
   // delete pageTable;
-  delete [] pageTable;
+ #ifdef CHANGED
+ 	unsigned int i;
+  	for (i = 0; i < numPages; i++){
+  		FrameP->ReleaseFrame(pageTable[i].physicalPage);
+  	}
+#endif //CHANGED	
+  	delete [] pageTable;
+
+#ifdef CHANGED
+  delete stackBitMap;
+#endif //CHANGED
   // End of modification
 }
 
@@ -219,5 +238,6 @@ static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, in
     machine->pageTableSize = storeNumPages;//
     //currentThread->space->RestoreState();
 }
+
 #endif //CHANGED
 

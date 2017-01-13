@@ -166,27 +166,74 @@ Lock::isHeldByCurrentThread ()
 		else return false;
 }
 
-// Dummy functions -- so we can compile our later assignments 
-// Note -- without a correct implementation of Condition::Wait(), 
-// the test case in the network assignment won't work!
+//----------------------------------------------------------------------
+// Condition::Condition
+// 			true if the current thread holds this lock.  Useful for
+// 			checking in Release, and in Condition variable ops below.
+//----------------------------------------------------------------------
 Condition::Condition (const char *debugName)
 {
+	name = debugName;
+	queue = new List;
+	count = 0;
 }
 
+//----------------------------------------------------------------------
+// Condition::~Condition
+// 			true if the current thread holds this lock.  Useful for
+// 			checking in Release, and in Condition variable ops below.
+//----------------------------------------------------------------------
 Condition::~Condition ()
 {
-}
-void
-Condition::Wait (Lock * conditionLock)
-{
-    ASSERT (FALSE);
+	delete name;
+	delete queue;
 }
 
+//----------------------------------------------------------------------
+// Condition::Wait
+// 			true if the current thread holds this lock.  Useful for
+// 			checking in Release, and in Condition variable ops below.
+//----------------------------------------------------------------------
+void
+Condition::Wait (Lock * conditionLock)
+{	
+    currentThread->Sleep();
+    conditionLock->Release();
+	queue->Append ((void *) currentThread);
+    currentThread->Yield();
+    conditionLock->Acquire();
+    //ASSERT (FALSE);
+}
+
+//----------------------------------------------------------------------
+// Condition::Signal
+// 			true if the current thread holds this lock.  Useful for
+// 			checking in Release, and in Condition variable ops below.
+//----------------------------------------------------------------------
 void
 Condition::Signal (Lock * conditionLock)
 {
+	Thread* thread;
+
+    thread = (Thread *) queue->Remove ();
+    if (thread != NULL)		// make thread ready, consuming the V immediately
+	scheduler->ReadyToRun (thread);
 }
+
+//----------------------------------------------------------------------
+// Condition::Broadcast
+// 			true if the current thread holds this lock.  Useful for
+// 			checking in Release, and in Condition variable ops below.
+//----------------------------------------------------------------------
 void
 Condition::Broadcast (Lock * conditionLock)
 {
+	Thread* thread;
+	thread = (Thread *) queue->Remove ();
+
+	while(!queue->IsEmpty()) {
+		thread = (Thread *) queue->Remove ();
+	    if (thread != NULL)		// make thread ready, consuming the V immediately
+		scheduler->ReadyToRun (thread);
+	}
 }
