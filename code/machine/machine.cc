@@ -225,7 +225,6 @@ void copyStringFromMachine(int from, char *to, unsigned size)
     while(i < size && b == TRUE){
     	b = machine->ReadMem(from+i, 1, (int*)(to+i));
 		if(*(to+i) == '\0'){
-			*(to+i) = '\0';
 			break;
 		}
         i++;
