@@ -16,12 +16,12 @@ struct Func_args{
 
 static void StartUserThread(int f){ 
 	thdLock->Acquire ();
-		printf("hi from User StartUserThread create \n");
+		printf("\nhi from User StartUserThread create \n");
 	    Func_args *fa = (Func_args*)f;
 	    machine->WriteRegister (PCReg, fa->fun);
 	    machine->WriteRegister (NextPCReg, fa->fun + 4);
 	    
-	    machine->WriteRegister (StackReg, (machine->pageTableSize - 3*(currentThread->getID())) * PageSize - 16);
+	    machine->WriteRegister (StackReg, (machine->pageTableSize - 4*(currentThread->getID())) * PageSize - 16);
 	    machine->WriteRegister(4, fa->args);
 	    currentThread->space->RestoreState();
 		//printf("hi from User StartUserThread create 2\n");
@@ -83,6 +83,8 @@ void do_UserThreadExit() {
 }
 
 void do_UserThreadJoin(int id) {
+	
+	printf("hi from thread join thd id:%d\n",id);
 	thdLock->Acquire ();
 	Node* node = thdList->searchNode(id);
 	printf("hi from thread join thd id:%d\n",id);

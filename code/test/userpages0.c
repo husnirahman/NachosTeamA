@@ -12,12 +12,13 @@ void putst(char *s)
 void f(void *s)
 {
 	int i; for (i = 0; i < N; i++) putst((char *)s);
+	PutChar ('\n');
 	UserThreadExit();
 }
 
 int main()
-{	//int i;
-	int id =UserThreadCreate(f, (void *) THIS);
+{	
+	int id = UserThreadCreate(f, (void *) THIS);
 	f((void*) THAT);
 	
 	UserThreadJoin(id);

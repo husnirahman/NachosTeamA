@@ -29,6 +29,7 @@ SynchDisk *synchDisk;
 
 #ifdef USER_PROGRAM		// requires either FILESYS or FILESYS_STUB
 Machine *machine;		// user program memory and registers
+//Console *cons;
 #ifdef CHANGED
 SynchConsole *sc; 
 LinkedList *thdList;
@@ -87,9 +88,6 @@ Initialize (int argc, char **argv)
     int argCount;
     const char *debugArgs = "";
     bool randomYield = FALSE;
-#ifdef CHANGED
-    bool console_detect = FALSE;
-#endif
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
@@ -131,12 +129,6 @@ Initialize (int argc, char **argv)
 	  if (!strcmp (*argv, "-f"))
 	      format = TRUE;
 #endif
-/*--------------------sc = new SynchConsole(NULL,NULL);-------------------------------*/
-#ifdef CHANGED
-        if (!strcmp (*argv, "-c"))
-            console_detect = TRUE;
-#endif
-/*---------------------------------------------------*/
 #ifdef NETWORK
 	  if (!strcmp (*argv, "-l"))
 	    {
@@ -188,17 +180,24 @@ Initialize (int argc, char **argv)
     postOffice = new PostOffice (netname, rely, 10);
 #endif
     
-/*---------------------------------------------------*/
 #ifdef CHANGED
-        if (console_detect == FALSE)
-            sc = new SynchConsole(NULL,NULL);
-
-        // LinkedList init
         thdList = new LinkedList();
-#endif
-/*---------------------------------------------------*/
+#endif // CHANGED
 
 }
+
+#ifdef CHANGED
+//----------------------------------------------------------------------
+// InitConsole
+//      Initialize the console
+//----------------------------------------------------------------------
+void
+InitConsole(char *readFile, char *writeFile) 
+{	
+	sc = new SynchConsole(readFile,writeFile);
+}
+#endif // CHANGED
+
 
 //----------------------------------------------------------------------
 // Cleanup

@@ -26,6 +26,8 @@ extern void Initialize (int argc, char **argv);	// Initialization,
 						// called before anything else
 extern void Cleanup ();		// Cleanup, called when
 						// Nachos is done.
+extern void InitConsole(char *readFile, char *writeFile); // InitConsole, 
+						// called to initialize the input/output 
 
 extern Thread *currentThread;	// the thread holding the CPU
 extern Thread *threadToBeDestroyed;	// the thread that just finished
@@ -39,10 +41,10 @@ extern Timer *timer;		// the hardware alarm clock
 extern Machine *machine;	// user program memory and registers
 
 #ifdef CHANGED
+#include "console.h"
+//extern Console *cons; 
 #include "synchconsole.h"
 extern SynchConsole *sc; 
-#include "console.h"
-extern Console *cons; 
 #include "linkedlist.h" 
 extern LinkedList *thdList;
 #include "userthread.h"
