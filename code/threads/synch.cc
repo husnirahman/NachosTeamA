@@ -196,12 +196,15 @@ Condition::~Condition ()
 //----------------------------------------------------------------------
 void
 Condition::Wait (Lock * conditionLock)
-{	
-    currentThread->Sleep();
+{			
+		IntStatus oldLevel = interrupt->SetLevel (IntOff); // Disable interrupts
+		
+		queue->Append ((void *) currentThread);
     conditionLock->Release();
-	queue->Append ((void *) currentThread);
-    currentThread->Yield();
+    currentThread->Sleep();
     conditionLock->Acquire();
+    
+		(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
     //ASSERT (FALSE);
 }
 
@@ -214,10 +217,14 @@ void
 Condition::Signal (Lock * conditionLock)
 {
 	Thread* thread;
+	
+		IntStatus oldLevel = interrupt->SetLevel (IntOff); // Disable interrupts
 
     thread = (Thread *) queue->Remove ();
     if (thread != NULL)		// make thread ready, consuming the V immediately
 	scheduler->ReadyToRun (thread);
+	
+		(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 
 //----------------------------------------------------------------------
@@ -229,11 +236,14 @@ void
 Condition::Broadcast (Lock * conditionLock)
 {
 	Thread* thread;
+	
+		IntStatus oldLevel = interrupt->SetLevel (IntOff); // Disable interrupts
 	thread = (Thread *) queue->Remove ();
-
 	while(!queue->IsEmpty()) {
 		thread = (Thread *) queue->Remove ();
 	    if (thread != NULL)		// make thread ready, consuming the V immediately
-		scheduler->ReadyToRun (thread);
+		scheduler->ReadyToRun (thread);		
 	}
+	
+	(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
