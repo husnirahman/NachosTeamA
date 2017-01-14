@@ -109,9 +109,9 @@ Semaphore::V ()
 
 Lock::Lock (const char *debugName)
 {
-		name = debugName;		
-		sem = new Semaphore("lock", 1);
-                holder = NULL;
+	name = debugName;		
+	sem = new Semaphore("lock", 1);
+        holder = NULL;
 }
 
 //----------------------------------------------------------------------
@@ -122,7 +122,7 @@ Lock::Lock (const char *debugName)
 
 Lock::~Lock ()
 {
-		delete sem;
+	delete sem;
 }
 
 //----------------------------------------------------------------------
@@ -132,8 +132,8 @@ Lock::~Lock ()
 void
 Lock::Acquire ()
 {		
- 		sem->P();
-		holder = currentThread;
+ 	sem->P();
+	holder = currentThread;
 
 }
 
@@ -210,7 +210,7 @@ void
 Condition::Signal (Lock * conditionLock)
 {	ASSERT(conditionLock->isHeldByCurrentThread());
         Semaphore *wait;
-    if (!queue->IsEmpty()){
+	if (!queue->IsEmpty()){
         wait = (Semaphore *) queue->Remove();
         wait->V();
     }
