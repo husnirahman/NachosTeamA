@@ -3,8 +3,9 @@
 
 int main()
 {
-    char s[5] ;
-    Gets(s, 5);
+    char s[20] ;
+    Gets(s, 20);
     Puts(s);
+    PutChar('\n');
     Halt();
 }
