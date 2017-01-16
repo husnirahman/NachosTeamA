@@ -16,8 +16,10 @@ struct Func_args{
 
 static void StartUserThread(int f){ 
 	
+	    	printf("WTF : %s\n",currentThread->getName());		
 	thdLock->Acquire ();
 	
+	    	printf("OH : %s\n",currentThread->getName());		
 	    Func_args *fa = (Func_args*)f;
 	    machine->WriteRegister (PCReg, fa->fun);
 	    machine->WriteRegister (NextPCReg, fa->fun + 4);
@@ -61,6 +63,7 @@ void do_UserThreadExit() {
 	char* s = (char*)currentThread->getName();
 	std::string str(s);
 	
+	printf("Exit from %s\n",s);
 	if(str.compare("main")) {	
 		thdLock->Acquire ();
 		
@@ -70,18 +73,29 @@ void do_UserThreadExit() {
 		thdLock->Release();
 		
 		currentThread->Finish();
-    }
+  } 
 }
 
 void do_UserThreadJoin(int id) {
 	BitMap* bitmap = currentThread->space->stackBitMap;
-	//printf("hi from thread join thd id:%d\n",id);
+	printf("hi from thread join thd id:%d\n",id);
+	char* s = (char*)currentThread->getName();
+	printf("Join from %s\n",s);
+	
 	thdLock->Acquire ();
+	
+	printf("OH LALA:%d\n",id);
 	if(!bitmap->Test(id)) {
 		fprintf(stderr, "The thread to be joined doesn't exist.\n");		
 	} else {
 		while(bitmap->Test(id)) {
-			joinCond->Wait(thdLock);
+		
+	thdLock->Release();
+	
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);
+			currentThread->Sleep();	
+    (void) interrupt->SetLevel (oldLevel);		
+	thdLock->Acquire();
 		}
 	}
 	thdLock->Release();
