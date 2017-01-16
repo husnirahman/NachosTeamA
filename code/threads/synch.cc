@@ -111,7 +111,7 @@ Lock::Lock (const char *debugName)
 {
 	name = debugName;		
 	sem = new Semaphore("lock", 1);
-        holder = NULL;
+    holder = NULL;
 }
 
 //----------------------------------------------------------------------
@@ -123,6 +123,7 @@ Lock::Lock (const char *debugName)
 Lock::~Lock ()
 {
 	delete sem;
+	delete holder;
 }
 
 //----------------------------------------------------------------------
@@ -179,7 +180,6 @@ Condition::Condition (const char *debugName)
 //----------------------------------------------------------------------
 Condition::~Condition ()
 {
-	delete name;
 	delete queue;
 }
 

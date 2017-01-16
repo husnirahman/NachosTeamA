@@ -236,7 +236,7 @@ static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, in
     }
     machine->pageTable = storePageTable;//
     machine->pageTableSize = storeNumPages;//
-    //currentThread->space->RestoreState();
+    currentThread->space->RestoreState();
 }
 
 #endif //CHANGED
