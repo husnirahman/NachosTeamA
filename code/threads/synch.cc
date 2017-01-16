@@ -238,7 +238,6 @@ Condition::Broadcast (Lock * conditionLock)
 	Thread* thread;
 	
 		IntStatus oldLevel = interrupt->SetLevel (IntOff); // Disable interrupts
-	thread = (Thread *) queue->Remove ();
 	while(!queue->IsEmpty()) {
 		thread = (Thread *) queue->Remove ();
 	    if (thread != NULL)		// make thread ready, consuming the V immediately

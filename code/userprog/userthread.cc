@@ -15,22 +15,25 @@ struct Func_args{
 };
 
 static void StartUserThread(int f){ 
+	
 	thdLock->Acquire ();
-		printf("\nhi from User StartUserThread create \n");
+	
 	    Func_args *fa = (Func_args*)f;
 	    machine->WriteRegister (PCReg, fa->fun);
 	    machine->WriteRegister (NextPCReg, fa->fun + 4);
 	    
 	    machine->WriteRegister (StackReg, (machine->pageTableSize - 4*(currentThread->getID())) * PageSize - 16);
 	    machine->WriteRegister(4, fa->args);
-	    currentThread->space->RestoreState();
-		//printf("hi from User StartUserThread create 2\n");
+	    
     thdLock->Release();
     machine->Run();
 }
 
 int do_UserThreadCreate(int f, int args) {
-	if(thdList->getCount() < MAX_THREAD) {
+	
+	BitMap* bitmap = currentThread->space->stackBitMap;
+	
+	if(bitmap->NumClear() > 0) {
 
 		thdLock->Acquire ();
 
@@ -38,21 +41,15 @@ int do_UserThreadCreate(int f, int args) {
 		    fa->fun = f;
 		    fa->args = args;    
 	    
-	    	int thdID = currentThread->space->stackBitMap->Find();
-	    	printf("hi from User thread create thd id : %d\n",thdID);		
+	    	int thdID = bitmap->Find();
+	    	//printf("hi from User thread create thd id : %d\n",thdID);		
 	    	
-		    Thread *newThread = new Thread("new");		    
-	    	newThread->setID(thdID);
-		    Node* newNode = new Node(thdID);
-		    newNode->setNext(NULL);
-		    newNode->setStatus(LIVE);		
-		    thdList->addNode(newNode);   
-		    
-			//printf("hi from User thread create 2 \n");
-		thdLock->Release();
-		newThread->Fork(StartUserThread, (int)fa);
-		//printf("hi from User thread create 3 \n");
+		  Thread *newThread = new Thread("new");		    
+	    newThread->setID(thdID);
+			thdLock->Release();
+			newThread->Fork(StartUserThread, (int)fa);
 	    return thdID;
+	    
 	} else {
 		fprintf(stderr, "Maximum thread count reached. Can't create new thread.\n");
 		return -1;
@@ -60,41 +57,32 @@ int do_UserThreadCreate(int f, int args) {
 }
 
 void do_UserThreadExit() {
+
 	char* s = (char*)currentThread->getName();
 	std::string str(s);
-	printf("thread on exit = %s\n", s);
-	if(str.compare("main")) {
 	
-	printf("thread on exit enter = %s\n", s);
+	if(str.compare("main")) {	
 		thdLock->Acquire ();
-			
-			printf("hi from thread exit\n");
-			int id = currentThread->getID();
-			Node* node = thdList->searchNode(id);
-			node->setStatus(DEAD);
-
+		
+		currentThread->space->stackBitMap->Clear(currentThread->getID());
+		joinCond->Signal(thdLock);
+		
 		thdLock->Release();
+		
 		currentThread->Finish();
-		currentThread->space->stackBitMap->Clear(id);
     }
-
-	thdLock->Release();
-    currentThread->Finish();    
 }
 
 void do_UserThreadJoin(int id) {
-	
-	printf("hi from thread join thd id:%d\n",id);
+	BitMap* bitmap = currentThread->space->stackBitMap;
+	//printf("hi from thread join thd id:%d\n",id);
 	thdLock->Acquire ();
-	Node* node = thdList->searchNode(id);
-	printf("hi from thread join thd id:%d\n",id);
-	if(node == NULL) {
+	if(!bitmap->Test(id)) {
 		fprintf(stderr, "The thread to be joined doesn't exist.\n");		
 	} else {
-		while(node->getStatus() == LIVE) {
+		while(bitmap->Test(id)) {
 			joinCond->Wait(thdLock);
 		}
-		thdList->removeNode(node);
 	}
 	thdLock->Release();
 }

@@ -45,8 +45,8 @@ extern Machine *machine;	// user program memory and registers
 //extern Console *cons; 
 #include "synchconsole.h"
 extern SynchConsole *sc; 
-#include "linkedlist.h" 
-extern LinkedList *thdList;
+//#include "linkedlist.h" 
+//extern LinkedList *thdList;
 #include "userthread.h"
 #endif
 

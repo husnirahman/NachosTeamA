@@ -61,6 +61,7 @@ void SynchConsole::InterPutChar(const char ch)
 //----------------------------------------------------------------------
 void SynchConsole::SynchPutChar(const char ch)
 {   
+		//fprintf(stderr,"\nfrom the other side%c\n",ch);
     lockWrite->Acquire();
     InterPutChar(ch);
     lockWrite->Release();

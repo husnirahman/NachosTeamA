@@ -32,7 +32,7 @@ Machine *machine;		// user program memory and registers
 //Console *cons;
 #ifdef CHANGED
 SynchConsole *sc; 
-LinkedList *thdList;
+//LinkedList *thdList;
 #endif
 #endif
 
@@ -181,7 +181,7 @@ Initialize (int argc, char **argv)
 #endif
     
 #ifdef CHANGED
-        thdList = new LinkedList();
+        //thdList = new LinkedList();
 #endif // CHANGED
 
 }
@@ -215,7 +215,7 @@ Cleanup ()
     delete machine;
 #ifdef CHANGED
     delete sc;
-    delete thdList;
+    //delete thdList;
 #endif //CHANGED
 #endif
 
