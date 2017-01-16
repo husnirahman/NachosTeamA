@@ -25,10 +25,14 @@
 #include "system.h"
 #include "syscall.h"
 #include "synch.h"
+
 #ifdef CHANGED
+#include "sysdep.h"
 #include "userthread.h"
+#include "userprocess.h"
 extern void StartProcess (char *filename);
 static Lock *ProcessLock = new Lock("Process Lock");
+extern void Exit(int status);
 #endif
 
 //----------------------------------------------------------------------
@@ -159,11 +163,28 @@ ExceptionHandler (ExceptionType which)
             	ProcessLock->Acquire();
             	char *buffer = new char [MAX_STRING_SIZE];
                 int file = machine->ReadRegister (4);
-                copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+               	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
             	printf("hi from ForkE %s\n", buffer);
-            	ProcessLock->Release();
-            	StartProcess(buffer);
+            	int n = do_userprocess_create(buffer);
+            	printf("Process id = %d\n", n);
+				ProcessLock->Release();
+				//machine->Run ();
+            	
+            	//StartProcess(buffer);
             	delete buffer;
+            	break;
+            }
+            case SC_Exit: {
+            	int status = machine->ReadRegister(4);
+            	if (status == 0){
+            		printf("hi from process exit\n");
+            	}
+            	else{
+            		fprintf(stderr, "Process cannot be exited\n");
+            	}
+            	printf("Current thread name = %s\n", currentThread->getName());
+            	AddrSpace *space = currentThread->space;
+            	delete space;
             	break;
             }
             default: {
