@@ -121,7 +121,6 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_PutInt: {
-                //printf("hi from putint\n");
                 int integer = machine->ReadRegister(4);
                 sc->SynchPutInt(integer);
                 break;

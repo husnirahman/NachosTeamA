@@ -6,6 +6,7 @@ int main()
     int n;
     GetInt(&n);
     PutInt(n);
+    PutChar('\n');
     Halt();
     
 }

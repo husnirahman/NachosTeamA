@@ -119,7 +119,7 @@ void SynchConsole::SynchGetString(char *s, int n)
 		lockRead->Acquire();  
     for(int i =0; i<n; i++){
         s[i]=InterGetChar();
-         if(s[i]== '\0')
+         if(s[i]== '\n')
             break;        
     }    
     lockRead->Release();
@@ -130,8 +130,8 @@ void SynchConsole::SynchGetString(char *s, int n)
 //      Writes an integer to the console output
 //----------------------------------------------------------------------
 void SynchConsole::SynchPutInt(int n){
-	char *buffer = new char[MAX_STRING_SIZE];
-    snprintf(buffer, MAX_STRING_SIZE + 1, "%d", n);
+	char *buffer = new char[10]; //integer can have at maximum 10 bits 
+    snprintf(buffer, 11, "%d", n);
     SynchPutString(buffer);
     delete buffer;
 }
@@ -141,10 +141,9 @@ void SynchConsole::SynchPutInt(int n){
 //      Reads an integer from the console input
 //----------------------------------------------------------------------
 void SynchConsole::SynchGetInt(int *n){
-    char *buffer = new char[MAX_STRING_SIZE];
-    SynchGetString(buffer, MAX_STRING_SIZE);
-    //printf("Check = %s\n",buffer);
-    sscanf(buffer, "%d", n);
+    char *buffer = new char[10];//integer can have at maximum 10 bits
+    SynchGetString(buffer, 10);
+    sscanf(buffer,"%d", n);
     delete buffer;
 }
 #endif // CHANGED

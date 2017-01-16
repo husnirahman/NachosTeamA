@@ -17,7 +17,7 @@
 #include "timer.h"
 
 #ifdef CHANGED
-#define MAX_STRING_SIZE 100  //buffer size of string for SynchConsole
+#define MAX_STRING_SIZE 15  //buffer size of string for SynchConsole
 #define MAX_THREAD 5	// Maximum number of thread active at the same time 
 #endif //CHANGED
 

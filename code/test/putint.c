@@ -3,7 +3,8 @@
 
 int main()
 {
-    PutInt(12);
+    PutInt(2147483647);
+    PutChar('\n');
     Halt();
     return 0;
 }
