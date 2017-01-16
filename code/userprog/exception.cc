@@ -79,7 +79,7 @@ ExceptionHandler (ExceptionType which)
         DEBUG('a', "Shutdown, initiated by user program.\n");
         interrupt->Halt();
     } else {
-        printf("Unexpected user mode exceptioCHANGEDn %d %d\n", which, type);
+        printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);
     }
     #else // CHANGED
@@ -135,21 +135,22 @@ ExceptionHandler (ExceptionType which)
             case SC_ThdCreate: { 
                 int f = machine->ReadRegister(4);
                 int args = machine->ReadRegister(5); 
-                int n = do_UserThreadCreate(f, args);
+                int n = do_UserThreadCreate(f, args);                   	
+            		printf("Create Exception, output:%d\n",n);
                 machine->WriteRegister(2, n);
                 //printf("hi %d\n",n);
                 if(n == -1 )
                     printf("Error");
             	break;
             }
-            case SC_ThdExit: {
+            case SC_ThdExit: {            	    	
+            		printf("Exit Exception\n");	
                 do_UserThreadExit();
-            	break;
+            		break;
             }
             case SC_ThdJoin: {
-            	//printf("hi from exception Join\n");
-            	int id = machine->ReadRegister(4);
-            	
+            		int id = machine->ReadRegister(4);            	
+            		printf("Join Exception, input:%d\n",id);
                 do_UserThreadJoin(id);
                 break;
             }

@@ -206,6 +206,7 @@ Thread::Yield ()
     nextThread = scheduler->FindNextToRun ();
     if (nextThread != NULL)
       {
+      printf("Ready!%s\n",nextThread->getName());
 	  scheduler->ReadyToRun (this);
 	  scheduler->Run (nextThread);
       }
