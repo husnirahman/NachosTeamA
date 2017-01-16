@@ -17,20 +17,21 @@ void f(void *s)
 
 int main()
 {	
-	int n = 2;
-	int id[n];
+	//int n = 2;
+	int id;
+	//int i;
+        
+	//for(i = 0 ; i <n ; i ++)
+		id = UserThreadCreate(f, (void *) THIS);
 	
-	for(int i = 0 ; i <n ; i ++)
-		id[i] = UserThreadCreate(f, (void *) THIS);
+	/*f((void*) THAT);
 	
-	f((void*) THAT);
-	
-	for(int i = 0 ; i <n ; i ++)
+	for(i = 0 ; i <n ; i ++)
 		UserThreadJoin(id[i]);
 	
-	int id3 = UserThreadCreate(f, (void *) THIS);
-	UserThreadJoin(id3);
-	PutInt(id3);
+	int id3 = UserThreadCreate(f, (void *) THIS);*/
+	UserThreadJoin(id);
+	//PutInt(id3);
 	
 	Halt();
 	return 0;

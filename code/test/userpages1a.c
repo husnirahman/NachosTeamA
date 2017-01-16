@@ -19,13 +19,14 @@ int main()
 {	
 	int n = 2;
 	int id[n];
-	
-	for(int i = 0 ; i <n ; i ++)
+	int i;
+        
+	for(i = 0 ; i <n ; i ++)
 		id[i] = UserThreadCreate(f, (void *) THIS);
 	
 	//f((void*) THAT);
 	
-	for(int i = 0 ; i <n ; i ++)
+	for(i = 0 ; i <n ; i ++)
 		UserThreadJoin(id[i]);
 	
 	Puts("hi a\n");

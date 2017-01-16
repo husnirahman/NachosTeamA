@@ -98,8 +98,9 @@ ExceptionHandler (ExceptionType which)
             break;
             }
             case SC_PutChar: {
-                //printf("hi from putchar\n");
+                printf("hi from putchar\n");
                 int c = machine->ReadRegister (4);
+                printf("putchar from exception = %c\n", c);
                 sc->SynchPutChar ((char)c);
                 break;
             }
@@ -115,6 +116,7 @@ ExceptionHandler (ExceptionType which)
                 char c = sc->SynchGetChar();
                 if (c == EOF)
                     c = ' ';
+                printf("getchar from exception = %c\n", c);
                 machine->WriteRegister (2, (int)c);
                 break;
             }
@@ -161,7 +163,7 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_ForkE: {
-            	ProcessLock->Acquire();
+            	//ProcessLock->Acquire();
             	char *buffer = new char [MAX_STRING_SIZE];
                 int file = machine->ReadRegister (4);
                	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
@@ -169,7 +171,7 @@ ExceptionHandler (ExceptionType which)
             	int n = do_userprocess_create(buffer);
             	printf("Process id = %d\n", n);
             	proc_counter++;
-				ProcessLock->Release();
+				//ProcessLock->Release();
             	//delete buffer;
             	break;
             }
@@ -204,6 +206,7 @@ ExceptionHandler (ExceptionType which)
     #endif // CHANGED
     
     // LB: Do not forget to increment the pc before returning!
+    printf("hi from exc %d %d %d \n", which, type, machine->ReadRegister(31));    
     UpdatePC();
     // End of addition
 }

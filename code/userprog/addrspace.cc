@@ -207,6 +207,11 @@ AddrSpace::InitRegisters ()
 void
 AddrSpace::SaveState ()
 {
+#ifdef CHANGED
+   // printf("saving adresse space\n");
+    pageTable = machine->pageTable;
+    numPages = machine->pageTableSize;
+#endif //CHANGED
 }
 
 //----------------------------------------------------------------------

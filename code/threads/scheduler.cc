@@ -109,10 +109,10 @@ Scheduler::Run (Thread * nextThread)
 
     currentThread = nextThread;	// switch to the next thread
     currentThread->setStatus (RUNNING);	// nextThread is now running
-
-    DEBUG ('t', "Switching from thread \"%s\" to thread \"%s\"\n",
-	   oldThread->getName (), nextThread->getName ());
-
+#ifdef CHANGED
+    DEBUG ('t', "Switching from thread \"%s\" to thread \"%s\" PC = %d  Space = %p\n",
+	   oldThread->getName (), nextThread->getName (), machine->ReadRegister(PCReg), oldThread->space);
+#endif//CHANGED
     // This is a machine-dependent assembly language routine defined 
     // in switch.s.  You may have to think
     // a bit to figure out what happens after this, both from the point
@@ -139,7 +139,11 @@ Scheduler::Run (Thread * nextThread)
 	  currentThread->space->RestoreState ();
       }
 #endif
+    #ifdef CHANGED
+    DEBUG ('t', "After switching  PC = %d space = %p\n", machine->ReadRegister(PCReg), currentThread->space);
+#endif//CHANGED
 }
+
 
 //----------------------------------------------------------------------
 // Scheduler::Print

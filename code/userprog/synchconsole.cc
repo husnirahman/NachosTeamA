@@ -74,6 +74,7 @@ void SynchConsole::SynchPutChar(const char ch)
 char SynchConsole::InterGetChar()
 {
     readAvail->P ();
+    printf("synch console getchar check \n");
     char c = console->GetChar();
     return c;
 }
