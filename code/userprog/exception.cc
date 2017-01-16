@@ -33,6 +33,7 @@
 extern void StartProcess (char *filename);
 static Lock *ProcessLock = new Lock("Process Lock");
 extern void Exit(int status);
+int proc_counter = 0;
 #endif
 
 //----------------------------------------------------------------------
@@ -167,14 +168,13 @@ ExceptionHandler (ExceptionType which)
             	printf("hi from ForkE %s\n", buffer);
             	int n = do_userprocess_create(buffer);
             	printf("Process id = %d\n", n);
+            	proc_counter++;
 				ProcessLock->Release();
-				//machine->Run ();
-            	
-            	//StartProcess(buffer);
-            	delete buffer;
+            	//delete buffer;
             	break;
             }
             case SC_Exit: {
+            	ProcessLock->Acquire();
             	int status = machine->ReadRegister(4);
             	if (status == 0){
             		printf("hi from process exit\n");
@@ -182,9 +182,17 @@ ExceptionHandler (ExceptionType which)
             	else{
             		fprintf(stderr, "Process cannot be exited\n");
             	}
+            	
             	printf("Current thread name = %s\n", currentThread->getName());
-            	AddrSpace *space = currentThread->space;
-            	delete space;
+            	if(proc_counter > 0){
+            		proc_counter--;
+            		printf("SEFFTR\n");
+            		currentThread->Finish();
+            	}
+            	else{
+            		interrupt->Halt();
+            	}
+        		ProcessLock->Release();
             	break;
             }
             default: {

@@ -10,8 +10,8 @@ static Lock *lockAddrSpace = new Lock("Sem AddrSpace");
 
 int id_buffer[MAX_THREADS];
 int id_status[MAX_THREADS];
+std::string array[MAX_THREADS] = {"1001", "1002", "1003", "1004", "1005"};
 const int Thread_id = 1000;
-//int counter = 0;
 
 struct Func_args{
     int fun;
@@ -52,15 +52,15 @@ int do_UserThreadCreate(int f, int args) {
 		fa->args = args;
 		//Thread_id++;
 		int stackID = currentThread->space->stackBitMap->Find()+1;
-		int num = Thread_id + stackID;
-		char* name= new char[4];
+		//int num = Thread_id + stackID;
+		//char* name= new char[4];
 		
-		for(int i = 3; i>=0; i--, num/=10){
+		/*for(int i = 3; i>=0; i--, num/=10){
 			name[i] = num%10 + '0';
 			//printf("Characters = %c", num%10 + '0');
-		}
+		}*/
 		
-		Thread *newThread = new Thread(name);
+		Thread *newThread = new Thread(array[stackID -1].c_str());
 		//printf("Thread create Thread[%d] = %s %s\n", Thread_id, name, newThread->getName() );
 		//delete name;
 	
@@ -86,10 +86,9 @@ void do_UserThreadExit() {
    // counter--;
 	char*name = (char*)currentThread->getName();
 	std::string str(name);
-	if(str.compare("main")){
-	
-	
-		//printf("Hi from UserThreadExit = %s\n",currentThread->getName());
+	if(str.compare("main") && (name[0]-'0') != 2){
+		
+		printf("Hi from UserThreadExit = %s\n",currentThread->getName());
 		int num = 1000;
 		int check_id = 0;
 	
@@ -110,8 +109,6 @@ void do_UserThreadExit() {
 	}
 	
 	lockAddrSpace->Release();
-    //currentThread->Finish();
-    
 }
 
 void do_UserThreadJoin(int id) {
@@ -122,7 +119,7 @@ void do_UserThreadJoin(int id) {
 	for(int i = 0; i < MAX_THREADS  ; i++){
 		if(id_buffer[i] == id){
 			while (id_status[i] != -1){
-				//printf("Thread[id] = %d is still on exited\n", id_buffer[i]);
+				//printf("Thread[id] = %d is still not exited\n", id_buffer[i]);
 				lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
 				currentThread->Yield();
 				lockAddrSpace->Acquire ();
@@ -130,6 +127,7 @@ void do_UserThreadJoin(int id) {
 			}
 		}
 	}
+	
 	lockAddrSpace->Release();
 }
 
