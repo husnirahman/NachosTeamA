@@ -17,7 +17,7 @@
 #include "filesys.h"
 #include "bitmap.h"
 
-#define UserStackSize		8*1024	// increase this as necessary!
+#define UserStackSize		1*1024	// increase this as necessary!
 
 class AddrSpace
 {

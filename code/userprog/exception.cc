@@ -31,7 +31,7 @@
 #include "userthread.h"
 #include "userprocess.h"
 extern void StartProcess (char *filename);
-static Lock *ProcessLock = new Lock("Process Lock");
+//static Lock *ProcessLock = new Lock("Process Lock");
 extern void Exit(int status);
 int proc_counter = 0;
 #endif
@@ -86,7 +86,7 @@ ExceptionHandler (ExceptionType which)
         DEBUG('a', "Shutdown, initiated by user program.\n");
         interrupt->Halt();
     } else {
-        printf("Unexpected user mode exceptioCHANGEDn %d %d\n", which, type);
+        printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);
     }
     #else // CHANGED
@@ -98,9 +98,9 @@ ExceptionHandler (ExceptionType which)
             break;
             }
             case SC_PutChar: {
-                printf("hi from putchar\n");
+                //printf("hi from putchar\n");
                 int c = machine->ReadRegister (4);
-                printf("putchar from exception = %c\n", c);
+                //printf("putchar from exception from thread = %c %s\n", c, currentThread->getName());
                 sc->SynchPutChar ((char)c);
                 break;
             }
@@ -116,7 +116,7 @@ ExceptionHandler (ExceptionType which)
                 char c = sc->SynchGetChar();
                 if (c == EOF)
                     c = ' ';
-                printf("getchar from exception = %c\n", c);
+                //printf("getchar from exception from string  = %c %s\n", c, currentThread->getName());
                 machine->WriteRegister (2, (int)c);
                 break;
             }
@@ -147,7 +147,6 @@ ExceptionHandler (ExceptionType which)
                 int args = machine->ReadRegister(5); 
                 int n = do_UserThreadCreate(f, args);
                 machine->WriteRegister(2, n);
-                //printf("hi %d\n",n);
                 ASSERT(n != -1);
             	break;
             }
@@ -156,14 +155,11 @@ ExceptionHandler (ExceptionType which)
             	break;
             }
             case SC_ThdJoin: {
-            	//printf("hi from exception\n");
             	int id = machine->ReadRegister(4);
-            	
-                do_UserThreadJoin(id);
+            	do_UserThreadJoin(id);
                 break;
             }
             case SC_ForkE: {
-            	//ProcessLock->Acquire();
             	char *buffer = new char [MAX_STRING_SIZE];
                 int file = machine->ReadRegister (4);
                	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
@@ -171,12 +167,9 @@ ExceptionHandler (ExceptionType which)
             	int n = do_userprocess_create(buffer);
             	printf("Process id = %d\n", n);
             	proc_counter++;
-				//ProcessLock->Release();
-            	//delete buffer;
-            	break;
+                break;
             }
             case SC_Exit: {
-            	ProcessLock->Acquire();
             	int status = machine->ReadRegister(4);
             	if (status == 0){
             		printf("hi from process exit\n");
@@ -189,13 +182,13 @@ ExceptionHandler (ExceptionType which)
             	if(proc_counter > 0){
             		proc_counter--;
             		printf("SEFFTR\n");
+                    //delete currentThread->space;
             		currentThread->Finish();
             	}
             	else{
             		interrupt->Halt();
             	}
-        		ProcessLock->Release();
-            	break;
+                break;
             }
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);
@@ -206,7 +199,7 @@ ExceptionHandler (ExceptionType which)
     #endif // CHANGED
     
     // LB: Do not forget to increment the pc before returning!
-    printf("hi from exc %d %d %d \n", which, type, machine->ReadRegister(31));    
+    //printf("hi from exc %d %d %d \n", which, type, machine->ReadRegister(31));    
     UpdatePC();
     // End of addition
 }

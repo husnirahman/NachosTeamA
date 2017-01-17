@@ -114,7 +114,7 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
 }
-
+/*
 #ifdef CHANGED
 void
 Thread::ForkExec (VoidFunctionPtr func, int arg)
@@ -132,6 +132,7 @@ Thread::ForkExec (VoidFunctionPtr func, int arg)
 }
     
 #endif //CHANGED
+*/
 
 //----------------------------------------------------------------------
 // Thread::CheckOverflow

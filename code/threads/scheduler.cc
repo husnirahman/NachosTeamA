@@ -21,7 +21,10 @@
 #include "copyright.h"
 #include "scheduler.h"
 #include "system.h"
-
+#ifdef CHANGED
+#include "addrspace.h"
+#include "machine.h"
+#endif //CHANGED
 //----------------------------------------------------------------------
 // Scheduler::Scheduler
 //      Initialize the list of ready but not running threads to empty.
@@ -112,6 +115,7 @@ Scheduler::Run (Thread * nextThread)
 #ifdef CHANGED
     DEBUG ('t', "Switching from thread \"%s\" to thread \"%s\" PC = %d  Space = %p\n",
 	   oldThread->getName (), nextThread->getName (), machine->ReadRegister(PCReg), oldThread->space);
+    
 #endif//CHANGED
     // This is a machine-dependent assembly language routine defined 
     // in switch.s.  You may have to think
@@ -121,7 +125,7 @@ Scheduler::Run (Thread * nextThread)
     SWITCH (oldThread, nextThread);
 
     DEBUG ('t', "Now in thread \"%s\"\n", currentThread->getName ());
-
+    
     // If the old thread gave up the processor because it was finishing,
     // we need to delete its carcass.  Note we cannot delete the thread
     // before now (for example, in Thread::Finish()), because up to this

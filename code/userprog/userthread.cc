@@ -19,7 +19,6 @@ struct Func_args{
 };
 
 static void StartUserThread(int f){ 
-	lockAddrSpace->Acquire ();
 	//printf("Hi from Startuserthread = %s\n",currentThread->getName());
     Func_args *fa = (Func_args*)f;
     machine->WriteRegister (PCReg, fa->fun);
@@ -38,12 +37,10 @@ static void StartUserThread(int f){
     //printf("Page table size = %d\n", machine->pageTableSize);
     machine->WriteRegister(4, fa->args);
     currentThread->space->RestoreState();
-    lockAddrSpace->Release();
     machine->Run();
 }
 
 int do_UserThreadCreate(int f, int args) {
-	lockAddrSpace->Acquire ();
 	int ret;
 	//printf("Numer of clear bits in bit map = %d\n",currentThread->space->stackBitMap->NumClear());
 	if(currentThread->space->stackBitMap->NumClear() > 0 ){
@@ -63,18 +60,20 @@ int do_UserThreadCreate(int f, int args) {
 		Thread *newThread = new Thread(array[stackID -1].c_str());
 		//printf("Thread create Thread[%d] = %s %s\n", Thread_id, name, newThread->getName() );
 		//delete name;
+	    lockAddrSpace->Acquire ();
 	
 		id_buffer[stackID-1] = Thread_id + stackID;    
 		id_status[stackID-1] = 0;
+        lockAddrSpace->Release();
+	
 		//counter++;
 		//stack_counter++;
 		ret = Thread_id +stackID;
-		lockAddrSpace->Release();
+		
 		newThread->Fork(StartUserThread, (int)fa);
-	}
+        }
 	else{
 		fprintf(stderr, "Max thread count of %d reached. Can't create new thread \n", (int)MAX_THREADS);
-		lockAddrSpace->Release();
 		ret= -1;
 	}
 	
@@ -82,8 +81,7 @@ int do_UserThreadCreate(int f, int args) {
 }
 
 void do_UserThreadExit() {
-	lockAddrSpace->Acquire ();
-   // counter--;
+	// counter--;
 	char*name = (char*)currentThread->getName();
 	std::string str(name);
 	if(str.compare("main") && (name[0]-'0') != 2){
@@ -97,18 +95,17 @@ void do_UserThreadExit() {
 			//printf("%d ", num*(name[i] - '0'));
 		}
 		//printf(" \nUser Thread Exit Thread[%d] = %s\n", check_id, name );
-	
+	    lockAddrSpace->Acquire ();
 		for(int i = 0 ; i < MAX_THREADS ; i++){
 			if(id_buffer[i] == check_id){
 				id_status[i] = -1;
 			}
 		}
-		currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
 		lockAddrSpace->Release();
-    	currentThread->Finish();
+		
+        currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
+		currentThread->Finish();
 	}
-	
-	lockAddrSpace->Release();
 }
 
 void do_UserThreadJoin(int id) {

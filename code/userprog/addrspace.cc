@@ -88,13 +88,20 @@ AddrSpace::AddrSpace (OpenFile * executable)
 #else
 	printf("Number of Avail frames = %d %d\n",FrameP->NumAvailFrame(), numPages);
 	ASSERT (numPages <= FrameP->NumAvailFrame());
+    
+    unsigned int lower = PageSize * (NumPhysPages - FrameP->NumAvailFrame());
+    printf("Lower limit = %d\n", lower);
+    unsigned int upper = PageSize * (NumPhysPages - FrameP->NumAvailFrame())+size;
+     printf("Upper limit = %d\n", upper);
+    for(i = lower ; i < upper ; i++)
+        machine->mainMemory[i] = 0;
 #endif //CHANGED   
     
     // to run anything too big --
     // at least until we have
     // virtual memory
 
-    DEBUG ('a', "Initializing address space, num pages %d, size %d\n",
+    DEBUG ('t', "Initializing address space, num pages %d, size %d\n",
 	   numPages, size);
 // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
@@ -114,8 +121,9 @@ AddrSpace::AddrSpace (OpenFile * executable)
 
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero (machine->mainMemory, size);
-
+    //bzero (machine->mainMemory, size);
+    
+    
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0)
       {
@@ -150,17 +158,15 @@ AddrSpace::~AddrSpace ()
   // LB: Missing [] for delete
   // delete pageTable;
  #ifdef CHANGED
+    DEBUG ('t', "Deleting Address Space num pages %d %p\n",numPages, currentThread->space);
  	unsigned int i;
   	for (i = 0; i < numPages; i++){
   		FrameP->ReleaseFrame(pageTable[i].physicalPage);
   	}
+  	delete stackBitMap;
 #endif //CHANGED	
+    
   	delete [] pageTable;
-
-#ifdef CHANGED
-  delete stackBitMap;
-#endif //CHANGED
-  // End of modification
 }
 
 //----------------------------------------------------------------------
@@ -243,7 +249,6 @@ static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, in
     }
     machine->pageTable = storePageTable;//
     machine->pageTableSize = storeNumPages;//
-    //currentThread->space->RestoreState();
 }
 
 #endif //CHANGED

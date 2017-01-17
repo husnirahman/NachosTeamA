@@ -17,7 +17,7 @@ void f(void *s)
 
 int main()
 {	
-	PutChar('A');
+	PutChar('Z');
         /*
 	//int n = 2;
 	int id;

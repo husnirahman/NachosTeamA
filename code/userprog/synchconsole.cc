@@ -74,7 +74,7 @@ void SynchConsole::SynchPutChar(const char ch)
 char SynchConsole::InterGetChar()
 {
     readAvail->P ();
-    printf("synch console getchar check \n");
+    //printf("synch console getchar check \n");
     char c = console->GetChar();
     return c;
 }
@@ -130,8 +130,8 @@ void SynchConsole::SynchGetString(char *s, int n)
 //      Writes an integer to the console output
 //----------------------------------------------------------------------
 void SynchConsole::SynchPutInt(int n){
-	char *buffer = new char[10];
-    snprintf(buffer, 11, "%d", n);
+	char *buffer = new char[MAX_STRING_SIZE];
+    snprintf(buffer, MAX_STRING_SIZE + 1, "%d", n);
     SynchPutString(buffer);
     delete buffer;
 }
@@ -141,8 +141,8 @@ void SynchConsole::SynchPutInt(int n){
 //      Reads an integer from the console input
 //----------------------------------------------------------------------
 void SynchConsole::SynchGetInt(int *n){
-    char *buffer = new char[10];
-    SynchGetString(buffer, 10);
+    char *buffer = new char[MAX_STRING_SIZE];
+    SynchGetString(buffer, MAX_STRING_SIZE);
     //printf("Check = %s\n",buffer);
     sscanf(buffer, "%d", n);
     delete buffer;
