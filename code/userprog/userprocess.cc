@@ -44,6 +44,28 @@ int do_userprocess_create(char *filename){
    return ret;
 }
 
+void do_UserProcessExit() {
+	char*name = (char*)currentThread->getName();
+	std::string str(name);
+	if(str.compare("main") || (name[0]-'0') == 2){
+		
+		//printf("Hi from UserProcessExit = %s\n",currentThread->getName());
+		int check_id = (name[3] - '0') + pThread_id;
+		//printf(" \nUser Thread Exit Thread[%d] = %s\n", check_id, name );
+        
+	    lockProcSpace->Acquire ();
+		for(int i = 0 ; i < MAX_THREADS ; i++){
+			if(pid_buffer[i] == check_id){
+				pid_status[i] = -1;
+			}
+		}
+		lockProcSpace->Release();
+		
+        currentThread->space->stackBitMap->Clear(check_id - pThread_id -1 );
+		currentThread->Finish();
+	}
+}
+
 
 #endif//CHANGED
 

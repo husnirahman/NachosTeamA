@@ -16,8 +16,12 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "bitmap.h"
+#ifdef CHANGED
+#include "string"
+#define MAX_THREADS 5	// Maximum number of thread active at the same time 
+#endif //CHANGED
 
-#define UserStackSize		1*1024	// increase this as necessary!
+#define UserStackSize		2*1024	// increase this as necessary!
 
 class AddrSpace
 {
@@ -35,13 +39,19 @@ class AddrSpace
 
 #ifdef CHANGED
     BitMap* stackBitMap;
-#endif // CHANGED
 
+    int id_buffer[MAX_THREADS];
+    int id_status[MAX_THREADS];
+    std::string array[MAX_THREADS] ;//= {"1001", "1002", "1003", "1004", "1005"};
+    
+#endif //CHANGED
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
     unsigned int numPages;	// Number of pages in the virtual 
+    
     // address space
+
 };
 
 #endif // ADDRSPACE_H

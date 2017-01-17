@@ -8,9 +8,9 @@
 
 static Lock *lockAddrSpace = new Lock("Sem AddrSpace");
 
-int id_buffer[MAX_THREADS];
-int id_status[MAX_THREADS];
-std::string array[MAX_THREADS] = {"1001", "1002", "1003", "1004", "1005"};
+//int id_buffer[MAX_THREADS];
+//int id_status[MAX_THREADS];
+//std::string array[MAX_THREADS] = {"1001", "1002", "1003", "1004", "1005"};
 const int Thread_id = 1000;
 
 struct Func_args{
@@ -57,13 +57,13 @@ int do_UserThreadCreate(int f, int args) {
 			//printf("Characters = %c", num%10 + '0');
 		}*/
 		
-		Thread *newThread = new Thread(array[stackID -1].c_str());
+		Thread *newThread = new Thread(currentThread->space->array[stackID -1].c_str());
 		//printf("Thread create Thread[%d] = %s %s\n", Thread_id, name, newThread->getName() );
 		//delete name;
 	    lockAddrSpace->Acquire ();
 	
-		id_buffer[stackID-1] = Thread_id + stackID;    
-		id_status[stackID-1] = 0;
+		currentThread->space->id_buffer[stackID-1] = Thread_id + stackID;    
+		currentThread->space->id_status[stackID-1] = 0;
         lockAddrSpace->Release();
 	
 		//counter++;
@@ -86,7 +86,7 @@ void do_UserThreadExit() {
 	std::string str(name);
 	if(str.compare("main") && (name[0]-'0') != 2){
 		
-		printf("Hi from UserThreadExit = %s\n",currentThread->getName());
+		//printf("\nHi from UserThreadExit = %s\n",currentThread->getName());
 		int num = 1000;
 		int check_id = 0;
 	
@@ -97,8 +97,8 @@ void do_UserThreadExit() {
 		//printf(" \nUser Thread Exit Thread[%d] = %s\n", check_id, name );
 	    lockAddrSpace->Acquire ();
 		for(int i = 0 ; i < MAX_THREADS ; i++){
-			if(id_buffer[i] == check_id){
-				id_status[i] = -1;
+			if(currentThread->space->id_buffer[i] == check_id){
+				currentThread->space->id_status[i] = -1;
 			}
 		}
 		lockAddrSpace->Release();
@@ -111,12 +111,12 @@ void do_UserThreadExit() {
 void do_UserThreadJoin(int id) {
 	
 	lockAddrSpace->Acquire ();
-	//printf("Hi from UserThreadJoin = %d\n",id);
+	//printf("\nHi from UserThreadJoin = %d\n",id);
 	
 	for(int i = 0; i < MAX_THREADS  ; i++){
-		if(id_buffer[i] == id){
-			while (id_status[i] != -1){
-				//printf("Thread[id] = %d is still not exited\n", id_buffer[i]);
+		if(currentThread->space->id_buffer[i] == id){
+			while (currentThread->space->id_status[i] != -1){
+				//printf("Thread[id] = %d is still not exited\n", currentThread->space->id_buffer[i]);
 				lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
 				currentThread->Yield();
 				lockAddrSpace->Acquire ();

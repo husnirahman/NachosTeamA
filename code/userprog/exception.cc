@@ -30,8 +30,9 @@
 #include "sysdep.h"
 #include "userthread.h"
 #include "userprocess.h"
+#include "string"
 extern void StartProcess (char *filename);
-//static Lock *ProcessLock = new Lock("Process Lock");
+static Lock *ProcessLock = new Lock("Process Lock");
 extern void Exit(int status);
 int proc_counter = 0;
 #endif
@@ -160,34 +161,46 @@ ExceptionHandler (ExceptionType which)
                 break;
             }
             case SC_ForkE: {
+                ProcessLock->Acquire();
+            	proc_counter++;
+                //printf("Process Counter in SC_ForkE= %d\n", proc_counter);
+                ProcessLock->Release();
             	char *buffer = new char [MAX_STRING_SIZE];
                 int file = machine->ReadRegister (4);
                	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
-            	printf("hi from ForkE %s\n", buffer);
             	int n = do_userprocess_create(buffer);
             	printf("Process id = %d\n", n);
-            	proc_counter++;
+               
                 break;
             }
             case SC_Exit: {
             	int status = machine->ReadRegister(4);
-            	if (status == 0){
-            		printf("hi from process exit\n");
-            	}
+                ProcessLock->Acquire();
+                if(status == 0){
+                    //printf("Process Counter in SC_Exit = %d %s\n", proc_counter, currentThread->getName());
+                    if(proc_counter > 0){
+                        //printf("Process Counter = %d\n", proc_counter);
+                        proc_counter--;
+                        char*name = (char*)currentThread->getName();
+                        std::string str(name);
+                        if(str.compare("main")){
+                            int check_id = (currentThread->getName()[3] - '0') + 2000;
+                            //printf("process name = %s %d\n", currentThread->getName(), check_id);
+                            currentThread->space->stackBitMap->Clear(check_id - 2000 -1 );
+                        }
+                        ProcessLock->Release();
+                        currentThread->Finish();
+                    }
+            	   else{
+                        printf("witing for HALT \n");
+                        ProcessLock->Release();
+                        interrupt->Halt();
+            	   }
+                }
             	else{
             		fprintf(stderr, "Process cannot be exited\n");
-            	}
-            	
-            	printf("Current thread name = %s\n", currentThread->getName());
-            	if(proc_counter > 0){
-            		proc_counter--;
-            		printf("SEFFTR\n");
-                    //delete currentThread->space;
-            		currentThread->Finish();
-            	}
-            	else{
-            		interrupt->Halt();
-            	}
+                    ProcessLock->Release();
+                }
                 break;
             }
             default: {

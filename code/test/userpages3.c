@@ -1,5 +1,5 @@
 #include "syscall.h"
-/*void print(void* ch)
+void print(void* ch)
 {
     char* p = (char*)ch;
     PutChar(*p +1);
@@ -7,17 +7,18 @@
     
     UserThreadExit();
 }
-*/
+
 int main()
 {	
-	//char c = GetChar();
+	char c = GetChar();
     
 	ForkExec("./userpages0a");
 	//PutChar('Z');
 	ForkExec("./userpages1a");
        
-    //int Thread_id =  UserThreadCreate(print, (void*)&c);
-    //UserThreadJoin(Thread_id);
+    int Thread_id = UserThreadCreate(print, (void*)&c);
+    PutInt(Thread_id);
+    UserThreadJoin(Thread_id);
 	//GetChar();
 	PutChar('Q');
      //   Halt();

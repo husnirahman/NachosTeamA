@@ -18,7 +18,6 @@
 
 #ifdef CHANGED
 #define MAX_STRING_SIZE 100  //buffer size of string for SynchConsole
-#define MAX_THREADS 5	// Maximum number of thread active at the same time 
 #endif //CHANGED
 
 // Initialization and cleanup routines

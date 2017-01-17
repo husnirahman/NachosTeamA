@@ -88,13 +88,14 @@ AddrSpace::AddrSpace (OpenFile * executable)
 #else
 	printf("Number of Avail frames = %d %d\n",FrameP->NumAvailFrame(), numPages);
 	ASSERT (numPages <= FrameP->NumAvailFrame());
-    
+    /*
     unsigned int lower = PageSize * (NumPhysPages - FrameP->NumAvailFrame());
     printf("Lower limit = %d\n", lower);
     unsigned int upper = PageSize * (NumPhysPages - FrameP->NumAvailFrame())+size;
      printf("Upper limit = %d\n", upper);
     for(i = lower ; i < upper ; i++)
         machine->mainMemory[i] = 0;
+    */
 #endif //CHANGED   
     
     // to run anything too big --
@@ -110,6 +111,11 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	  pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 #ifdef CHANGED
 	  pageTable[i].physicalPage = FrameP->GetEmptyFrame();//physical page number = virtual page number + 1
+      int lower = pageTable[i].physicalPage * PageSize;
+      int upper = lower + PageSize;
+      int j ;
+      for(j = lower ; j < upper ; j++)
+        machine->mainMemory[j] = 0;
 #endif //CHANGED
 	  pageTable[i].valid = TRUE;
 	  pageTable[i].use = FALSE;
@@ -145,6 +151,11 @@ AddrSpace::AddrSpace (OpenFile * executable)
 // Creating a bitmap for the stack status
 	stackBitMap = new BitMap(MAX_THREADS); 
 
+    array[0] = "1001";
+    array[1] = "1002";
+    array[2] = "1003";
+    array[3] = "1004";
+    array[4] = "1005";
 #endif //CHANGED
 }
 
