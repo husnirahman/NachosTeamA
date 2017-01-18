@@ -3,8 +3,8 @@
 
 int main()
 {
-    char s[5] ;
-    Gets(s, 5);
+    char s[100] ;
+    Gets(s, 8);
     Puts(s);
     Halt();
 }

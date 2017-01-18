@@ -133,9 +133,11 @@ Lock::~Lock ()
 void
 Lock::Acquire ()
 {		
+        IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
+
  	sem->P();
 	holder = currentThread;
-
+(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 
 //----------------------------------------------------------------------
@@ -146,9 +148,12 @@ Lock::Acquire ()
 void
 Lock::Release ()
 {         
+        IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
+
  	ASSERT(isHeldByCurrentThread());
  	holder = NULL;
 	sem->V();
+    (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 //----------------------------------------------------------------------
 // Lock::isHeldByCurrentThread
@@ -159,7 +164,10 @@ Lock::Release ()
 bool
 Lock::isHeldByCurrentThread ()
 {
+            IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
+
 	return currentThread == holder;
+        (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 
 //----------------------------------------------------------------------
@@ -192,6 +200,8 @@ void
 
 Condition::Wait (Lock * conditionLock)
 {			
+        IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
+
 	ASSERT(conditionLock->isHeldByCurrentThread());
         Semaphore *wait;
         wait = new Semaphore("condition", 0);
@@ -199,6 +209,8 @@ Condition::Wait (Lock * conditionLock)
     	conditionLock->Release();
 	wait->P();
     	conditionLock->Acquire();
+       // delete wait;
+        (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 
 //----------------------------------------------------------------------
@@ -207,13 +219,16 @@ Condition::Wait (Lock * conditionLock)
 // 			checking in Release, and in Condition variable ops below.
 //----------------------------------------------------------------------
 void
-Condition::Signal (Lock * conditionLock)
-{	ASSERT(conditionLock->isHeldByCurrentThread());
+Condition::Signal (Lock * conditionLock){
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
+
+	ASSERT(conditionLock->isHeldByCurrentThread());
         Semaphore *wait;
 	if (!queue->IsEmpty()){
         wait = (Semaphore *) queue->Remove();
         wait->V();
     }
+    (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 
 //----------------------------------------------------------------------
@@ -223,9 +238,11 @@ Condition::Signal (Lock * conditionLock)
 //----------------------------------------------------------------------
 void
 Condition::Broadcast (Lock * conditionLock)
-{
+{    IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
+
 	ASSERT(conditionLock->isHeldByCurrentThread());
 	while(!queue->IsEmpty()) {
             Signal(conditionLock);			
 	}
+	(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }

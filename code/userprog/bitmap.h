@@ -23,6 +23,10 @@
 #define BitsInByte 	8
 #define BitsInWord 	32
 
+#ifdef CHANGED
+#define MAX_THREADS 5	// Maximum number of thread active at the same time 
+#endif //CHANGED
+
 // The following class defines a "bitmap" -- an array of bits,
 // each of which can be independently set, cleared, and tested.
 //
@@ -52,6 +56,9 @@ class BitMap
     // write the bitmap to a file
     void FetchFrom (OpenFile * file);	// fetch contents from disk 
     void WriteBack (OpenFile * file);	// write contents to disk
+#ifdef CHANGED
+    int FindNew ();                     //returns the next free bit and set that bit
+#endif //CHANGED
 
   private:
     int numBits;		// number of bits in the bitmap
@@ -60,6 +67,9 @@ class BitMap
     //  multiple of the number of bits in
     //  a word)
     unsigned int *map;		// bit storage
+#ifdef CHANGED
+    int lastBit;
+#endif //CHANGED
 };
 
 #endif // BITMAP_H

@@ -49,7 +49,7 @@ int do_UserThreadCreate(int f, int args) {
 		fa->fun = f;
 		fa->args = args;
 		//Thread_id++;
-		int stackID = currentThread->space->stackBitMap->Find()+1;
+		int stackID = currentThread->space->stackBitMap->FindNew()+1;
 		//int num = Thread_id + stackID;
 		//char* name= new char[4];
 		
@@ -102,7 +102,7 @@ void do_UserThreadExit() {
 				currentThread->space->id_status[i] = -1;
 			}
 		}
-		CondSpace->Signal(lockAddrSpace);
+		//CondSpace->Signal(lockAddrSpace);
 		lockAddrSpace->Release();
 		
         currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
@@ -120,10 +120,10 @@ void do_UserThreadJoin(int id) {
 		if(currentThread->space->id_buffer[i] == id){
 			while (currentThread->space->id_status[i] != -1){
 				//printf("Thread[id] = %d is still not exited\n", currentThread->space->id_buffer[i]);
-				/*lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
+				lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
 				currentThread->Yield();
-				lockAddrSpace->Acquire ();*/
-                CondSpace->Wait(lockAddrSpace);
+				lockAddrSpace->Acquire ();
+               //CondSpace->Wait(lockAddrSpace);
 			
 			}
 		}

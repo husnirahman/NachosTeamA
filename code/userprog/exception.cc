@@ -128,6 +128,7 @@ ExceptionHandler (ExceptionType which)
                 char *buffer = new char[MAX_STRING_SIZE];
                 sc->SynchGetString(buffer, size);
                 copyStringToMachine(to, buffer, size);
+                printf("String from exception = %s \n", buffer);
                 delete buffer;
                 break;
             }
@@ -141,6 +142,7 @@ ExceptionHandler (ExceptionType which)
                 int integer;
                 int address = machine->ReadRegister(4);
                 sc->SynchGetInt(&integer);
+                printf("Integer from exception = %d \n", integer);
                 machine->WriteMem(address, 4, integer);
                 break;
             }
@@ -171,7 +173,7 @@ ExceptionHandler (ExceptionType which)
                	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
             	int n = do_userprocess_create(buffer);
             	printf("Process id = %d\n", n);
-               
+                machine->WriteRegister(2, n);
                 break;
             }
             case SC_Exit: {
@@ -180,7 +182,7 @@ ExceptionHandler (ExceptionType which)
                 if(status == 0){
                     //printf("Process Counter in SC_Exit = %d %s\n", proc_counter, currentThread->getName());
                     if(proc_counter > 0){
-                        //printf("Process Counter = %d\n", proc_counter);
+                        printf("Process Counter = %d\n", proc_counter);
                         proc_counter--;
                         char*name = (char*)currentThread->getName();
                         std::string str(name);
@@ -194,7 +196,6 @@ ExceptionHandler (ExceptionType which)
                         currentThread->Finish();
                     }
             	   else{
-                        printf("witing for HALT \n");
                         ProcessLock->Release();
                         interrupt->Halt();
             	   }

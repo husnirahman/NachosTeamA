@@ -29,12 +29,13 @@ int do_userprocess_create(char *filename){
         lockProcSpace->Release();
 		
         int num = stackID;
-        char* name= new char[4];
+        char* name= new char[5];
 		
 		for(int i = 3; i>=0; i--, num/=10){
 			name[i] = num%10 + '0';
 			//printf("Characters = %c", num%10 + '0');
-		}
+		}		
+		name[4] = '\0';
        //Thread *newThread = new Thread(parray[stackID - 1].c_str());
 		Thread *newThread = new Thread(name);
         

@@ -13,7 +13,7 @@ int main()
 	char c = GetChar();
     int i ;
     
-    for(i = 0; i < 6; i++){
+    for(i = 0; i < 2; i++){
     
 	   ForkExec("./userpages0a");
 	   //PutChar('Z');

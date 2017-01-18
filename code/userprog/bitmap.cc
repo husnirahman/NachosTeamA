@@ -22,6 +22,9 @@ BitMap::BitMap (int nitems)
     numBits = nitems;
     numWords = divRoundUp (numBits, BitsInWord);
     map = new unsigned int[numWords];
+#ifdef CHANGED
+    lastBit = 0;
+#endif //CHANGED
     for (int i = 0; i < numBits; i++)
 	Clear (i);
 }
@@ -106,6 +109,22 @@ BitMap::Find ()
     return -1;
 }
 
+#ifdef CHANGED
+int
+BitMap::FindNew ()
+{
+    for (int i = 0; i < numBits; i++){
+        lastBit++;
+        lastBit = lastBit % MAX_THREADS;
+        if (!Test (lastBit))
+        {
+	       Mark (lastBit);
+	       return lastBit;
+        }
+    }
+    return -1;   
+}
+#endif //CHANGED
 //----------------------------------------------------------------------
 // BitMap::NumClear
 //      Return the number of clear bits in the bitmap.

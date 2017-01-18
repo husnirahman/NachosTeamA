@@ -116,7 +116,10 @@ void SynchConsole::SynchPutString(const char s[])
 //----------------------------------------------------------------------
 void SynchConsole::SynchGetString(char *s, int n)
 {		
-		lockRead->Acquire();  
+    lockRead->Acquire();  
+    if (n > MAX_STRING_SIZE)
+        n = MAX_STRING_SIZE;
+    
     for(int i =0; i<n; i++){
         s[i]=InterGetChar();
          if(s[i]== '\0')

@@ -3,7 +3,7 @@
 
 int main()
 {
-    PutInt(12);
+    PutInt(12345678);
     Halt();
     return 0;
 }
