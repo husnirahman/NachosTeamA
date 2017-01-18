@@ -5,7 +5,8 @@
 #include "synch.h"
 #include "string"
 extern void StartProcess (char *filename);
-std::string parray[MAX_THREADS] = {"2001", "2002", "2003", "2004", "2005"};
+//std::string parray[MAX_THREADS] = {"2001", "2002", "2003", "2004", "2005"};
+
 
 static Lock *lockProcSpace = new Lock("Sem AddrSpace");
 
@@ -20,30 +21,43 @@ static void StartUserProcess(int args){
 int do_userprocess_create(char *filename){
 	int ret;
 	//printf("Numer of clear bits in bit map = %d\n",currentThread->space->stackBitMap->NumClear());
-	if(currentThread->space->stackBitMap->NumClear() > 0 ){
-		int stackID = currentThread->space->stackBitMap->Find()+1;
-		
-		Thread *newThread = new Thread(parray[stackID - 1].c_str());
-		
-        lockProcSpace->Acquire ();
-		pid_buffer[stackID-1] = pThread_id + stackID;    
-		pid_status[stackID-1] = 0;
-        lockProcSpace->Release();
+    lockProcSpace->Acquire ();
+	if(ProcessID->NumClear() > 0 ){
+		//int stackID = currentThread->space->stackBitMap->Find()+1;
         
-		ret = pThread_id +stackID;
+		int stackID = ProcessID->Find() + pThread_id;
+        lockProcSpace->Release();
+		
+        int num = stackID;
+        char* name= new char[4];
+		
+		for(int i = 3; i>=0; i--, num/=10){
+			name[i] = num%10 + '0';
+			//printf("Characters = %c", num%10 + '0');
+		}
+       //Thread *newThread = new Thread(parray[stackID - 1].c_str());
+		Thread *newThread = new Thread(name);
+        
+        
+		//pid_buffer[stackID-1] = pThread_id + stackID;    
+		//pid_status[stackID-1] = 0;
+        
+        
+		ret = stackID;
 		
         currentThread->space->SaveState();
 		
 		newThread->Fork(StartUserProcess, (int)filename);
 	}
 	else{
+         lockProcSpace->Release();
 		fprintf(stderr, "Max thread count of %d reached. Can't create new thread \n", (int)MAX_THREADS);
 		ret= -1;
     }
 	
    return ret;
 }
-
+/*
 void do_UserProcessExit() {
 	char*name = (char*)currentThread->getName();
 	std::string str(name);
@@ -65,7 +79,7 @@ void do_UserProcessExit() {
 		currentThread->Finish();
 	}
 }
-
+*/
 
 #endif//CHANGED
 

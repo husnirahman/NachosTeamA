@@ -11,11 +11,14 @@ void print(void* ch)
 int main()
 {	
 	char c = GetChar();
+    int i ;
     
-	ForkExec("./userpages0a");
-	//PutChar('Z');
-	ForkExec("./userpages1a");
-       
+    for(i = 0; i < 6; i++){
+    
+	   ForkExec("./userpages0a");
+	   //PutChar('Z');
+	   ForkExec("./userpages1a");
+    }
     int Thread_id = UserThreadCreate(print, (void*)&c);
     PutInt(Thread_id);
     UserThreadJoin(Thread_id);

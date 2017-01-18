@@ -35,6 +35,7 @@ extern void StartProcess (char *filename);
 static Lock *ProcessLock = new Lock("Process Lock");
 extern void Exit(int status);
 int proc_counter = 0;
+
 #endif
 
 //----------------------------------------------------------------------
@@ -186,7 +187,8 @@ ExceptionHandler (ExceptionType which)
                         if(str.compare("main")){
                             int check_id = (currentThread->getName()[3] - '0') + 2000;
                             //printf("process name = %s %d\n", currentThread->getName(), check_id);
-                            currentThread->space->stackBitMap->Clear(check_id - 2000 -1 );
+                            //currentThread->space->stackBitMap->Clear(check_id - 2000 -1 );
+                            ProcessID->Clear(check_id - 2000);
                         }
                         ProcessLock->Release();
                         currentThread->Finish();

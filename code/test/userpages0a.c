@@ -31,6 +31,8 @@ int main()
 	for(i = 0 ; i <n ; i ++)
 		UserThreadJoin(id[i]);
 	
+    
+	ForkExec("./userpages1a");
 	//int id3 = UserThreadCreate(f, (void *) THIS);
 	//UserThreadJoin(id3);
 	//PutInt(id3);

@@ -32,7 +32,7 @@ Machine *machine;		// user program memory and registers
 //Console *cons;
 #ifdef CHANGED
 SynchConsole *sc; 
-
+BitMap *ProcessID;
 #endif
 #endif
 
@@ -166,6 +166,9 @@ Initialize (int argc, char **argv)
 
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
+#ifdef CHANGED
+    ProcessID = new BitMap(1000);
+#endif //CHANGED
 #endif
 
 #ifdef FILESYS
@@ -192,6 +195,7 @@ InitConsole(char *readFile, char *writeFile)
 {	
 	sc = new SynchConsole(readFile,writeFile);
 }
+
 #endif // CHANGED
 
 
@@ -211,6 +215,7 @@ Cleanup ()
     delete machine;
 #ifdef CHANGED
     delete sc;
+    delete ProcessID;
 #endif //CHANGED
 #endif
 

@@ -7,6 +7,7 @@
 //#define no_Threads 20
 
 static Lock *lockAddrSpace = new Lock("Sem AddrSpace");
+static Condition *CondSpace = new Condition("CondVar AddrSpace");
 
 //int id_buffer[MAX_THREADS];
 //int id_status[MAX_THREADS];
@@ -101,9 +102,11 @@ void do_UserThreadExit() {
 				currentThread->space->id_status[i] = -1;
 			}
 		}
+		CondSpace->Signal(lockAddrSpace);
 		lockAddrSpace->Release();
 		
         currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
+        
 		currentThread->Finish();
 	}
 }
@@ -117,9 +120,10 @@ void do_UserThreadJoin(int id) {
 		if(currentThread->space->id_buffer[i] == id){
 			while (currentThread->space->id_status[i] != -1){
 				//printf("Thread[id] = %d is still not exited\n", currentThread->space->id_buffer[i]);
-				lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
+				/*lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
 				currentThread->Yield();
-				lockAddrSpace->Acquire ();
+				lockAddrSpace->Acquire ();*/
+                CondSpace->Wait(lockAddrSpace);
 			
 			}
 		}

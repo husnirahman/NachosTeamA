@@ -17,6 +17,7 @@
 #include "timer.h"
 
 #ifdef CHANGED
+
 #define MAX_STRING_SIZE 100  //buffer size of string for SynchConsole
 #endif //CHANGED
 
@@ -46,6 +47,8 @@ extern Machine *machine;	// user program memory and registers
 extern SynchConsole *sc; 
 
 #include "userthread.h"
+#include "bitmap.h"
+extern BitMap *ProcessID;
 #endif
 
 #endif

@@ -21,7 +21,7 @@
 #define MAX_THREADS 5	// Maximum number of thread active at the same time 
 #endif //CHANGED
 
-#define UserStackSize		2*1024	// increase this as necessary!
+#define UserStackSize		4*1024	// increase this as necessary!
 
 class AddrSpace
 {
