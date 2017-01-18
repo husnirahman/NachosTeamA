@@ -20,7 +20,7 @@
 #include "string"
 #endif //CHANGED
 
-#define UserStackSize		10*1024	// increase this as necessary!
+#define UserStackSize		20*1024	// increase this as necessary!
 
 class AddrSpace
 {

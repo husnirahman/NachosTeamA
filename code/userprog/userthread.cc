@@ -44,6 +44,7 @@ static void StartUserThread(int f){
 int do_UserThreadCreate(int f, int args) {
 	int ret;
 	//printf("Numer of clear bits in bit map = %d\n",currentThread->space->stackBitMap->NumClear());
+	lockAddrSpace->Acquire ();
 	if(currentThread->space->stackBitMap->NumClear() > 0 ){
 		Func_args *fa = new Func_args;
 		fa->fun = f;
@@ -61,7 +62,7 @@ int do_UserThreadCreate(int f, int args) {
 		Thread *newThread = new Thread(currentThread->space->array[stackID -1].c_str());
 		//printf("Thread create Thread[%d] = %s %s\n", Thread_id, name, newThread->getName() );
 		//delete name;
-	    lockAddrSpace->Acquire ();
+	    
 	
 		currentThread->space->id_buffer[stackID-1] = Thread_id + stackID;    
 		currentThread->space->id_status[stackID-1] = 0;
@@ -103,9 +104,8 @@ void do_UserThreadExit() {
 			}
 		}
 		//CondSpace->Signal(lockAddrSpace);
+		currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
 		lockAddrSpace->Release();
-		
-        currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
         
 		currentThread->Finish();
 	}
