@@ -103,7 +103,7 @@ void do_UserThreadExit() {
 				currentThread->space->id_status[i] = -1;
 			}
 		}
-		//CondSpace->Signal(lockAddrSpace);
+		CondSpace->Signal(lockAddrSpace);
 		currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
 		lockAddrSpace->Release();
         
@@ -120,10 +120,10 @@ void do_UserThreadJoin(int id) {
 		if(currentThread->space->id_buffer[i] == id){
 			while (currentThread->space->id_status[i] != -1){
 				//printf("Thread[id] = %d is still not exited\n", currentThread->space->id_buffer[i]);
-				lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
-				currentThread->Yield();
-				lockAddrSpace->Acquire ();
-               //CondSpace->Wait(lockAddrSpace);
+				//lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
+				//currentThread->Yield();
+				//lockAddrSpace->Acquire ();
+               CondSpace->Wait(lockAddrSpace);
 			
 			}
 		}

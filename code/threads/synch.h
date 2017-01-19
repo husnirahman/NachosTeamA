@@ -90,8 +90,11 @@ class Lock
 
   private:
     const char *name;		// for debugging
-    Semaphore* sem;
-    Thread* holder;
+    //Semaphore* sem;//
+    Thread* holder;//
+    bool status;
+    List *threads;
+
     // plus some other stuff you'll need to define
 };
 
@@ -148,7 +151,6 @@ class Condition
 
   private:
     const char *name;
-    Lock* mtx;
     List* queue;
     // plus some other stuff you'll need to define
 };
