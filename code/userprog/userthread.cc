@@ -103,8 +103,7 @@ void do_UserThreadExit() {
 				currentThread->space->id_status[i] = -1;
 			}
 		}
-		
-		currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
+        currentThread->space->stackBitMap->Clear(check_id - Thread_id -1 );
         CondSpace->Signal(lockAddrSpace);
 		lockAddrSpace->Release();
         

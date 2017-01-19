@@ -110,8 +110,10 @@ Semaphore::V ()
 Lock::Lock (const char *debugName)
 {
 	name = debugName;		
-	sem = new Semaphore("lock", 1);
+	//sem = new Semaphore("lock", 1);
     holder = NULL;
+    threads = new List;
+    status = FREE;
 }
 
 //----------------------------------------------------------------------
@@ -122,8 +124,9 @@ Lock::Lock (const char *debugName)
 
 Lock::~Lock ()
 {
-	delete sem;
+	//delete sem;
 	delete holder;
+    delete threads;
 }
 
 //----------------------------------------------------------------------
@@ -133,11 +136,15 @@ Lock::~Lock ()
 void
 Lock::Acquire ()
 {		
-        IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
-
- 	sem->P();
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);
+ 	//sem->P();
+    while(status == BUSY){
+        threads->Append ((void *) currentThread);    // so go to sleep
+        currentThread->Sleep ();
+    }
+    status = BUSY;
 	holder = currentThread;
-(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
+    (void) interrupt->SetLevel (oldLevel);
 }
 
 //----------------------------------------------------------------------
@@ -148,12 +155,17 @@ Lock::Acquire ()
 void
 Lock::Release ()
 {         
-        IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
-
+    Thread *thread;
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);
  	ASSERT(isHeldByCurrentThread());
+    status = FREE;
  	holder = NULL;
-	sem->V();
-    (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
+    thread = (Thread *) threads->Remove ();
+    if (thread != NULL)     // make thread ready, consuming the V immediately
+    scheduler->ReadyToRun (thread);
+    (void) interrupt->SetLevel (oldLevel);
+
+	//sem->V();
 }
 //----------------------------------------------------------------------
 // Lock::isHeldByCurrentThread
@@ -164,10 +176,7 @@ Lock::Release ()
 bool
 Lock::isHeldByCurrentThread ()
 {
-            IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
-
 	return currentThread == holder;
-        (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
 
 //----------------------------------------------------------------------
@@ -199,18 +208,16 @@ Condition::~Condition ()
 void
 
 Condition::Wait (Lock * conditionLock)
-{			
-        IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
-
+{	
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);		
 	ASSERT(conditionLock->isHeldByCurrentThread());
-    Semaphore *wait;
-    wait = new Semaphore("condition", 0);
-	queue->Append ((void *) wait);
+
     conditionLock->Release();
-	wait->P();
+    queue->Append ((void *) currentThread);    // so go to sleep
+    currentThread->Sleep ();
     conditionLock->Acquire();
-       // delete wait;
-        (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
+    (void) interrupt->SetLevel (oldLevel);
+
 }
 
 //----------------------------------------------------------------------
@@ -219,16 +226,16 @@ Condition::Wait (Lock * conditionLock)
 // 			checking in Release, and in Condition variable ops below.
 //----------------------------------------------------------------------
 void
-Condition::Signal (Lock * conditionLock){
-    IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
+Condition::Signal (Lock * conditionLock)
+{
+    Thread *thread;
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);      
 
-	ASSERT(conditionLock->isHeldByCurrentThread());
-        Semaphore *wait;
-	if (!queue->IsEmpty()){
-        wait = (Semaphore *) queue->Remove();
-        wait->V();
-    }
-    (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    thread = (Thread *) queue->Remove ();
+    if (thread != NULL)     // make thread ready, consuming the V immediately
+    scheduler->ReadyToRun (thread);
+    (void) interrupt->SetLevel (oldLevel);
 }
 
 //----------------------------------------------------------------------
@@ -238,11 +245,9 @@ Condition::Signal (Lock * conditionLock){
 //----------------------------------------------------------------------
 void
 Condition::Broadcast (Lock * conditionLock)
-{    IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
-
+{      
 	ASSERT(conditionLock->isHeldByCurrentThread());
 	while(!queue->IsEmpty()) {
-            Signal(conditionLock);			
-	}
-	(void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
+        Signal(conditionLock);	
+    }
 }
