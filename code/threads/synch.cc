@@ -203,12 +203,12 @@ Condition::Wait (Lock * conditionLock)
         IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
 
 	ASSERT(conditionLock->isHeldByCurrentThread());
-        Semaphore *wait;
-        wait = new Semaphore("condition", 0);
+    Semaphore *wait;
+    wait = new Semaphore("condition", 0);
 	queue->Append ((void *) wait);
-    	conditionLock->Release();
+    conditionLock->Release();
 	wait->P();
-    	conditionLock->Acquire();
+    conditionLock->Acquire();
        // delete wait;
         (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }

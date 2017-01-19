@@ -26,8 +26,7 @@ int do_userprocess_create(char *filename){
 		//int stackID = currentThread->space->stackBitMap->Find()+1;
         
 		int stackID = ProcessID->Find() + pThread_id;
-        lockProcSpace->Release();
-		
+        
         int num = stackID;
         char* name= new char[5];
 		
@@ -47,6 +46,7 @@ int do_userprocess_create(char *filename){
 		ret = stackID;
 		
         currentThread->space->SaveState();
+		lockProcSpace->Release();
 		
 		newThread->Fork(StartUserProcess, (int)filename);
 	}
