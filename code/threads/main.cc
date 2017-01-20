@@ -167,15 +167,24 @@ main (int argc, char **argv)
 	    }
 #endif // FILESYS
 #ifdef NETWORK
+#ifdef CHANGED
 	  if (!strcmp (*argv, "-o"))
 	    {
-		ASSERT (argc > 1);
+		ASSERT (argc > 3);//it was 1
 		Delay (2);	// delay for 2 seconds
 		// to give the user time to 
 		// start up another nachos
-		MailTest (atoi (*(argv + 1)));
-		argCount = 2;
+                if(!strcmp(*argv + 2), "-l"){
+                    double r = (double) (*(argv + 3));
+                    MailTest(atoi (*(argv + 1)), r);
+                }
+                else
+                {
+                    MailTest (atoi (*(argv + 1)));
+                    argCount = 2;
+                }
 	    }
+#endif //CHANGED
 #endif // NETWORK
       }
 
