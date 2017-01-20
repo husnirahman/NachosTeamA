@@ -214,6 +214,7 @@ Condition::Wait (Lock * conditionLock)
 
     conditionLock->Release();
     queue->Append ((void *) currentThread);    // so go to sleep
+    printf("Thread in queue waiting = %s \n", currentThread->getName());
     currentThread->Sleep ();
     conditionLock->Acquire();
     (void) interrupt->SetLevel (oldLevel);
@@ -228,13 +229,16 @@ Condition::Wait (Lock * conditionLock)
 void
 Condition::Signal (Lock * conditionLock)
 {
-    Thread *thread;
     IntStatus oldLevel = interrupt->SetLevel (IntOff);      
-
+     Thread *thread;
+   
     ASSERT(conditionLock->isHeldByCurrentThread());
     thread = (Thread *) queue->Remove ();
-    if (thread != NULL)     // make thread ready, consuming the V immediately
-    scheduler->ReadyToRun (thread);
+    
+    if (thread != NULL){    // make thread ready, consuming the V immediately
+        scheduler->ReadyToRun (thread);
+        printf("Thread signalled = %s \n", thread->getName());
+    }
     (void) interrupt->SetLevel (oldLevel);
 }
 

@@ -29,7 +29,7 @@
 #ifdef CHANGED
 #include "sysdep.h"
 #include "userthread.h"
-#include "userprocess.h"
+//#include "userprocess.h"
 #include "string"
 extern void StartProcess (char *filename);
 static Lock *ProcessLock = new Lock("Process Lock");
@@ -167,16 +167,18 @@ ExceptionHandler (ExceptionType which)
                 ProcessLock->Acquire();
             	proc_counter++;
                 //printf("Process Counter in SC_ForkE= %d\n", proc_counter);
-                ProcessLock->Release();
-            	char *buffer = new char [MAX_STRING_SIZE];
+                char *buffer = new char [MAX_STRING_SIZE];
                 int file = machine->ReadRegister (4);
                	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
             	int n = do_userprocess_create(buffer);
             	printf("Process id = %d\n", n);
                 machine->WriteRegister(2, n);
+                ProcessLock->Release();
+            	
                 break;
             }
             case SC_Exit: {
+                printf("\nProcess exit = %s\n", currentThread->getName());
             	int status = machine->ReadRegister(4);
                 ProcessLock->Acquire();
                 if(status == 0){
@@ -188,7 +190,7 @@ ExceptionHandler (ExceptionType which)
                         std::string str(name);
                         if(str.compare("main")){
                             int check_id = (currentThread->getName()[3] - '0') + 2000;
-                            //printf("process name = %s %d\n", currentThread->getName(), check_id);
+                            printf("process name = %s %d\n", currentThread->getName(), check_id);
                             //currentThread->space->stackBitMap->Clear(check_id - 2000 -1 );
                             ProcessID->Clear(check_id - 2000);
                         }
@@ -206,6 +208,20 @@ ExceptionHandler (ExceptionType which)
                 }
                 break;
             }
+#ifdef FILESYS
+            case SC_createDir: {                    
+                    char *name = new char [MAX_STRING_SIZE];
+                    int from = machine->ReadRegister (4);
+                    copyStringFromMachine(from, name, MAX_STRING_SIZE);
+                    bool b = fileSystem->CreateD(name);
+                    int n;
+                    if(b) n = 0;
+                    else n = -1;
+                    machine->WriteRegister(2,n);
+                break;
+            }
+
+#endif //FILESYS
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);
                 ASSERT(FALSE);

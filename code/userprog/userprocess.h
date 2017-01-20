@@ -5,7 +5,6 @@
 #include "copyright.h"
 #include "utility.h"
 
-
 extern int do_userprocess_create(char *filename);
 extern void do_UserProcessExit();
 

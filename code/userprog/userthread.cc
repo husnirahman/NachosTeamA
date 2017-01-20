@@ -8,6 +8,8 @@
 
 static Lock *lockAddrSpace = new Lock("Sem AddrSpace");
 static Condition *CondSpace = new Condition("CondVar AddrSpace");
+extern void StartProcess (char *filename);
+const int pThread_id = 2000;
 
 //int id_buffer[MAX_THREADS];
 //int id_status[MAX_THREADS];
@@ -109,12 +111,14 @@ void do_UserThreadExit() {
         
 		currentThread->Finish();
 	}
+	
 }
+
 
 void do_UserThreadJoin(int id) {
 	
 	lockAddrSpace->Acquire ();
-	//printf("\nHi from UserThreadJoin = %d\n",id);
+	printf("\nHi from UserThreadJoin = %s\n", currentThread->getName());
 	
 	for(int i = 0; i < MAX_THREADS  ; i++){
 		if(currentThread->space->id_buffer[i] == id){
@@ -123,13 +127,57 @@ void do_UserThreadJoin(int id) {
 				//lockAddrSpace->Release();			//Conditional variable need to be impemented... Change busy waiting
 				//currentThread->Yield();
 				//lockAddrSpace->Acquire ();
+                printf("Join id before sleeping = %d\n", id);
                CondSpace->Wait(lockAddrSpace);
 			
 			}
+			currentThread->space->id_status[i] = 0;
 		}
 	}
 	
 	lockAddrSpace->Release();
+}
+
+
+
+static void StartUserProcess(int args){
+	StartProcess((char*)args);
+}
+
+int do_userprocess_create(char *filename){
+	int ret;
+	printf("Numer of clear bits in bit map = \n");
+    lockAddrSpace->Acquire ();
+	if(ProcessID->NumClear() > 0 ){
+		//int stackID = currentThread->space->stackBitMap->Find()+1;
+        
+		int stackID = ProcessID->FindNew() + pThread_id;
+        
+        int num = stackID;
+        char* name= new char[5];
+		
+		for(int i = 3; i>=0; i--, num/=10){
+			name[i] = num%10 + '0';
+			//printf("Characters = %c", num%10 + '0');
+		}		
+		name[4] = '\0';
+       //Thread *newThread = new Thread(parray[stackID - 1].c_str());
+		Thread *newThread = new Thread(name);
+        
+		ret = stackID;
+		
+        currentThread->space->SaveState();
+		lockAddrSpace->Release();
+		
+		newThread->Fork(StartUserProcess, (int)filename);
+	}
+	else{
+         lockAddrSpace->Release();
+		fprintf(stderr, "Max thread count of %d reached. Can't create new thread \n", (int)MAX_THREADS);
+		ret= -1;
+    }
+	
+   return ret;
 }
 
 #endif // CHANGED

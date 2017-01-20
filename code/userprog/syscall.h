@@ -40,6 +40,7 @@
 #define SC_ThdExit	    21
 #define SC_ThdJoin	    22
 #define SC_ForkE		23
+#define SC_createDir    24
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -166,6 +167,11 @@ void UserThreadJoin(int id);
 starts execution of the program driven by this thread, in parallel
 with the current program*/
 int ForkExec(char *s);
+
+
+/*create a new directory */
+int createDir(const char *s);
+
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */

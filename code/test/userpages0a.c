@@ -33,7 +33,7 @@ int main()
 		UserThreadJoin(id[i]);
 	
     
-	ForkExec("./userpages1a");
+	//ForkExec("./userpages1a");
 	//int id3 = UserThreadCreate(f, (void *) THIS);
 	//UserThreadJoin(id3);
 	//PutInt(id3);
