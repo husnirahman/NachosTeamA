@@ -84,12 +84,18 @@ class FileSystem {
     void List();			// List all the files in the file system
 
     void Print();			// List all the files and their contents
+#ifdef CHANGED
+	bool CreateD(const char* name);
+#endif //CHANGED
 
   private:
    OpenFile* freeMapFile;		// Bit map of free disk blocks,
 					// represented as a file
    OpenFile* directoryFile;		// "Root" directory -- list of 
 					// file names, represented as a file
+#ifdef CHANGED
+	OpenFile* currOpenFile;
+#endif //CHANGED
 };
 
 #endif // FILESYS

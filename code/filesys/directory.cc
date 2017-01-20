@@ -189,9 +189,26 @@ Directory::Print()
     for (int i = 0; i < tableSize; i++)
 	if (table[i].inUse) {
 	    printf("Name: %s, Sector: %d\n", table[i].name, table[i].sector);
-	    hdr->FetchFrom(table[i].sector);
-	    hdr->Print();
+	    //hdr->FetchFrom(table[i].sector);
+	    //hdr->Print();
 	}
     printf("\n");
     delete hdr;
 }
+
+#ifdef CHANGED
+//----------------------------------------------------------------------
+// Directory::getName
+// 	find the name of the file at index
+//----------------------------------------------------------------------
+char*
+Directory::getName(int index){
+	if (table[index].inUse)
+		return table[index].name;
+	else
+		return NULL;
+}
+
+#endif //CHANGED
+
+

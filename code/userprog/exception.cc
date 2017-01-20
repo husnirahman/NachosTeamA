@@ -206,6 +206,16 @@ ExceptionHandler (ExceptionType which)
                 }
                 break;
             }
+            case SC_createDir:{
+            	char* buffer = new char[MAX_STRING_SIZE];
+            	int file = machine->ReadRegister(4);
+            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+            	bool b = fileSystem->CreateD((const char*)buffer);
+            	int n;
+            	if(b) n = 0; else n =-1;
+            	machine->WriteRegister(2,n);
+            	break;
+            }
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);
                 ASSERT(FALSE);

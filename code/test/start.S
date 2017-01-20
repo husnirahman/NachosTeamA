@@ -131,6 +131,14 @@ ForkExec:
 	j	$31
 	.end ForkExec
 	
+	.globl createDir
+	.ent	createDir
+createDir:
+	addiu $2,$0,SC_createDir
+	syscall
+	j	$31
+	.end createDir
+	
 #endif 
 	.globl Exit
 	.ent	Exit

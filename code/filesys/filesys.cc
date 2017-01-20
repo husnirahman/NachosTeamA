@@ -140,6 +140,28 @@ FileSystem::FileSystem(bool format)
         freeMapFile = new OpenFile(FreeMapSector);
         directoryFile = new OpenFile(DirectorySector);
     }
+#ifdef CHANGED
+	currOpenFile = directoryFile;
+	DEBUG('f', "Creating dot directing  in root directory\n");
+	
+	Directory* dot = new Directory(NumDirEntries);
+    FileHeader* dothdr;
+    dot->FetchFrom(directoryFile);
+
+    BitMap* freeMap = new BitMap(NumSectors);
+    freeMap->FetchFrom(freeMapFile);
+    int dotsector = freeMap->Find();	// find a sector to hold the file header
+   	dot->Add(".", dotsector);
+    dothdr = new FileHeader;
+	dothdr->Allocate(freeMap, DirectoryFileSize);
+    dothdr->WriteBack(dotsector); 		
+	dot->WriteBack(directoryFile);
+	freeMap->WriteBack(freeMapFile);
+	
+	delete dothdr;
+	delete freeMap;
+    delete dot;
+#endif //CHANGED
 }
 
 //----------------------------------------------------------------------
@@ -339,3 +361,165 @@ FileSystem::Print()
     delete freeMap;
     delete directory;
 } 
+
+#ifdef CHANGED
+bool
+FileSystem::CreateD(const char *name){
+	Directory *directory;
+    BitMap *freeMap;
+    FileHeader *hdr;
+    int sector;
+    bool success;
+
+    DEBUG('f', "Creating directing %s\n", name);
+
+    directory = new Directory(NumDirEntries);
+    directory->FetchFrom(currOpenFile);
+
+    if (directory->Find(name) != -1)
+      success = FALSE;			// file is already in directory
+    else {	
+        freeMap = new BitMap(NumSectors);
+        freeMap->FetchFrom(freeMapFile);
+        sector = freeMap->Find();	// find a sector to hold the file header
+        printf("Sector Allocated = %d\n", sector);
+    	if (sector == -1) 		
+            success = FALSE;		// no free block for file header 
+        else if (!directory->Add(name, sector))
+            success = FALSE;	// no space in directory
+		else {
+    	    hdr = new FileHeader;
+	    	if (!hdr->Allocate(freeMap, DirectoryFileSize))
+            	success = FALSE;	// no space on disk for data
+	    	else {	
+	    		success = TRUE;
+				// everthing worked, flush all changes back to disk
+    	    	hdr->WriteBack(sector); 		
+    	    	directory->WriteBack(directoryFile);
+    	    	freeMap->WriteBack(freeMapFile);
+	    	}
+            delete hdr;
+		}
+        delete freeMap;
+    }
+    delete directory;
+    
+/* Creating dot directory */
+
+	DEBUG('f', "Creating dot directing \n");
+	
+	OpenFile* file = new OpenFile(sector);
+    Directory* dot = new Directory(NumDirEntries);
+    FileHeader* dothdr;
+    dot->FetchFrom(file);
+
+    freeMap = new BitMap(NumSectors);
+    freeMap->FetchFrom(freeMapFile);
+    int dotsector = freeMap->Find();	// find a sector to hold the file header
+   	dot->Add(".", dotsector);
+    dothdr = new FileHeader;
+	dothdr->Allocate(freeMap, DirectoryFileSize);
+    dothdr->WriteBack(dotsector); 		
+	dot->WriteBack(file);
+	freeMap->WriteBack(freeMapFile);
+	
+	dot->Print();
+	delete dothdr;
+	delete freeMap;
+    delete dot;
+    delete file;
+    
+ /* Adding current directory to dot directory */
+ 	DEBUG('f', "Adding current directory to dot directory \n");
+ 	
+ 	Directory* curr = new Directory(NumDirEntries);
+    curr->FetchFrom(currOpenFile);
+    
+    file = new OpenFile(dotsector);
+    Directory* tempd = new Directory(NumDirEntries);
+    FileHeader* tempDhdr = new FileHeader;
+    
+    tempd->FetchFrom(file);
+    int location = curr->Find(name);
+    printf("Sector of curr dir to be added to dot directory = %d\n", location);
+    
+   	DEBUG('f', "Sector of curr dir to be added to dot directory = %d\n", location);
+    tempd->Add(name, location);
+    tempDhdr->FetchFrom(location);
+    tempd->WriteBack(file);
+	tempDhdr->WriteBack(location);
+	
+	delete file;
+	delete tempd;
+	delete tempDhdr;
+	delete curr;
+	
+	//checking
+    file = new OpenFile(dotsector);
+    Directory* check = new Directory(NumDirEntries);
+    check->FetchFrom(file);
+    printf("Checking if curr directory  is added to dot directory");
+    check->Print();
+    
+    delete check;
+    
+/* Creating dot dot directory */
+	DEBUG('f', "Creating  dot dot directing \n");
+	
+	file = new OpenFile(sector);
+    Directory* ddot = new Directory(NumDirEntries);
+    FileHeader* ddothdr;
+    ddot->FetchFrom(file);
+
+    freeMap = new BitMap(NumSectors);
+    freeMap->FetchFrom(freeMapFile);
+    int ddotsector = freeMap->Find();	// find a sector to hold the file header
+   	ddot->Add("..", ddotsector);
+    ddothdr = new FileHeader;
+	ddothdr->Allocate(freeMap, DirectoryFileSize);
+    dothdr->WriteBack(ddotsector); 		
+	ddot->WriteBack(file);
+	freeMap->WriteBack(freeMapFile);
+	
+	ddot->Print();
+	delete ddothdr;
+	delete freeMap;
+    delete ddot;
+    delete file;
+    
+ /* Adding Parent directory to dot dot directory
+ 	DEBUG('f', "Adding Parent directory to dot dot directory \n");
+ 	
+ 	Directory* par = new Directory(NumDirEntries);
+    par->FetchFrom(currOpenFile);
+    
+    file = new OpenFile(dotsector);
+    Directory* tempd = new Directory(NumDirEntries);
+    FileHeader* tempDhdr = new FileHeader;
+    
+    tempd->FetchFrom(file);
+    int location = curr->Find(name);
+    printf("Sector of curr dir to be added to dot directory = %d\n", location);
+    
+   	DEBUG('f', "Sector of curr dir to be added to dot directory = %d\n", location);
+    tempd->Add(name, location);
+    tempDhdr->FetchFrom(location);
+    tempd->WriteBack(file);
+	tempDhdr->WriteBack(location);
+	
+	delete file;
+	delete tempd;
+	delete tempDhdr;
+	delete curr;
+	
+	//checking
+    file = new OpenFile(dotsector);
+    Directory* check = new Directory(NumDirEntries);
+    check->FetchFrom(file);
+    printf("Checking if curr directory  is added to dot directory");
+    check->Print();
+    
+    delete check;*/
+    return success;
+}
+#endif //CHANGED
