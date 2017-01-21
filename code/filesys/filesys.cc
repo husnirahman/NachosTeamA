@@ -135,48 +135,26 @@ FileSystem::FileSystem(bool format)
 			delete dirHdr;
 		}
 #ifdef CHANGED
-		currOpenFile = directoryFile;
 		DEBUG('f', "Creating dot directing  in root directory\n");
 	
 		Directory* dot = new Directory(NumDirEntries);
-		FileHeader* dothdr;
 		dot->FetchFrom(directoryFile);
-
-		BitMap* freeMap1 = new BitMap(NumSectors);
-		freeMap1->FetchFrom(freeMapFile);
-		int dotsector = freeMap1->Find();	// find a sector to hold the file header
-	   	dot->Add(".", dotsector);
-		dothdr = new FileHeader;
-		dothdr->Allocate(freeMap1, DirectoryFileSize);
-		dothdr->WriteBack(dotsector); 		
+		dot->Add(".", DirectorySector);
 		dot->WriteBack(directoryFile);
-		freeMap1->WriteBack(freeMapFile);
-	
-		delete dothdr;
-		delete freeMap1;
+		dot->Add("..", DirectorySector);
+		dot->WriteBack(directoryFile);
 		delete dot;
-
-	/* Add root directory to dot directory*/
-		OpenFile* file = new OpenFile(dotsector);
+		
+		OpenFile* file = new OpenFile(DirectorySector);
 		Directory* root = new Directory(NumDirEntries);
-		//FileHeader* roothdr;
 		root->FetchFrom(file);
 		
-		root->Add("root", 1);
-		root->WriteBack(file);
-		
+		printf("Sector of root dir in (.) dir = %d \n", root->Find("."));
+		printf("Sector of root dir in (..) dir = %d \n", root->Find(".."));
 		delete root;
 		delete file;
-		//delete roothdr;
-		//checking contents to root dot directory
+    	currOpenFile = directoryFile;
 		
-		file = new OpenFile(dotsector);
-		Directory* check = new Directory(NumDirEntries);
-		check->FetchFrom(file);
-		
-		printf("checking contents to root dot directory\n");
-		check->Print();
-    
 #endif //CHANGED
     } 
     else {
@@ -263,27 +241,7 @@ FileSystem::Create(const char *name, int initialSize)
         delete freeMap;
     }
     delete directory;
- #ifdef CHANGED
- // Adding file to dot directory of current directory
- 	 Directory* check = new Directory(NumDirEntries);
- 	 check->FetchFrom(currOpenFile);
- 	 
- 	 int dotsector = check->Find(".");
- 	 
- 	 OpenFile* file = new OpenFile(dotsector);
- 	 Directory* dotcheck = new Directory(NumDirEntries);
- 	 dotcheck->FetchFrom(file);
- 	 
- 	 dotcheck->Add(name, sector);
- 	 dotcheck->WriteBack(file);
- 	 
- 	 printf("checking contents of dot directory while creating new file\n");
- 	 dotcheck->Print();
- 	 
- 	 delete check;
- 	 delete file;
- 	 delete dotcheck;
- #endif //CHANGED
+
     return success;
 }
 
@@ -461,135 +419,38 @@ FileSystem::CreateD(const char *name){
 	
 	OpenFile* file = new OpenFile(sector);
     Directory* dot = new Directory(NumDirEntries);
-    FileHeader* dothdr;
+    
     dot->FetchFrom(file);
+	dot->Add(".", sector);
+  	dot->WriteBack(file);
 
-    freeMap = new BitMap(NumSectors);
-    freeMap->FetchFrom(freeMapFile);
-    int dotsector = freeMap->Find();	// find a sector to hold the file header
-   	dot->Add(".", dotsector);
-    dothdr = new FileHeader;
-	dothdr->Allocate(freeMap, DirectoryFileSize);
-    dothdr->WriteBack(dotsector); 		
-	dot->WriteBack(file);
-	freeMap->WriteBack(freeMapFile);
-	
-	dot->Print();
-	delete dothdr;
-	delete freeMap;
     delete dot;
     delete file;
     
- /* Adding current directory to dot directory */
- 	DEBUG('f', "Adding current directory to dot directory \n");
- 	
- 	Directory* curr = new Directory(NumDirEntries);
-    curr->FetchFrom(currOpenFile);
-    
-    file = new OpenFile(dotsector);
-    Directory* tempd = new Directory(NumDirEntries);
-    FileHeader* tempDhdr = new FileHeader;
-    
-    tempd->FetchFrom(file);
-    int location = curr->Find(name);
-    printf("Sector of curr dir to be added to dot directory = %d\n", location);
-    
-   	DEBUG('f', "Sector of curr dir to be added to dot directory = %d\n", location);
-    tempd->Add(name, location);
-    tempDhdr->FetchFrom(location);
-    tempd->WriteBack(file);
-    curr->WriteBack(currOpenFile);
-	tempDhdr->WriteBack(location);
-	
-	delete file;
-	delete tempd;
-	delete tempDhdr;
-	delete curr;
-	
 	//checking
-    file = new OpenFile(dotsector);
+    file = new OpenFile(sector);
     Directory* check = new Directory(NumDirEntries);
     check->FetchFrom(file);
-    printf("Checking if curr directory  is added to dot directory\n");
-    check->Print();
-    
+    printf("Checking sector of  (.) directory = %d \n", check->Find("."));
+        
     delete check;
+    delete file;
     
 /* Creating dot dot directory */
 	DEBUG('f', "Creating  dot dot directing \n");
 	
 	file = new OpenFile(sector);
     Directory* ddot = new Directory(NumDirEntries);
-    FileHeader* ddothdr;
+    
     ddot->FetchFrom(file);
-
-    freeMap = new BitMap(NumSectors);
-    freeMap->FetchFrom(freeMapFile);
-    int ddotsector = freeMap->Find();	// find a sector to hold the file header
-   	ddot->Add("..", ddotsector);
-    ddothdr = new FileHeader;
-	ddothdr->Allocate(freeMap, DirectoryFileSize);
-    dothdr->WriteBack(ddotsector); 		
+    Directory* par = new Directory(NumDirEntries);
+    par->FetchFrom(currOpenFile);
+    printf("Sector of (..) directory of current directory = %d\n", par->Find("."));
+   	ddot->Add("..", par->Find("."));
 	ddot->WriteBack(file);
-	freeMap->WriteBack(freeMapFile);
-	
-	ddot->Print();
-	delete ddothdr;
-	delete freeMap;
+
     delete ddot;
     delete file;
-    
- /* Adding Parent directory to dot dot directory*/
- 	DEBUG('f', "Adding Parent directory to dot dot directory \n");
- 	
- 	Directory* par = new Directory(NumDirEntries);
-    par->FetchFrom(currOpenFile);
-    
-    printf("Checking contents of current directory\n");
-    par->Print();
-    location = par->Find(".");
-    printf("Sector of parent dot dir to be added to dotdot directory = %d\n", location);
-    
-    OpenFile* filedd = new OpenFile(location);
-    Directory* parD = new Directory(NumDirEntries);
-    parD->FetchFrom(filedd);
-    
-    char* namePar = parD->getName();
-    printf("Name of parent dir to be added to dotdot directory = %s\n", namePar);
-       
-    int locationPar = parD->Find(namePar);
-    printf("Sect of parent dir to be added to dotdot directory = %d\n", locationPar);
-    
-    file = new OpenFile(ddotsector);
-    Directory* tempdd = new Directory(NumDirEntries);
-    FileHeader* tempDdhdr = new FileHeader;
-    
-    tempdd->FetchFrom(file);
-    
-   	DEBUG('f', "Sector of parent dir to be added to dotdot directory = %d\n", location);
-   	
-    tempdd->Add(namePar, locationPar);
-    tempDdhdr->FetchFrom(locationPar);
-    tempdd->WriteBack(file);
-	tempDdhdr->WriteBack(locationPar);
-	tempdd->Print();
-	
-	delete file;
-	delete tempdd;
-	delete tempDdhdr;
-	delete par;
-	delete parD;
-	delete filedd;
-	
-	//checking
-	printf("Sector of ddot check = %d \n", ddotsector);
-    OpenFile* file1 = new OpenFile(ddotsector);
-    Directory* check1 = new Directory(NumDirEntries);
-    check1->FetchFrom(file1);
-    printf("Checking if parent directory  is added to dot dot directory\n");
-    check1->Print();
-    
-    delete check1;
     return success;
 }
 #endif //CHANGED
