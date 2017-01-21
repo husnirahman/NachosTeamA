@@ -70,11 +70,7 @@ class Directory {
     void Print();			// Verbose print of the contents
 					//  of the directory -- all the file
 					//  names and their contents.
-#ifdef CHANGED
-	char* getName();
-#endif //CHANGED
-
-  private:
+private:
     int tableSize;			// Number of directory entries
     DirectoryEntry *table;		// Table of pairs: 
 					// <file name, file header location> 

@@ -153,7 +153,7 @@ FileSystem::FileSystem(bool format)
 		printf("Sector of root dir in (..) dir = %d \n", root->Find(".."));
 		delete root;
 		delete file;
-    	currOpenFile = directoryFile;
+    	currOpenFile = new OpenFile(DirectorySector);
 		
 #endif //CHANGED
     } 
@@ -163,7 +163,7 @@ FileSystem::FileSystem(bool format)
         freeMapFile = new OpenFile(FreeMapSector);
         directoryFile = new OpenFile(DirectorySector);
 #ifdef CHANGED
-        currOpenFile = directoryFile;
+        currOpenFile = new OpenFile(DirectorySector);
 #endif//CHANGED
     }
 
@@ -232,8 +232,12 @@ FileSystem::Create(const char *name, int initialSize)
 	    else {	
 	    	success = TRUE;
 		// everthing worked, flush all changes back to disk
-    	    	hdr->WriteBack(sector); 		
+    	    	hdr->WriteBack(sector); 
+    	  #ifndef CHANGED		
     	    	directory->WriteBack(directoryFile);
+    	   #else
+    	   		directory->WriteBack(currOpenFile);
+    	  #endif //CHANGED
     	    	freeMap->WriteBack(freeMapFile);
 	    }
             delete hdr;
@@ -263,7 +267,11 @@ FileSystem::Open(const char *name)
     int sector;
 
     DEBUG('f', "Opening file %s\n", name);
-    directory->FetchFrom(directoryFile);
+#ifndef CHANGED
+	directory->FetchFrom(directoryFile);
+#else
+    directory->FetchFrom(currOpenFile);
+#endif //CHANGED
     sector = directory->Find(name); 
     if (sector >= 0) 		
 	openFile = new OpenFile(sector);	// name was found in directory 
@@ -294,7 +302,11 @@ FileSystem::Remove(const char *name)
     int sector;
     
     directory = new Directory(NumDirEntries);
-    directory->FetchFrom(directoryFile);
+#ifndef CHANGED
+	directory->FetchFrom(directoryFile);
+#else
+    directory->FetchFrom(currOpenFile);
+#endif //CHANGED
     sector = directory->Find(name);
     if (sector == -1) {
        delete directory;
@@ -327,8 +339,11 @@ void
 FileSystem::List()
 {
     Directory *directory = new Directory(NumDirEntries);
-
-    directory->FetchFrom(directoryFile);
+#ifdef CHANGED
+   directory->FetchFrom(directoryFile);
+#else
+	directory->FetchFrom(currOpenFile);
+#endif //CHANGED
     directory->List();
     delete directory;
 }
@@ -372,6 +387,11 @@ FileSystem::Print()
 } 
 
 #ifdef CHANGED
+//----------------------------------------------------------------------
+// FileSystem::CreateD(const char* name)
+// Create new directory in current location and add (.) and (..) 
+// directories
+//----------------------------------------------------------------------
 bool
 FileSystem::CreateD(const char *name){
 	Directory *directory;
@@ -391,7 +411,7 @@ FileSystem::CreateD(const char *name){
         freeMap = new BitMap(NumSectors);
         freeMap->FetchFrom(freeMapFile);
         sector = freeMap->Find();	// find a sector to hold the file header
-        printf("Sector Allocated = %d\n", sector);
+        printf("Directory = %s Sector Allocated = %d\n",name, sector);
     	if (sector == -1) 		
             success = FALSE;		// no free block for file header 
         else if (!directory->Add(name, sector))
@@ -404,7 +424,7 @@ FileSystem::CreateD(const char *name){
 	    		success = TRUE;
 				// everthing worked, flush all changes back to disk
     	    	hdr->WriteBack(sector); 		
-    	    	directory->WriteBack(directoryFile);
+    	    	directory->WriteBack(currOpenFile);
     	    	freeMap->WriteBack(freeMapFile);
 	    	}
             delete hdr;
@@ -431,7 +451,7 @@ FileSystem::CreateD(const char *name){
     file = new OpenFile(sector);
     Directory* check = new Directory(NumDirEntries);
     check->FetchFrom(file);
-    printf("Checking sector of  (.) directory = %d \n", check->Find("."));
+    printf("Sector of (.) directory of %s directory  = %d \n", name, check->Find("."));
         
     delete check;
     delete file;
@@ -445,12 +465,44 @@ FileSystem::CreateD(const char *name){
     ddot->FetchFrom(file);
     Directory* par = new Directory(NumDirEntries);
     par->FetchFrom(currOpenFile);
-    printf("Sector of (..) directory of current directory = %d\n", par->Find("."));
+    printf("Sector of (..) directory of %s directory = %d\n",name, par->Find("."));
    	ddot->Add("..", par->Find("."));
 	ddot->WriteBack(file);
 
     delete ddot;
     delete file;
     return success;
+}
+
+//-------------------------------------------------------------------------
+// FileSystem:: ChangeD(const char* name
+// Change currOpenFile to the name if it exists in the current directory
+// Return TRUE on SUCCESS else FALSE
+//----------------------------------------------------------------------
+bool
+FileSystem:: ChangeD(const char* name){
+	Directory* directory = new Directory(NumDirEntries);
+	directory->FetchFrom(currOpenFile);
+	bool success;
+	
+	int sector = directory->Find(name);
+	printf("Change dir:  name = %s and sector = %d\n", name, sector);
+	
+	if(sector == -1)
+		success = FALSE;
+	else{
+		success = TRUE;
+		delete currOpenFile;
+		printf("Checking sector value = %d\n",sector);
+		if(sector ==1)
+			currOpenFile = new OpenFile(DirectorySector);
+		else
+			currOpenFile = new OpenFile(sector);
+		Directory* temp = new Directory(NumDirEntries);
+		temp->FetchFrom(currOpenFile);
+		printf("Contents after changing directory\n");
+		temp->Print();
+	}
+	return success;
 }
 #endif //CHANGED

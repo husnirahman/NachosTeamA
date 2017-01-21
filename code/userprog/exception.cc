@@ -215,6 +215,22 @@ ExceptionHandler (ExceptionType which)
             	int n;
             	if(b) n = 0; else n =-1;
             	machine->WriteRegister(2,n);
+            	delete buffer;
+            	break;
+            }
+            case SC_changeDir:{
+            	char* buffer = new char[MAX_STRING_SIZE];
+            	int file = machine->ReadRegister(4);
+            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+            	bool b = fileSystem->ChangeD((const char*)buffer);
+            	int n;
+            	if(b) n = 0; else n =-1;
+            	machine->WriteRegister(2,n);
+            	delete buffer;
+            	break;
+            }
+            case SC_displayDir:{
+            	fileSystem->List();
             	break;
             }
 #endif //FILESYS

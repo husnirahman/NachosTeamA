@@ -86,6 +86,7 @@ class FileSystem {
     void Print();			// List all the files and their contents
 #ifdef CHANGED
 	bool CreateD(const char* name);
+	bool ChangeD(const char* name);
 #endif //CHANGED
 
   private:

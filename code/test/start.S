@@ -139,6 +139,23 @@ createDir:
 	j	$31
 	.end createDir
 	
+	.globl changeDir
+	.ent	changeDir
+changeDir:
+	addiu $2,$0,SC_changeDir
+	syscall
+	j	$31
+	.end changeDir
+	
+	.globl displayDir
+	.ent	displayDir
+displayDir:
+	addiu $2,$0,SC_displayDir
+	syscall
+	j	$31
+	.end displayDir
+	
+	
 #endif 
 	.globl Exit
 	.ent	Exit

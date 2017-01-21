@@ -41,6 +41,8 @@
 #define SC_ThdJoin	    22
 #define SC_ForkE		23
 #define SC_createDir	24
+#define SC_changeDir	25
+#define SC_displayDir	26
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -170,6 +172,8 @@ int ForkExec(char *s);
 
 /* create new directory*/
 int createDir(const char* name);
+int changeDir(const char* name);
+void displayDir(); //Display contents of current directory
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */
