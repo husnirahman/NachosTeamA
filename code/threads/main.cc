@@ -59,7 +59,9 @@
 extern void ThreadTest (void), Copy (const char *unixFile, const char *nachosFile);
 extern void Print (char *file), PerformanceTest (void);
 extern void StartProcess (char *file), ConsoleTest (char *in, char *out), SynchConsoleTest (char *in, char *out);   
-extern void MailTest (int networkID);
+#ifdef CHANGED
+extern void MailTest (int networkID, double probability);
+#endif //CHANGED
 //----------------------------------------------------------------------
 // main
 //      Bootstrap the operating system kernel.  
@@ -170,17 +172,25 @@ main (int argc, char **argv)
 #ifdef CHANGED
 	  if (!strcmp (*argv, "-o"))
 	    {
-		ASSERT (argc > 3);//it was 1
-		Delay (2);	// delay for 2 seconds
+		Delay(2);
+		// delay for 2 seconds
 		// to give the user time to 
 		// start up another nachos
-                if(!strcmp(*argv + 2), "-l"){
-                    double r = (double) (*(argv + 3));
+		if(argc > 3){
+                if(!strcmp(*(argv + 2), "-l")){
+                    double r = (atof) (*(argv + 3));
+		    if(r >= 0 && r <= 1){
                     MailTest(atoi (*(argv + 1)), r);
-                }
+			}
+			else if(r < 0)
+				MailTest(atoi(*(argv + 1)),0);
+			else
+				MailTest(atoi(*(argv + 1)), 1);
+               argCount = 4;
+ }}
                 else
                 {
-                    MailTest (atoi (*(argv + 1)));
+                    MailTest (atoi (*(argv + 1)),1);
                     argCount = 2;
                 }
 	    }

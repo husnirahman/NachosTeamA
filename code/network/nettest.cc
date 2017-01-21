@@ -22,28 +22,33 @@
 #include "network.h"
 #include "post.h"
 #include "interrupt.h"
-
+#ifdef CHANGED
+#define RAND_MAX 32767
+#endif //CHANGED
 // Test out message delivery, by doing the following:
 //	1. send a message to the machine with ID "farAddr", at mail box #0
 //	2. wait for the other machine's message to arrive (in our mailbox #0)
 //	3. send an acknowledgment for the other machine's message
 //	4. wait for an acknowledgement from the other machine to our 
 //	    original message
-/*
-
+#ifdef CHANGED
 void
-MailTest(int farAddr)
+MailTest(int farAddr,double probability)
 {
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     const char *data = "Hello there!";
     const char *ack = "Got it!";
     char buffer[MaxMailSize];
-
+	RandomInit(time(NULL));
+double random =( Random())%100;
+double r = random/100.0;
+printf("%f  %f %f\n",probability, r, random);
+if(r <= probability){
     int i = 0;
-    for (i = 0; i < 10; i++){
+  for (i = 0; i < 1; i++){
     // construct packet, mail header for original message
-    // To: destination machine, mailbox 0
+   // To: destination machine, mailbox 0
     // From: our machine, reply to: mailbox 1
     outPktHdr.to = farAddr;
     outMailHdr.to = 0;
@@ -70,11 +75,15 @@ MailTest(int farAddr)
     printf("Got \"%s\" from %d, box %d, ack %d\n",buffer,inPktHdr.from,inMailHdr.from, i + 1);
     fflush(stdout);
     }
-
+}else
+{
+	printf("message lost\n");
+}
     // Then we're done!
     interrupt->Halt();
 }
-*/
+#endif //CHANGED
+/*
 void MailTest(int destAddr){
 	PacketHeader outPktHdr, inPktHdr;
 	MailHeader outMailHdr, inMailHdr;
@@ -124,4 +133,4 @@ void MailTest(int destAddr){
 
 
 
-
+*/
