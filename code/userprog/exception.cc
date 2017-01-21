@@ -206,6 +206,7 @@ ExceptionHandler (ExceptionType which)
                 }
                 break;
             }
+ #ifdef FILESYS
             case SC_createDir:{
             	char* buffer = new char[MAX_STRING_SIZE];
             	int file = machine->ReadRegister(4);
@@ -216,6 +217,7 @@ ExceptionHandler (ExceptionType which)
             	machine->WriteRegister(2,n);
             	break;
             }
+#endif //FILESYS
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);
                 ASSERT(FALSE);

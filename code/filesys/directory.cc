@@ -202,9 +202,9 @@ Directory::Print()
 // 	find the name of the file at index
 //----------------------------------------------------------------------
 char*
-Directory::getName(int index){
-	if (table[index].inUse)
-		return table[index].name;
+Directory::getName(){
+	if (table[0].inUse)
+		return table[0].name;
 	else
 		return NULL;
 }

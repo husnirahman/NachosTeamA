@@ -71,7 +71,7 @@ class Directory {
 					//  of the directory -- all the file
 					//  names and their contents.
 #ifdef CHANGED
-	char* getName(int index);
+	char* getName();
 #endif //CHANGED
 
   private:

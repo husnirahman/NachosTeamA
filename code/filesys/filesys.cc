@@ -83,85 +83,112 @@ FileSystem::FileSystem(bool format)
     if (format) {
         BitMap *freeMap = new BitMap(NumSectors);
         Directory *directory = new Directory(NumDirEntries);
-	FileHeader *mapHdr = new FileHeader;
-	FileHeader *dirHdr = new FileHeader;
+		FileHeader *mapHdr = new FileHeader;
+		FileHeader *dirHdr = new FileHeader;
 
         DEBUG('f', "Formatting the file system.\n");
 
-    // First, allocate space for FileHeaders for the directory and bitmap
-    // (make sure no one else grabs these!)
-	freeMap->Mark(FreeMapSector);	    
-	freeMap->Mark(DirectorySector);
+		// First, allocate space for FileHeaders for the directory and bitmap
+		// (make sure no one else grabs these!)
+		freeMap->Mark(FreeMapSector);	    
+		freeMap->Mark(DirectorySector);
 
-    // Second, allocate space for the data blocks containing the contents
-    // of the directory and bitmap files.  There better be enough space!
+		// Second, allocate space for the data blocks containing the contents
+		// of the directory and bitmap files.  There better be enough space!
 
-	ASSERT(mapHdr->Allocate(freeMap, FreeMapFileSize));
-	ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize));
+		ASSERT(mapHdr->Allocate(freeMap, FreeMapFileSize));
+		ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize));
 
-    // Flush the bitmap and directory FileHeaders back to disk
-    // We need to do this before we can "Open" the file, since open
-    // reads the file header off of disk (and currently the disk has garbage
-    // on it!).
+		// Flush the bitmap and directory FileHeaders back to disk
+		// We need to do this before we can "Open" the file, since open
+		// reads the file header off of disk (and currently the disk has garbage
+		// on it!).
 
-        DEBUG('f', "Writing headers back to disk.\n");
-	mapHdr->WriteBack(FreeMapSector);    
-	dirHdr->WriteBack(DirectorySector);
+		DEBUG('f', "Writing headers back to disk.\n");
+		mapHdr->WriteBack(FreeMapSector);    
+		dirHdr->WriteBack(DirectorySector);
 
-    // OK to open the bitmap and directory files now
-    // The file system operations assume these two files are left open
-    // while Nachos is running.
+		// OK to open the bitmap and directory files now
+		// The file system operations assume these two files are left open
+		// while Nachos is running.
 
-        freeMapFile = new OpenFile(FreeMapSector);
+		freeMapFile = new OpenFile(FreeMapSector);
         directoryFile = new OpenFile(DirectorySector);
      
-    // Once we have the files "open", we can write the initial version
-    // of each file back to disk.  The directory at this point is completely
-    // empty; but the bitmap has been changed to reflect the fact that
-    // sectors on the disk have been allocated for the file headers and
-    // to hold the file data for the directory and bitmap.
+		// Once we have the files "open", we can write the initial version
+		// of each file back to disk.  The directory at this point is completely
+		// empty; but the bitmap has been changed to reflect the fact that
+		// sectors on the disk have been allocated for the file headers and
+		// to hold the file data for the directory and bitmap.
 
-        DEBUG('f', "Writing bitmap and directory back to disk.\n");
-	freeMap->WriteBack(freeMapFile);	 // flush changes to disk
-	directory->WriteBack(directoryFile);
+		DEBUG('f', "Writing bitmap and directory back to disk.\n");
+		freeMap->WriteBack(freeMapFile);	 // flush changes to disk
+		directory->WriteBack(directoryFile);
 
-	if (DebugIsEnabled('f')) {
-	    freeMap->Print();
-	    directory->Print();
+		if (DebugIsEnabled('f')) {
+			freeMap->Print();
+			directory->Print();
 
-        delete freeMap; 
-	delete directory; 
-	delete mapHdr; 
-	delete dirHdr;
-	}
-    } else {
+		    delete freeMap; 
+			delete directory; 
+			delete mapHdr; 
+			delete dirHdr;
+		}
+#ifdef CHANGED
+		currOpenFile = directoryFile;
+		DEBUG('f', "Creating dot directing  in root directory\n");
+	
+		Directory* dot = new Directory(NumDirEntries);
+		FileHeader* dothdr;
+		dot->FetchFrom(directoryFile);
+
+		BitMap* freeMap1 = new BitMap(NumSectors);
+		freeMap1->FetchFrom(freeMapFile);
+		int dotsector = freeMap1->Find();	// find a sector to hold the file header
+	   	dot->Add(".", dotsector);
+		dothdr = new FileHeader;
+		dothdr->Allocate(freeMap1, DirectoryFileSize);
+		dothdr->WriteBack(dotsector); 		
+		dot->WriteBack(directoryFile);
+		freeMap1->WriteBack(freeMapFile);
+	
+		delete dothdr;
+		delete freeMap1;
+		delete dot;
+
+	/* Add root directory to dot directory*/
+		OpenFile* file = new OpenFile(dotsector);
+		Directory* root = new Directory(NumDirEntries);
+		//FileHeader* roothdr;
+		root->FetchFrom(file);
+		
+		root->Add("root", 1);
+		root->WriteBack(file);
+		
+		delete root;
+		delete file;
+		//delete roothdr;
+		//checking contents to root dot directory
+		
+		file = new OpenFile(dotsector);
+		Directory* check = new Directory(NumDirEntries);
+		check->FetchFrom(file);
+		
+		printf("checking contents to root dot directory\n");
+		check->Print();
+    
+#endif //CHANGED
+    } 
+    else {
     // if we are not formatting the disk, just open the files representing
     // the bitmap and directory; these are left open while Nachos is running
         freeMapFile = new OpenFile(FreeMapSector);
         directoryFile = new OpenFile(DirectorySector);
-    }
 #ifdef CHANGED
-	currOpenFile = directoryFile;
-	DEBUG('f', "Creating dot directing  in root directory\n");
-	
-	Directory* dot = new Directory(NumDirEntries);
-    FileHeader* dothdr;
-    dot->FetchFrom(directoryFile);
+        currOpenFile = directoryFile;
+#endif//CHANGED
+    }
 
-    BitMap* freeMap = new BitMap(NumSectors);
-    freeMap->FetchFrom(freeMapFile);
-    int dotsector = freeMap->Find();	// find a sector to hold the file header
-   	dot->Add(".", dotsector);
-    dothdr = new FileHeader;
-	dothdr->Allocate(freeMap, DirectoryFileSize);
-    dothdr->WriteBack(dotsector); 		
-	dot->WriteBack(directoryFile);
-	freeMap->WriteBack(freeMapFile);
-	
-	delete dothdr;
-	delete freeMap;
-    delete dot;
-#endif //CHANGED
 }
 
 //----------------------------------------------------------------------
@@ -205,8 +232,11 @@ FileSystem::Create(const char *name, int initialSize)
     DEBUG('f', "Creating file %s, size %d\n", name, initialSize);
 
     directory = new Directory(NumDirEntries);
+#ifndef CHANGED
     directory->FetchFrom(directoryFile);
-
+#else
+	directory->FetchFrom(currOpenFile);
+#endif 
     if (directory->Find(name) != -1)
       success = FALSE;			// file is already in directory
     else {	
@@ -233,6 +263,27 @@ FileSystem::Create(const char *name, int initialSize)
         delete freeMap;
     }
     delete directory;
+ #ifdef CHANGED
+ // Adding file to dot directory of current directory
+ 	 Directory* check = new Directory(NumDirEntries);
+ 	 check->FetchFrom(currOpenFile);
+ 	 
+ 	 int dotsector = check->Find(".");
+ 	 
+ 	 OpenFile* file = new OpenFile(dotsector);
+ 	 Directory* dotcheck = new Directory(NumDirEntries);
+ 	 dotcheck->FetchFrom(file);
+ 	 
+ 	 dotcheck->Add(name, sector);
+ 	 dotcheck->WriteBack(file);
+ 	 
+ 	 printf("checking contents of dot directory while creating new file\n");
+ 	 dotcheck->Print();
+ 	 
+ 	 delete check;
+ 	 delete file;
+ 	 delete dotcheck;
+ #endif //CHANGED
     return success;
 }
 
@@ -447,6 +498,7 @@ FileSystem::CreateD(const char *name){
     tempd->Add(name, location);
     tempDhdr->FetchFrom(location);
     tempd->WriteBack(file);
+    curr->WriteBack(currOpenFile);
 	tempDhdr->WriteBack(location);
 	
 	delete file;
@@ -458,7 +510,7 @@ FileSystem::CreateD(const char *name){
     file = new OpenFile(dotsector);
     Directory* check = new Directory(NumDirEntries);
     check->FetchFrom(file);
-    printf("Checking if curr directory  is added to dot directory");
+    printf("Checking if curr directory  is added to dot directory\n");
     check->Print();
     
     delete check;
@@ -487,39 +539,57 @@ FileSystem::CreateD(const char *name){
     delete ddot;
     delete file;
     
- /* Adding Parent directory to dot dot directory
+ /* Adding Parent directory to dot dot directory*/
  	DEBUG('f', "Adding Parent directory to dot dot directory \n");
  	
  	Directory* par = new Directory(NumDirEntries);
     par->FetchFrom(currOpenFile);
     
-    file = new OpenFile(dotsector);
-    Directory* tempd = new Directory(NumDirEntries);
-    FileHeader* tempDhdr = new FileHeader;
+    printf("Checking contents of current directory\n");
+    par->Print();
+    location = par->Find(".");
+    printf("Sector of parent dot dir to be added to dotdot directory = %d\n", location);
     
-    tempd->FetchFrom(file);
-    int location = curr->Find(name);
-    printf("Sector of curr dir to be added to dot directory = %d\n", location);
+    OpenFile* filedd = new OpenFile(location);
+    Directory* parD = new Directory(NumDirEntries);
+    parD->FetchFrom(filedd);
     
-   	DEBUG('f', "Sector of curr dir to be added to dot directory = %d\n", location);
-    tempd->Add(name, location);
-    tempDhdr->FetchFrom(location);
-    tempd->WriteBack(file);
-	tempDhdr->WriteBack(location);
+    char* namePar = parD->getName();
+    printf("Name of parent dir to be added to dotdot directory = %s\n", namePar);
+       
+    int locationPar = parD->Find(namePar);
+    printf("Sect of parent dir to be added to dotdot directory = %d\n", locationPar);
+    
+    file = new OpenFile(ddotsector);
+    Directory* tempdd = new Directory(NumDirEntries);
+    FileHeader* tempDdhdr = new FileHeader;
+    
+    tempdd->FetchFrom(file);
+    
+   	DEBUG('f', "Sector of parent dir to be added to dotdot directory = %d\n", location);
+   	
+    tempdd->Add(namePar, locationPar);
+    tempDdhdr->FetchFrom(locationPar);
+    tempdd->WriteBack(file);
+	tempDdhdr->WriteBack(locationPar);
+	tempdd->Print();
 	
 	delete file;
-	delete tempd;
-	delete tempDhdr;
-	delete curr;
+	delete tempdd;
+	delete tempDdhdr;
+	delete par;
+	delete parD;
+	delete filedd;
 	
 	//checking
-    file = new OpenFile(dotsector);
-    Directory* check = new Directory(NumDirEntries);
-    check->FetchFrom(file);
-    printf("Checking if curr directory  is added to dot directory");
-    check->Print();
+	printf("Sector of ddot check = %d \n", ddotsector);
+    OpenFile* file1 = new OpenFile(ddotsector);
+    Directory* check1 = new Directory(NumDirEntries);
+    check1->FetchFrom(file1);
+    printf("Checking if parent directory  is added to dot dot directory\n");
+    check1->Print();
     
-    delete check;*/
+    delete check1;
     return success;
 }
 #endif //CHANGED
