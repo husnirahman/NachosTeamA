@@ -266,6 +266,24 @@ ExceptionHandler (ExceptionType which)
                 break;
             	
             }
+            
+            case SC_fwrite:{
+            	int file = machine->ReadRegister(4);
+            	char* to = new char[MAX_STRING_SIZE];
+            	copyStringFromMachine(file, to, MAX_STRING_SIZE);
+            	
+            	int dest = machine->ReadRegister(5);
+            	char* from = new char[MAX_STRING_SIZE];
+            	copyStringFromMachine(dest, from, MAX_STRING_SIZE);
+            	
+            	int size = machine->ReadRegister(6);
+            	fileSystem->filewrite((const char*)to, from, size);
+                
+                delete from;
+                delete to;
+                break;
+            	
+            }
 #endif //FILESYS
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);

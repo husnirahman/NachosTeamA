@@ -601,4 +601,29 @@ FileSystem :: fileread(const char* name, char* to, int size){
 	*/
 	return;
 }
+
+void 
+FileSystem :: filewrite(const char* name, char* from, int size){
+	int i = FFindIndex(name);
+	int sector;
+	
+    if (i != -1)
+		sector =table[i].sector;
+    else {
+    	return;
+	}
+	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
+	
+	openFile->Seek(6);
+	//printf("Writing file length = %d \n", openFile->Length());
+	
+
+	openFile->Write(from, size);
+	/*
+	printf("checking if right bytes are being written\n");
+	for(i = 0 ; i<size; i++){
+		printf("%c", from[i]);
+	}	*/
+	return;
+}
 #endif //CHANGED
