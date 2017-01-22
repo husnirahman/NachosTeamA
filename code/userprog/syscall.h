@@ -179,7 +179,7 @@ int createDir(const char* name);
 int changeDir(const char* name);
 void displayDir(); //Display contents of current directory
 int fopen(const char* name); //Open file "name"
-int fread(const char* name, char* buffer, int numBytes); //Read from file "name" into buffer, num Bytes
+void fread(const char* name, char* buffer, int numBytes); //Read from file "name" into buffer, num Bytes
 int fwrite(const char* name, char* buffer, int numBytes); //write numbytes from buffer into file "name"
 int fclose(const char* name); //Close file "name"
 #endif //CHANGED

@@ -556,11 +556,9 @@ FileSystem::fileopen(const char *name)
 		delete openFile;
 		delete buffer;
 		
-		printf("hi 1\n");
 		for (i = 0; i < NumFileEntries; i++){
         	if (!table[i].inUse) {
-        		printf("hi\n");
-            	table[i].inUse = TRUE;
+        		table[i].inUse = TRUE;
             	
            		strncpy(table[i].name, name, FileNameMaxLen); 
             	table[i].sector = sector;
@@ -570,5 +568,37 @@ FileSystem::fileopen(const char *name)
 	}
 	return FALSE;
    
+}
+
+int
+FileSystem::FFindIndex(const char *name)
+{
+    for (int i = 0; i < NumFileEntries; i++)
+        if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen))
+	    	return i;
+    return -1;		// name not in directory
+}
+
+void 
+FileSystem :: fileread(const char* name, char* to, int size){
+	int i = FFindIndex(name);
+	int sector;
+	
+    if (i != -1)
+		sector =table[i].sector;
+    else {
+    	to = NULL;
+		return;
+	}
+	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
+	openFile->Seek(0);
+
+	openFile->Read(to, size);
+	/*
+	printf("checking if right file is being read\n");
+	for(i = 0 ; i<size; i++)
+		printf("%c", to[i]);
+	*/
+	return;
 }
 #endif //CHANGED

@@ -100,6 +100,7 @@ class FileSystem {
 	bool CreateD(const char* name);
 	bool ChangeD(const char* name);
 	bool fileopen(const char* name);
+	void fileread(const char* name, char* to, int size);
 #endif //CHANGED
 
   private:

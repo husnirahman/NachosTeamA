@@ -244,14 +244,27 @@ ExceptionHandler (ExceptionType which)
             	break;
             }
             case SC_fread:{
-            	char* buffer = new char[MAX_STRING_SIZE];
             	int file = machine->ReadRegister(4);
-            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
-            	bool  b = fileSystem->fileread((const char*)buffer);
-            	int n;
-            	if(b) n = 0; else n =-1;
-            	machine->WriteRegister(2,n);
-            	break;
+            	char* from = new char[MAX_STRING_SIZE];
+            	copyStringFromMachine(file, from, MAX_STRING_SIZE);
+            	
+            	int dest = machine->ReadRegister(5);
+            	
+            	char* to = new char[MAX_STRING_SIZE];
+            	int size = machine->ReadRegister(6);
+            	fileSystem->fileread((const char*)from, to, size);
+                //copyStringToMachine(file, to, size);
+                bool b = TRUE;
+                int i = 0;
+                while(i < size && b == TRUE){
+    				b = machine->WriteMem(dest + i, 1, (int)(*(to + i)));
+        			i++;
+    			}
+                //printf("fread from exception = %s \n", to);
+                delete from;
+                delete to;
+                break;
+            	
             }
 #endif //FILESYS
             default: {
