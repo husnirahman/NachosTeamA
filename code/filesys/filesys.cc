@@ -63,7 +63,9 @@
 #define FreeMapFileSize 	(NumSectors / BitsInByte)
 #define NumDirEntries 		10
 #define DirectoryFileSize 	(sizeof(DirectoryEntry) * NumDirEntries)
-
+#ifdef CHANGED
+#define NumFileEntries 		10
+#endif //CHANGED
 //----------------------------------------------------------------------
 // FileSystem::FileSystem
 // 	Initialize the file system.  If format = TRUE, the disk has
@@ -124,7 +126,7 @@ FileSystem::FileSystem(bool format)
 		DEBUG('f', "Writing bitmap and directory back to disk.\n");
 		freeMap->WriteBack(freeMapFile);	 // flush changes to disk
 		directory->WriteBack(directoryFile);
-
+		
 		if (DebugIsEnabled('f')) {
 			freeMap->Print();
 			directory->Print();
@@ -135,6 +137,7 @@ FileSystem::FileSystem(bool format)
 			delete dirHdr;
 		}
 #ifdef CHANGED
+		
 		DEBUG('f', "Creating dot directing  in root directory\n");
 	
 		Directory* dot = new Directory(NumDirEntries);
@@ -162,10 +165,16 @@ FileSystem::FileSystem(bool format)
     // the bitmap and directory; these are left open while Nachos is running
         freeMapFile = new OpenFile(FreeMapSector);
         directoryFile = new OpenFile(DirectorySector);
-#ifdef CHANGED
+#ifdef CHANGED 
         currOpenFile = new OpenFile(DirectorySector);
 #endif//CHANGED
     }
+#ifdef CHANGED  
+    	table = new FileEntry[NumFileEntries];   //Initializing open files table
+		int i;
+		for (i = 0; i < NumFileEntries; i++)
+        	table[i].inUse = FALSE;
+#endif//CHANGED
 
 }
 
@@ -339,7 +348,7 @@ void
 FileSystem::List()
 {
     Directory *directory = new Directory(NumDirEntries);
-#ifdef CHANGED
+#ifndef CHANGED
    directory->FetchFrom(directoryFile);
 #else
 	directory->FetchFrom(currOpenFile);
@@ -504,5 +513,62 @@ FileSystem:: ChangeD(const char* name){
 		temp->Print();
 	}
 	return success;
+}
+//----------------------------------------------------------------------
+// FileSystem::FFindIndex
+// 	Open a file  and print its contents
+//
+//	"name" -- the text name of the file to be opened
+//----------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------
+// FileSystem::fileopen
+// 	Open a file  and print its contents
+//
+//	"name" -- the text name of the file to be opened
+//----------------------------------------------------------------------
+bool
+FileSystem::fileopen(const char *name)
+{ 
+	//bool success;
+	Directory* directory = new Directory(NumDirEntries);
+    OpenFile *openFile = NULL;
+    int sector;
+
+    DEBUG('f', "Opening file %s\n", name);
+	directory->FetchFrom(currOpenFile);
+	sector = directory->Find(name); 
+	delete directory;
+	
+    if (sector >= 0) {		
+		openFile = new OpenFile(sector);	// name was found in directory 
+		openFile->Seek(0);
+		printf("Length of file %s = %d \n", name, openFile->Length());
+		char* buffer = new char[openFile->Length()];
+		
+		openFile->Read(buffer, openFile->Length());
+		int i;
+		for(i=0; i< openFile->Length(); i++)
+			printf("%c",buffer[i]);
+		
+		delete openFile;
+		delete buffer;
+		
+		printf("hi 1\n");
+		for (i = 0; i < NumFileEntries; i++){
+        	if (!table[i].inUse) {
+        		printf("hi\n");
+            	table[i].inUse = TRUE;
+            	
+           		strncpy(table[i].name, name, FileNameMaxLen); 
+            	table[i].sector = sector;
+        		return TRUE;
+			}
+		}
+	}
+	return FALSE;
+   
 }
 #endif //CHANGED

@@ -233,6 +233,26 @@ ExceptionHandler (ExceptionType which)
             	fileSystem->List();
             	break;
             }
+            case SC_fopen:{
+            	char* buffer = new char[MAX_STRING_SIZE];
+            	int file = machine->ReadRegister(4);
+            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+            	bool  b = fileSystem->fileopen((const char*)buffer);
+            	int n;
+            	if(b) n = 0; else n =-1;
+            	machine->WriteRegister(2,n);
+            	break;
+            }
+            case SC_fread:{
+            	char* buffer = new char[MAX_STRING_SIZE];
+            	int file = machine->ReadRegister(4);
+            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+            	bool  b = fileSystem->fileread((const char*)buffer);
+            	int n;
+            	if(b) n = 0; else n =-1;
+            	machine->WriteRegister(2,n);
+            	break;
+            }
 #endif //FILESYS
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);

@@ -43,6 +43,10 @@
 #define SC_createDir	24
 #define SC_changeDir	25
 #define SC_displayDir	26
+#define SC_fopen		27
+#define SC_fread		28
+#define SC_fwrite		29
+#define SC_fclose		30
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -174,6 +178,10 @@ int ForkExec(char *s);
 int createDir(const char* name);
 int changeDir(const char* name);
 void displayDir(); //Display contents of current directory
+int fopen(const char* name); //Open file "name"
+int fread(const char* name, char* buffer, int numBytes); //Read from file "name" into buffer, num Bytes
+int fwrite(const char* name, char* buffer, int numBytes); //write numbytes from buffer into file "name"
+int fclose(const char* name); //Close file "name"
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */

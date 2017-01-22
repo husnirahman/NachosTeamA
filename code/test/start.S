@@ -155,6 +155,37 @@ displayDir:
 	j	$31
 	.end displayDir
 	
+	.globl fopen
+	.ent	fopen
+fopen:
+	addiu $2,$0,SC_fopen
+	syscall
+	j	$31
+	.end fopen
+	
+	.globl fread
+	.ent	fread
+fread:
+	addiu $2,$0,SC_fread
+	syscall
+	j	$31
+	.end fread
+	
+	.globl fwrite
+	.ent	fwrite
+fwrite:
+	addiu $2,$0,SC_fwrite
+	syscall
+	j	$31
+	.end fwrite
+	
+	.globl fclose
+	.ent	fclose
+fclose:
+	addiu $2,$0,SC_fclose
+	syscall
+	j	$31
+	.end fclose
 	
 #endif 
 	.globl Exit

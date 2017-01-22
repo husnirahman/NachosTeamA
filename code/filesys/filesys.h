@@ -65,6 +65,18 @@ class FileSystem {
 };
 
 #else // FILESYS
+#ifdef CHANGED
+#define FileNameMaxLen 		9
+class FileEntry {
+  public:
+    bool inUse;				// Is this directory entry in use?
+    int sector;				// Location on disk to find the 
+					//   FileHeader for this file 
+    char name[FileNameMaxLen + 1];	// Text name for file, with +1 for 
+					// the trailing '\0'
+};
+#endif //CHANGED
+
 class FileSystem {
   public:
     FileSystem(bool format);		// Initialize the file system.
@@ -87,6 +99,7 @@ class FileSystem {
 #ifdef CHANGED
 	bool CreateD(const char* name);
 	bool ChangeD(const char* name);
+	bool fileopen(const char* name);
 #endif //CHANGED
 
   private:
@@ -96,6 +109,11 @@ class FileSystem {
 					// file names, represented as a file
 #ifdef CHANGED
 	OpenFile* currOpenFile;
+	
+	FileEntry *table;		// Table of pairs: 
+					// <file name, file header location> 
+    int FFindIndex(const char *name);	// Find the index into the directory 
+					//  table corresponding to "name"
 #endif //CHANGED
 };
 

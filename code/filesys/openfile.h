@@ -59,6 +59,7 @@ class OpenFile {
 };
 
 #else // FILESYS
+
 class FileHeader;
 
 class OpenFile {
