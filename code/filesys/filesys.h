@@ -70,7 +70,7 @@ class FileSystem {
 class FileEntry {
   public:
     bool inUse;				// Is this directory entry in use?
-    int sector;				// Location on disk to find the 
+    //int sector;				// Location on disk to find the 
 					//   FileHeader for this file 
     OpenFile* file;
     char name[FileNameMaxLen + 1];	// Text name for file, with +1 for 

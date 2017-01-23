@@ -594,7 +594,7 @@ FileSystem::fileopen(const char *name)
         	if (!table[i].inUse) {
         		table[i].inUse = TRUE;            	
            		strncpy(table[i].name, name, FileNameMaxLen); 
-            	table[i].sector = sector;            	
+            	//table[i].sector = sector;            	
 				OpenFile* openFile = new OpenFile(sector);	// name was found in directory 				
             	table[i].file = openFile;            	
                 lockTable->Release();
@@ -671,7 +671,8 @@ FileSystem :: fileclose(int fp){
    
     printf("Closing file = %s\n", table[fp].name);
     table[fp].inUse = FALSE; 
-    table[fp].sector = -1;  
+    //table[fp].sector = -1;  
+    delete table[fp].file;
     table[fp].file = NULL;      
     condTable->Signal(lockTable);
     lockTable->Release();

@@ -12,6 +12,7 @@ int main(){
 	char* r = "ABCD";
 	Puts("Writing\n");
 	fseek(fp,0);
+	fwrite(fp, r, 4);	
 	fwrite(fp, r, 4);
 	
 	char res[38];
