@@ -239,6 +239,7 @@ ExceptionHandler (ExceptionType which)
             	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
             	int n = fileSystem->fileopen((const char*)buffer);
             	machine->WriteRegister(2,n);
+                delete buffer;
             	break;
             }
             case SC_fread:{

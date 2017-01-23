@@ -488,6 +488,7 @@ FileSystem::CreateD(const char *name){
 
     delete ddot;
     delete file;
+    delete par;
     return success;
 }
 
@@ -503,6 +504,7 @@ bool interpret(char* path, char* name ){
     
     printf("Entering Interpreter... \n");
     if(path[i]=='\0'){
+         delete lpath;
         return FALSE;
     }
     else{
@@ -522,14 +524,14 @@ bool interpret(char* path, char* name ){
                 printf("%c", lpath[k]);
                 j++; k++;        
             }
-            strncpy(path, lpath, j-i+1);
-            path[j] = '\0';
+            strncpy(path, lpath, j-i-1);
+            path[j-i-1] = '\0';
             printf("\n");
         }
         else {
-            lpath[0] = '\0';
-            strncpy(path, lpath, 1);
-            path[1] = '\0';
+            //lpath[0] = '\0';
+            //strncpy(path, lpath, 1);
+            path[0] = '\0';
         }
         printf("Subname in interpret = %s and path = %s\n", name,path);
         delete temp;
@@ -540,14 +542,14 @@ bool interpret(char* path, char* name ){
 bool
 FileSystem:: ChangeD(const char* name){
 	Directory* directory = new Directory(NumDirEntries);
-	directory->FetchFrom(currOpenFile);
 	bool success;
-	
     char* path = new char[MAX_PATH_SIZE];
     strncpy(path, name, MAX_PATH_SIZE);
     char* subname = new char[MAX_PATH_SIZE];
+    printf("Path = %s\n", path);
     
     while(interpret(path , subname)){
+        directory->FetchFrom(currOpenFile);
         printf("Subname in open = %s and path = %s", subname, path);
         
         int sector = directory->Find(subname);
@@ -571,6 +573,8 @@ FileSystem:: ChangeD(const char* name){
             temp->Print();
             delete temp;
         }
+        delete subname;
+        subname = new char[MAX_PATH_SIZE];
     }
     delete path;
     delete subname;
