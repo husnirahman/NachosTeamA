@@ -498,23 +498,42 @@ FileSystem::CreateD(const char *name){
 //----------------------------------------------------------------------
 bool interpret(char* path, char* name ){
     int i = 0;
+    int k = 0;
+    char* lpath = new char[MAX_PATH_SIZE];
     
     printf("Entering Interpreter... \n");
-    if(*path=='\0'){
+    if(path[i]=='\0'){
         return FALSE;
     }
     else{
         char* temp = new char[MAX_PATH_SIZE];
-        while(*path != '/'){
-            temp[i] = *path;
+        while(path[i] != '/'){
+            temp[i] = path[i];
             printf("%c", temp[i]);
-            path++;
             i++;
         }
         printf("\n");
-        strncpy(name, temp, MAX_PATH_SIZE);
-        printf("Subname in interpret = %s\n", temp);
+        strncpy(name, temp, i);
+        name[i] = '\0';
+        int j = i+1;
+        if(path[j] != '\0'){
+            while(path[j]!= '\0'){
+                lpath[k] = path[j];
+                printf("%c", lpath[k]);
+                j++; k++;        
+            }
+            strncpy(path, lpath, j-i+1);
+            path[j] = '\0';
+            printf("\n");
+        }
+        else {
+            lpath[0] = '\0';
+            strncpy(path, lpath, 1);
+            path[1] = '\0';
+        }
+        printf("Subname in interpret = %s and path = %s\n", name,path);
         delete temp;
+        delete lpath;
         return TRUE;
     }
 }
@@ -529,10 +548,10 @@ FileSystem:: ChangeD(const char* name){
     char* subname = new char[MAX_PATH_SIZE];
     
     while(interpret(path , subname)){
-        printf("Subname in open = %s\n", subname);
+        printf("Subname in open = %s and path = %s", subname, path);
         
         int sector = directory->Find(subname);
-        printf("Change dir:  name = %s and sector = %d\n", name, sector);
+        printf("Change dir:  name = %s and sector = %d\n", subname, sector);
 	
         if(sector == -1){
             success = FALSE;
@@ -550,8 +569,11 @@ FileSystem:: ChangeD(const char* name){
             temp->FetchFrom(currOpenFile);
             printf("Contents after changing directory\n");
             temp->Print();
+            delete temp;
         }
     }
+    delete path;
+    delete subname;
 	return success;
 }
 
