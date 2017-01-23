@@ -247,19 +247,18 @@ ExceptionHandler (ExceptionType which)
             	int file = machine->ReadRegister(4);
             	char* from = new char[MAX_STRING_SIZE];
             	copyStringFromMachine(file, from, MAX_STRING_SIZE);
-            	
-            	int dest = machine->ReadRegister(5);
-            	
+            	            	
             	char* to = new char[MAX_STRING_SIZE];
             	int size = machine->ReadRegister(6);
-            	fileSystem->fileread((const char*)from, to, size);
-                //copyStringToMachine(file, to, size);
-                bool b = TRUE;
-                int i = 0;
-                while(i < size && b == TRUE){
-    				b = machine->WriteMem(dest + i, 1, (int)(*(to + i)));
-        			i++;
-    			}
+            	if(fileSystem->fileread((const char*)from, to, size)){
+                    int dest = machine->ReadRegister(5);
+                    bool b = TRUE;
+                    int i = 0;
+                    while(i < size && b == TRUE){
+    				    b = machine->WriteMem(dest + i, 1, (int)(*(to + i)));
+        			     i++;
+                    }
+                }
                 //printf("fread from exception = %s \n", to);
                 delete from;
                 delete to;
@@ -283,6 +282,18 @@ ExceptionHandler (ExceptionType which)
                 delete to;
                 break;
             	
+            }
+            
+            case SC_fclose:{
+                int file = machine->ReadRegister(4);
+            	char* buffer = new char[MAX_STRING_SIZE];
+            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+                
+                bool  b = fileSystem->fileclose((const char*)buffer);
+            	int n;
+            	if(b) n = 0; else n =-1;
+            	machine->WriteRegister(2,n);
+            	break;
             }
 #endif //FILESYS
             default: {

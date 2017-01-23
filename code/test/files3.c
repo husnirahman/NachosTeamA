@@ -10,16 +10,6 @@ int main(){
 	for (i = 0; i<45 ; i++)
 		PutChar(s[i]);
     
-	char* r = "ABCD";
-	Puts("Writing\n");
-	fwrite("small", r, 4);
-	
-	char res[38];
-	Puts("Reading after writing\n");
-	fread("small", res, 38);
-	for (i = 0; i<38 ; i++)
-		PutChar(res[i]);
-    
     fclose("small");
     /*
     char t[45];

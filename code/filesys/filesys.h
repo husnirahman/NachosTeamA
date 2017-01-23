@@ -100,8 +100,9 @@ class FileSystem {
 	bool CreateD(const char* name);
 	bool ChangeD(const char* name);
 	bool fileopen(const char* name);
-	void fileread(const char* name, char* to, int size);
+	bool fileread(const char* name, char* to, int size);
 	void filewrite(const char* name, char* from, int size);
+    bool fileclose(const char* name);
 #endif //CHANGED
 
   private:

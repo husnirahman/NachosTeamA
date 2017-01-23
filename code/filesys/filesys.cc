@@ -534,16 +534,17 @@ FileSystem::fileopen(const char *name)
 { 
 	//bool success;
 	Directory* directory = new Directory(NumDirEntries);
-    OpenFile *openFile = NULL;
+   // OpenFile *openFile = NULL;
     int sector;
-
+    int i ;
+    
     DEBUG('f', "Opening file %s\n", name);
 	directory->FetchFrom(currOpenFile);
 	sector = directory->Find(name); 
 	delete directory;
 	
     if (sector >= 0) {		
-		openFile = new OpenFile(sector);	// name was found in directory 
+		/*openFile = new OpenFile(sector);	// name was found in directory 
 		openFile->Seek(0);
 		printf("Length of file %s = %d \n", name, openFile->Length());
 		char* buffer = new char[openFile->Length()];
@@ -554,7 +555,7 @@ FileSystem::fileopen(const char *name)
 			printf("%c",buffer[i]);
 		
 		delete openFile;
-		delete buffer;
+		delete buffer;*/
 		
 		for (i = 0; i < NumFileEntries; i++){
         	if (!table[i].inUse) {
@@ -579,7 +580,7 @@ FileSystem::FFindIndex(const char *name)
     return -1;		// name not in directory
 }
 
-void 
+bool 
 FileSystem :: fileread(const char* name, char* to, int size){
 	int i = FFindIndex(name);
 	int sector;
@@ -587,19 +588,23 @@ FileSystem :: fileread(const char* name, char* to, int size){
     if (i != -1)
 		sector =table[i].sector;
     else {
+        printf("File %s not opened\n", name);
     	to = NULL;
-		return;
+		return FALSE;
 	}
 	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
 	openFile->Seek(0);
-
+    if(size > openFile->Length()){
+        printf("Bytes to be read greater than file size. Reading till enf of file\n");
+        size = openFile->Length();
+    }
 	openFile->Read(to, size);
 	/*
 	printf("checking if right file is being read\n");
 	for(i = 0 ; i<size; i++)
 		printf("%c", to[i]);
 	*/
-	return;
+	return TRUE;
 }
 
 void 
@@ -625,5 +630,20 @@ FileSystem :: filewrite(const char* name, char* from, int size){
 		printf("%c", from[i]);
 	}	*/
 	return;
+}
+
+bool
+FileSystem :: fileclose(const char* name){
+    int i = FFindIndex(name);
+    
+    if(i == -1){
+        printf("File not opened. Therfore cannot be closed\n");
+        return FALSE;
+    }
+    else{
+        printf("Closing file = %s\n", name);
+        table[i].inUse = FALSE;
+        return TRUE;
+    }
 }
 #endif //CHANGED
