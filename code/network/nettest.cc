@@ -35,11 +35,11 @@ MailTest(int farAddr)
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     const char *data = "Hello there!";
-    const char *ack = "Got it!";
+  //  const char *ack = "Got it!";
     char buffer[MaxMailSize];
 //#ifdef CHANGED
-    int i = 0;
-    for (i = 0; i < 10; i++){
+  //  int i = 0;
+   // for (i = 0; i < 10; i++){
         // construct packet, mail header for original message
     // To: destination machine, mailbox 0
         // From: our machine, reply to: mailbox 1
@@ -55,7 +55,7 @@ MailTest(int farAddr)
         postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
         printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
         fflush(stdout);
-
+/*
         // Send acknowledgement to the other machine (using "reply to" mailbox
         // in the message that just arrived
         outPktHdr.to = inPktHdr.from;
@@ -67,9 +67,9 @@ MailTest(int farAddr)
         postOffice->Receive(1, &inPktHdr, &inMailHdr, buffer);
         printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
         fflush(stdout);
-  }
+ // }
 //#endif //CHANGED
-    // Then we're done!
+    // Then we're done!*/
     interrupt->Halt();
 }
 

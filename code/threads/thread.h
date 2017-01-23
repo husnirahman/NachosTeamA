@@ -95,6 +95,7 @@ class Thread
     
 #ifdef CHANGED
 	void ForkExec (VoidFunctionPtr func, int arg);
+        void wait(long long fromNow);
 #endif //CHANGED
     void Yield ();		// Relinquish the CPU if any 
     // other thread is runnable

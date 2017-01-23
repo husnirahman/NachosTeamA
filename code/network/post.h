@@ -30,13 +30,19 @@
 
 #include "network.h"
 #include "synchlist.h"
-
+#ifdef CHANGED
+#include "bitmap.h"
+#endif //CHANGED
 // Mailbox address -- uniquely identifies a mailbox on a given machine.
 // A mailbox is just a place for temporary storage for messages.
 typedef int MailBoxAddress;
+#ifdef CHANGED
+#define TEMPO 10000
+#define MAXREEMISSIONS 100
+#define ack_Max 1000
+#endif //CHANGED
 
 // The following class defines part of the message header.  
-// This is prepended to the message by the PostOffice, before the message 
 // is sent to the Network.
 
 class MailHeader {
@@ -45,6 +51,9 @@ class MailHeader {
     MailBoxAddress from;	// Mail box to reply to
     unsigned length;		// Bytes of message data (excluding the 
 				// mail header)
+#ifdef CHANGED
+    int ack_number;
+#endif //CHANGED
 };
 
 // Maximum "payload" -- real data -- that can included in a single message
@@ -138,6 +147,11 @@ class PostOffice {
     Semaphore *messageAvailable;// V'ed when message has arrived from network
     Semaphore *messageSent;	// V'ed when next message can be sent to network
     Lock *sendLock;		// Only one outgoing message at a time
+#ifdef CHANGED
+    BitMap **Boxes_Acks;            //to keep track of acknowledgement messages per each boxes
+    int *ack_Box;                   //to keep track of the number of acknowledgement messages in each box
+    Lock *ack_Lock;
+#endif //CHANGED
 };
 
 #endif
