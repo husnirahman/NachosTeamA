@@ -12,7 +12,7 @@ int main(){
     
 	char* r = "ABCD";
 	Puts("Writing\n");
-	fwrite("small", r, 4);
+	fwrite("small", r,0, 4);
 	
 	char res[38];
 	Puts("Reading after writing\n");

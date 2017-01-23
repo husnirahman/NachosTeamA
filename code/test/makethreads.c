@@ -2,7 +2,7 @@
 
 void print(void* ch)
 {
-	UserThreadJoin(1003);
+	//UserThreadJoin(1003);
     char* p = (char*)ch;
     PutChar(*p);
     PutChar(' ');

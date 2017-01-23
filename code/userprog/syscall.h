@@ -47,6 +47,7 @@
 #define SC_fread		28
 #define SC_fwrite		29
 #define SC_fclose		30
+#define SC_fseek		31
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -180,8 +181,9 @@ int changeDir(const char* name);
 void displayDir(); //Display contents of current directory
 int fopen(const char* name); //Open file "name"
 void fread(const char* name, char* buffer, int numBytes); //Read from file "name" into buffer, num Bytes
-int fwrite(const char* name, char* buffer, int numBytes); //write numbytes from buffer into file "name"
+int fwrite(const char* name, char* buffer, int position, int numBytes); //write numbytes from buffer into file "name"
 int fclose(const char* name); //Close file "name"
+void fseek(const char* name,int position); //Close file "name"
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */

@@ -125,7 +125,9 @@ class Thread
     // (If NULL, don't deallocate stack)
     ThreadStatus status;	// ready, running or blocked
     const char *name;
-
+#ifdef FILESYS
+    //FileEntry openFile[10];
+#endif //FILESYS
     void StackAllocate (VoidFunctionPtr func, int arg);
     // Allocate a stack for thread.
     // Used internally by Fork()

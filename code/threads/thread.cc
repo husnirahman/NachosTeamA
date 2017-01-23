@@ -429,4 +429,11 @@ Thread::RestoreUserState ()
 }
 #endif
 
+#ifdef FILESYS
+/*int
+Thread::addFile(const char* name) {
+    
+}*/
+#endif
+
 

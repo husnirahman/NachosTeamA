@@ -50,6 +50,10 @@
 #include "directory.h"
 #include "filehdr.h"
 #include "filesys.h"
+#ifdef FILESYS
+#include "synch.h"
+#define MAX_PATH_SIZE 100
+#endif //FILESYS
 
 // Sectors containing the file headers for the bitmap of free sectors,
 // and the directory of files.  These file headers are placed in well-known 
@@ -66,6 +70,10 @@
 #ifdef CHANGED
 #define NumFileEntries 		10
 #endif //CHANGED
+
+Lock* lockTable = new Lock("lockTable");
+Condition* condTable = new Condition("condTable");
+
 //----------------------------------------------------------------------
 // FileSystem::FileSystem
 // 	Initialize the file system.  If format = TRUE, the disk has
@@ -488,32 +496,65 @@ FileSystem::CreateD(const char *name){
 // Change currOpenFile to the name if it exists in the current directory
 // Return TRUE on SUCCESS else FALSE
 //----------------------------------------------------------------------
+bool interpret(char* path, char* name ){
+    int i = 0;
+    
+    printf("Entering Interpreter... \n");
+    if(*path=='\0'){
+        return FALSE;
+    }
+    else{
+        char* temp = new char[MAX_PATH_SIZE];
+        while(*path != '/'){
+            temp[i] = *path;
+            printf("%c", temp[i]);
+            path++;
+            i++;
+        }
+        printf("\n");
+        strncpy(name, temp, MAX_PATH_SIZE);
+        printf("Subname in interpret = %s\n", temp);
+        delete temp;
+        return TRUE;
+    }
+}
 bool
 FileSystem:: ChangeD(const char* name){
 	Directory* directory = new Directory(NumDirEntries);
 	directory->FetchFrom(currOpenFile);
 	bool success;
 	
-	int sector = directory->Find(name);
-	printf("Change dir:  name = %s and sector = %d\n", name, sector);
+    char* path = new char[MAX_PATH_SIZE];
+    strncpy(path, name, MAX_PATH_SIZE);
+    char* subname = new char[MAX_PATH_SIZE];
+    
+    while(interpret(path , subname)){
+        printf("Subname in open = %s\n", subname);
+        
+        int sector = directory->Find(subname);
+        printf("Change dir:  name = %s and sector = %d\n", name, sector);
 	
-	if(sector == -1)
-		success = FALSE;
-	else{
-		success = TRUE;
-		delete currOpenFile;
-		printf("Checking sector value = %d\n",sector);
-		if(sector ==1)
-			currOpenFile = new OpenFile(DirectorySector);
-		else
-			currOpenFile = new OpenFile(sector);
-		Directory* temp = new Directory(NumDirEntries);
-		temp->FetchFrom(currOpenFile);
-		printf("Contents after changing directory\n");
-		temp->Print();
-	}
+        if(sector == -1){
+            success = FALSE;
+            break;
+        }
+        else{
+            success = TRUE;
+            delete currOpenFile;
+            printf("Checking sector value = %d\n",sector);
+            if(sector ==1)
+                currOpenFile = new OpenFile(DirectorySector);
+            else
+                currOpenFile = new OpenFile(sector);
+            Directory* temp = new Directory(NumDirEntries);
+            temp->FetchFrom(currOpenFile);
+            printf("Contents after changing directory\n");
+            temp->Print();
+        }
+    }
 	return success;
 }
+
 //----------------------------------------------------------------------
 // FileSystem::FFindIndex
 // 	Open a file  and print its contents
@@ -543,6 +584,8 @@ FileSystem::fileopen(const char *name)
 	sector = directory->Find(name); 
 	delete directory;
 	
+    lockTable->Acquire();
+    
     if (sector >= 0) {		
 		/*openFile = new OpenFile(sector);	// name was found in directory 
 		openFile->Seek(0);
@@ -557,18 +600,26 @@ FileSystem::fileopen(const char *name)
 		delete openFile;
 		delete buffer;*/
 		
+        while (FFindIndex(name) > -1) {
+            condTable->Wait(lockTable);
+        }
+        
+    
+        DEBUG('f', "Not Stuck %s\n", name);
 		for (i = 0; i < NumFileEntries; i++){
         	if (!table[i].inUse) {
         		table[i].inUse = TRUE;
             	
            		strncpy(table[i].name, name, FileNameMaxLen); 
             	table[i].sector = sector;
+                lockTable->Release();
         		return TRUE;
 			}
 		}
 	}
+	
+    lockTable->Release();
 	return FALSE;
-   
 }
 
 int
@@ -582,6 +633,7 @@ FileSystem::FFindIndex(const char *name)
 
 bool 
 FileSystem :: fileread(const char* name, char* to, int size){
+    lockTable->Acquire();
 	int i = FFindIndex(name);
 	int sector;
 	
@@ -590,6 +642,7 @@ FileSystem :: fileread(const char* name, char* to, int size){
     else {
         printf("File %s not opened\n", name);
     	to = NULL;
+        lockTable->Release();
 		return FALSE;
 	}
 	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
@@ -604,23 +657,27 @@ FileSystem :: fileread(const char* name, char* to, int size){
 	for(i = 0 ; i<size; i++)
 		printf("%c", to[i]);
 	*/
+    lockTable->Release();
 	return TRUE;
 }
 
 void 
-FileSystem :: filewrite(const char* name, char* from, int size){
+FileSystem :: filewrite(const char* name, char* from, int pos, int size){
+    
+    lockTable->Acquire();
 	int i = FFindIndex(name);
 	int sector;
 	
     if (i != -1)
 		sector =table[i].sector;
     else {
+        lockTable->Release();
     	return;
 	}
 	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
 	
-	openFile->Seek(6);
-	//printf("Writing file length = %d \n", openFile->Length());
+	openFile->Seek(pos);
+	printf("Writing file length = %d \n", openFile->Length());
 	
 
 	openFile->Write(from, size);
@@ -629,21 +686,49 @@ FileSystem :: filewrite(const char* name, char* from, int size){
 	for(i = 0 ; i<size; i++){
 		printf("%c", from[i]);
 	}	*/
+    
+    lockTable->Release();
 	return;
 }
 
 bool
 FileSystem :: fileclose(const char* name){
+    lockTable->Acquire();
     int i = FFindIndex(name);
     
     if(i == -1){
-        printf("File not opened. Therfore cannot be closed\n");
+        printf("File not opened. Therfore cannot be closed\n");              
+        lockTable->Release();
         return FALSE;
     }
     else{
         printf("Closing file = %s\n", name);
-        table[i].inUse = FALSE;
+        table[i].inUse = FALSE;        
+        condTable->Signal(lockTable);
+        lockTable->Release();
         return TRUE;
     }
 }
+/*
+void 
+FileSystem::fileseek(const char* name, int position){    
+    lockTable->Acquire();
+    int i = FFindIndex(name);
+    int sector;
+    
+    if (i != -1)
+		sector =table[i].sector;
+    else {
+        lockTable->Release();
+    	return;
+	}
+	
+	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
+    printf("Fseek position= %d \n", position);
+    openFile->Seek(position);
+    
+    lockTable->Release();   
+    return;
+}*/
+
 #endif //CHANGED

@@ -275,15 +275,15 @@ ExceptionHandler (ExceptionType which)
             	char* from = new char[MAX_STRING_SIZE];
             	copyStringFromMachine(dest, from, MAX_STRING_SIZE);
             	
-            	int size = machine->ReadRegister(6);
-            	fileSystem->filewrite((const char*)to, from, size);
+            	int pos = machine->ReadRegister(6);
+                int size = machine->ReadRegister(7);
+            	fileSystem->filewrite((const char*)to, from, pos, size);
                 
                 delete from;
                 delete to;
                 break;
             	
             }
-            
             case SC_fclose:{
                 int file = machine->ReadRegister(4);
             	char* buffer = new char[MAX_STRING_SIZE];
@@ -294,7 +294,18 @@ ExceptionHandler (ExceptionType which)
             	if(b) n = 0; else n =-1;
             	machine->WriteRegister(2,n);
             	break;
-            }
+            }/*
+            case SC_fseek:{
+                printf("seek\n");
+                int file = machine->ReadRegister(4);                
+                int position = machine->ReadRegister(5);
+                
+            	char* buffer = new char[MAX_STRING_SIZE];
+            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+                
+                fileSystem->fileseek((const char*)buffer,position);
+            	break;
+            }*/
 #endif //FILESYS
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);

@@ -187,6 +187,15 @@ fclose:
 	j	$31
 	.end fclose
 	
+	.globl fseek
+	.ent	fseek
+fseek:
+	addiu $2,$0,SC_fseek
+	syscall
+	j	$31
+	.end fseek
+	
+	
 #endif 
 	.globl Exit
 	.ent	Exit

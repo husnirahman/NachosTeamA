@@ -72,6 +72,7 @@ class FileEntry {
     bool inUse;				// Is this directory entry in use?
     int sector;				// Location on disk to find the 
 					//   FileHeader for this file 
+    OpenFile* file;
     char name[FileNameMaxLen + 1];	// Text name for file, with +1 for 
 					// the trailing '\0'
 };
@@ -101,8 +102,9 @@ class FileSystem {
 	bool ChangeD(const char* name);
 	bool fileopen(const char* name);
 	bool fileread(const char* name, char* to, int size);
-	void filewrite(const char* name, char* from, int size);
+	void filewrite(const char* name, char* from, int pos, int size);
     bool fileclose(const char* name);
+    void fileseek(const char* name, int position);
 #endif //CHANGED
 
   private:
