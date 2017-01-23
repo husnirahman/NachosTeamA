@@ -237,20 +237,16 @@ ExceptionHandler (ExceptionType which)
             	char* buffer = new char[MAX_STRING_SIZE];
             	int file = machine->ReadRegister(4);
             	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
-            	bool  b = fileSystem->fileopen((const char*)buffer);
-            	int n;
-            	if(b) n = 0; else n =-1;
+            	int n = fileSystem->fileopen((const char*)buffer);
             	machine->WriteRegister(2,n);
             	break;
             }
             case SC_fread:{
-            	int file = machine->ReadRegister(4);
-            	char* from = new char[MAX_STRING_SIZE];
-            	copyStringFromMachine(file, from, MAX_STRING_SIZE);
-            	            	
+            	int file = machine->ReadRegister(4);            	            	
             	char* to = new char[MAX_STRING_SIZE];
             	int size = machine->ReadRegister(6);
-            	if(fileSystem->fileread((const char*)from, to, size)){
+            	int r = fileSystem->fileread(file, to, size);
+            	if(r == 0){
                     int dest = machine->ReadRegister(5);
                     bool b = TRUE;
                     int i = 0;
@@ -258,54 +254,40 @@ ExceptionHandler (ExceptionType which)
     				    b = machine->WriteMem(dest + i, 1, (int)(*(to + i)));
         			     i++;
                     }
-                }
-                //printf("fread from exception = %s \n", to);
-                delete from;
+                }                
+            	machine->WriteRegister(2,r);
                 delete to;
                 break;
             	
             }
             
             case SC_fwrite:{
-            	int file = machine->ReadRegister(4);
-            	char* to = new char[MAX_STRING_SIZE];
-            	copyStringFromMachine(file, to, MAX_STRING_SIZE);
-            	
+            	int file = machine->ReadRegister(4);            	
             	int dest = machine->ReadRegister(5);
             	char* from = new char[MAX_STRING_SIZE];
-            	copyStringFromMachine(dest, from, MAX_STRING_SIZE);
-            	
-            	int pos = machine->ReadRegister(6);
-                int size = machine->ReadRegister(7);
-            	fileSystem->filewrite((const char*)to, from, pos, size);
+            	copyStringFromMachine(dest, from, MAX_STRING_SIZE);            	
+            	int size = machine->ReadRegister(6);
+            	int r = fileSystem->filewrite(file, from, size);
+            	machine->WriteRegister(2,r);
                 
                 delete from;
-                delete to;
                 break;
             	
             }
             case SC_fclose:{
-                int file = machine->ReadRegister(4);
-            	char* buffer = new char[MAX_STRING_SIZE];
-            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
-                
-                bool  b = fileSystem->fileclose((const char*)buffer);
-            	int n;
-            	if(b) n = 0; else n =-1;
-            	machine->WriteRegister(2,n);
+                int file = machine->ReadRegister(4);                
+                int r = fileSystem->fileclose(file);
+            	machine->WriteRegister(2,r);
             	break;
-            }/*
+            }
             case SC_fseek:{
                 printf("seek\n");
                 int file = machine->ReadRegister(4);                
-                int position = machine->ReadRegister(5);
-                
-            	char* buffer = new char[MAX_STRING_SIZE];
-            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
-                
-                fileSystem->fileseek((const char*)buffer,position);
+                int position = machine->ReadRegister(5);                
+                int r = fileSystem->fileseek(file,position);                
+            	machine->WriteRegister(2,r);
             	break;
-            }*/
+            }
 #endif //FILESYS
             default: {
                 printf("Unexpected user mode exception %d %d\n", which, type);

@@ -180,10 +180,10 @@ int createDir(const char* name);
 int changeDir(const char* name);
 void displayDir(); //Display contents of current directory
 int fopen(const char* name); //Open file "name"
-void fread(const char* name, char* buffer, int numBytes); //Read from file "name" into buffer, num Bytes
-int fwrite(const char* name, char* buffer, int position, int numBytes); //write numbytes from buffer into file "name"
-int fclose(const char* name); //Close file "name"
-void fseek(const char* name,int position); //Close file "name"
+int fread(int fp, char* buffer, int numBytes); //Read from file "name" into buffer, num Bytes
+int fwrite(int fp, char* buffer, int numBytes); //write numbytes from buffer into file "name"
+int fclose(int fp); //Close file "name"
+void fseek(int fp,int position); //Close file "name"
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */

@@ -570,12 +570,10 @@ FileSystem:: ChangeD(const char* name){
 //
 //	"name" -- the text name of the file to be opened
 //----------------------------------------------------------------------
-bool
+int
 FileSystem::fileopen(const char *name)
 { 
-	//bool success;
 	Directory* directory = new Directory(NumDirEntries);
-   // OpenFile *openFile = NULL;
     int sector;
     int i ;
     
@@ -586,40 +584,27 @@ FileSystem::fileopen(const char *name)
 	
     lockTable->Acquire();
     
-    if (sector >= 0) {		
-		/*openFile = new OpenFile(sector);	// name was found in directory 
-		openFile->Seek(0);
-		printf("Length of file %s = %d \n", name, openFile->Length());
-		char* buffer = new char[openFile->Length()];
-		
-		openFile->Read(buffer, openFile->Length());
-		int i;
-		for(i=0; i< openFile->Length(); i++)
-			printf("%c",buffer[i]);
-		
-		delete openFile;
-		delete buffer;*/
-		
+    if (sector >= 0) {				
         while (FFindIndex(name) > -1) {
             condTable->Wait(lockTable);
-        }
-        
+        } 
     
         DEBUG('f', "Not Stuck %s\n", name);
 		for (i = 0; i < NumFileEntries; i++){
         	if (!table[i].inUse) {
-        		table[i].inUse = TRUE;
-            	
+        		table[i].inUse = TRUE;            	
            		strncpy(table[i].name, name, FileNameMaxLen); 
-            	table[i].sector = sector;
+            	table[i].sector = sector;            	
+				OpenFile* openFile = new OpenFile(sector);	// name was found in directory 				
+            	table[i].file = openFile;            	
                 lockTable->Release();
-        		return TRUE;
+        		return i;
 			}
 		}
 	}
 	
     lockTable->Release();
-	return FALSE;
+	return -1;
 }
 
 int
@@ -631,104 +616,84 @@ FileSystem::FFindIndex(const char *name)
     return -1;		// name not in directory
 }
 
-bool 
-FileSystem :: fileread(const char* name, char* to, int size){
+int 
+FileSystem :: fileread(int fp, char* to, int size){
     lockTable->Acquire();
-	int i = FFindIndex(name);
-	int sector;
-	
-    if (i != -1)
-		sector =table[i].sector;
-    else {
-        printf("File %s not opened\n", name);
+    
+    if(!table[fp].inUse){    
+        printf("File not opened\n");
     	to = NULL;
         lockTable->Release();
-		return FALSE;
-	}
-	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
-	openFile->Seek(0);
+		return -1;
+    }
+    
+	OpenFile* openFile = table[fp].file;
+	
     if(size > openFile->Length()){
         printf("Bytes to be read greater than file size. Reading till enf of file\n");
         size = openFile->Length();
     }
 	openFile->Read(to, size);
-	/*
-	printf("checking if right file is being read\n");
-	for(i = 0 ; i<size; i++)
-		printf("%c", to[i]);
-	*/
+	
     lockTable->Release();
-	return TRUE;
+	return 0;
 }
 
-void 
-FileSystem :: filewrite(const char* name, char* from, int pos, int size){
+int 
+FileSystem :: filewrite(int fp, char* from, int size){
     
     lockTable->Acquire();
-	int i = FFindIndex(name);
-	int sector;
-	
-    if (i != -1)
-		sector =table[i].sector;
-    else {
+    
+    if(!table[fp].inUse){    
+        printf("File not opened\n");
         lockTable->Release();
-    	return;
-	}
-	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
+		return -1;
+    }
+    
+	OpenFile* openFile = table[fp].file;
 	
-	openFile->Seek(pos);
-	printf("Writing file length = %d \n", openFile->Length());
-	
-
+	printf("Writing file length = %d \n", openFile->Length());	
 	openFile->Write(from, size);
-	/*
-	printf("checking if right bytes are being written\n");
-	for(i = 0 ; i<size; i++){
-		printf("%c", from[i]);
-	}	*/
     
     lockTable->Release();
-	return;
+	return 0;
 }
 
-bool
-FileSystem :: fileclose(const char* name){
+int
+FileSystem :: fileclose(int fp){
     lockTable->Acquire();
-    int i = FFindIndex(name);
     
-    if(i == -1){
-        printf("File not opened. Therfore cannot be closed\n");              
+    if(!table[fp].inUse){    
+        printf("File not opened. Therfore cannot be closed\n"); 
         lockTable->Release();
-        return FALSE;
-    }
-    else{
-        printf("Closing file = %s\n", name);
-        table[i].inUse = FALSE;        
-        condTable->Signal(lockTable);
-        lockTable->Release();
-        return TRUE;
-    }
+		return -1;
+    }   
+   
+    printf("Closing file = %s\n", table[fp].name);
+    table[fp].inUse = FALSE; 
+    table[fp].sector = -1;  
+    table[fp].file = NULL;      
+    condTable->Signal(lockTable);
+    lockTable->Release();
+    return 0;    
 }
-/*
-void 
-FileSystem::fileseek(const char* name, int position){    
+
+int 
+FileSystem::fileseek(int fp, int position){    
     lockTable->Acquire();
-    int i = FFindIndex(name);
-    int sector;
     
-    if (i != -1)
-		sector =table[i].sector;
-    else {
+    if(!table[fp].inUse){    
+        printf("File not opened.\n"); 
         lockTable->Release();
-    	return;
-	}
-	
-	OpenFile* openFile = new OpenFile(sector);	// name was found in directory 
+		return -1;
+    }    
+    
+	OpenFile* openFile = table[fp].file;
     printf("Fseek position= %d \n", position);
     openFile->Seek(position);
     
     lockTable->Release();   
-    return;
-}*/
+    return 0;
+}
 
 #endif //CHANGED

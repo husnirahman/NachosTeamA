@@ -1,21 +1,21 @@
 #include "syscall.h"
 
 void thd1() {
-    int n = fopen("small");
-    if(n==0) {        
-        //fseek("small",10);
-        fwrite("small","Hello",10, 5);
-        fclose("small");
+    int fp = fopen("small");
+    if(fp > -1) {        
+        fseek(fp,10);
+        fwrite(fp,"Hello", 5);
+        fclose(fp);
     }
     UserThreadExit();
 }
 
 void thd2() {
-    int n = fopen("small");
-    if(n==0) {
-        //fseek("small",0);
-        fwrite("small","End",0,3);
-        fclose("small");
+    int fp = fopen("small");
+    if(fp > -1) {
+        fseek(fp,0);
+        fwrite(fp,"End",3);
+        fclose(fp);
     }
     UserThreadExit();
 }
@@ -27,9 +27,9 @@ int main(){
     UserThreadJoin(id1);
     UserThreadJoin(id2);
     
-    int n = fopen("small");
-    if(n==0) {        
-        fclose("small");
+    int fp = fopen("small");
+    if(fp > -1) {        
+        fclose(fp);
     }
     return 0;
 }

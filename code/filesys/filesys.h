@@ -100,11 +100,11 @@ class FileSystem {
 #ifdef CHANGED
 	bool CreateD(const char* name);
 	bool ChangeD(const char* name);
-	bool fileopen(const char* name);
-	bool fileread(const char* name, char* to, int size);
-	void filewrite(const char* name, char* from, int pos, int size);
-    bool fileclose(const char* name);
-    void fileseek(const char* name, int position);
+	int fileopen(const char* name);
+	int fileread(int fp, char* to, int size);
+	int filewrite(int fp, char* from, int size);
+   	int fileclose(int fp);
+    int fileseek(int fp, int position);
 #endif //CHANGED
 
   private:
