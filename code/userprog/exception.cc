@@ -244,8 +244,8 @@ ExceptionHandler (ExceptionType which)
             }
             case SC_fread:{
             	int file = machine->ReadRegister(4);            	            	
-            	char* to = new char[MAX_STRING_SIZE];
             	int size = machine->ReadRegister(6);
+                char* to = new char[size];
             	int r = fileSystem->fileread(file, to, size);
             	if(r == 0){
                     int dest = machine->ReadRegister(5);
@@ -265,9 +265,9 @@ ExceptionHandler (ExceptionType which)
             case SC_fwrite:{
             	int file = machine->ReadRegister(4);            	
             	int dest = machine->ReadRegister(5);
-            	char* from = new char[MAX_STRING_SIZE];
-            	copyStringFromMachine(dest, from, MAX_STRING_SIZE);            	
-            	int size = machine->ReadRegister(6);
+                int size = machine->ReadRegister(6);
+            	char* from = new char[size];
+            	copyStringFromMachine(dest, from, size);            	
             	int r = fileSystem->filewrite(file, from, size);
             	machine->WriteRegister(2,r);
                 
@@ -282,12 +282,22 @@ ExceptionHandler (ExceptionType which)
             	break;
             }
             case SC_fseek:{
-                printf("seek\n");
                 int file = machine->ReadRegister(4);                
                 int position = machine->ReadRegister(5);                
                 int r = fileSystem->fileseek(file,position);                
             	machine->WriteRegister(2,r);
             	break;
+            }
+            case SC_fcreate:{
+                char* buffer = new char[MAX_STRING_SIZE];
+            	int file = machine->ReadRegister(4);
+                int size = machine->ReadRegister(5);
+            	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
+            	bool b = fileSystem->Create((const char*)buffer, size);
+                int n;
+                if (b) n =0; else n = -1;
+            	machine->WriteRegister(2,n);
+                break;
             }
 #endif //FILESYS
             default: {

@@ -224,6 +224,13 @@ FileSystem::Create(const char *name, int initialSize)
     int sector;
     bool success;
 
+#ifdef CHANGED
+    if(initialSize > 3840){
+        printf("Calling CreateL \n");
+        return CreateL(name, initialSize);
+    }
+#endif //CHANGED
+
     DEBUG('f', "Creating file %s, size %d\n", name, initialSize);
 
     directory = new Directory(NumDirEntries);
@@ -720,6 +727,91 @@ FileSystem::fileseek(int fp, int position){
     
     lockTable->Release();   
     return 0;
+}
+
+bool
+FileSystem::CreateL(const char *name, int initialSize)
+{
+    Directory *directory;
+    BitMap *freeMap;
+    int i;
+    bool success = TRUE;
+
+    int numHeader = divRoundUp(initialSize, 3840);
+    FileHeader *hdr_table[numHeader];
+    int sector[numHeader];
+    printf("Entering CreateL ... number of header = %d\n", numHeader);
+     
+    DEBUG('f', "Creating file %s, size %d\n", name, initialSize);
+
+    directory = new Directory(NumDirEntries);
+	directory->FetchFrom(currOpenFile);
+
+    if (directory->Find(name) != -1)
+      success = FALSE;			// file is already in directory
+    else {	
+        freeMap = new BitMap(NumSectors);
+        freeMap->FetchFrom(freeMapFile);
+        for(i = 0; i < numHeader; i++){
+            sector[i] = freeMap->Find();	// find a sector to hold the file header
+            printf("Sector1 allocated = %d \n", sector[i]);
+            if(sector[i] == -1){
+                success = FALSE;
+                break;
+            }
+        }
+    	if(success == FALSE){ 
+            success = FALSE;
+            //printf("success 1 \n");
+        }
+        else if(!directory->Add(name, sector[0])){ 
+            success = FALSE;
+           // printf("success 2 \n");
+        }
+        else{
+            int temp_size = initialSize;
+            int size = 3840;
+            for(i = 0; i < numHeader; i++){
+                hdr_table[i] = new FileHeader;
+                printf("hi 1 \n");
+                int numBytes = size;
+                printf("Number of numBytes = %d\n", numBytes);
+                int numSectors  = divRoundUp(size, SectorSize);
+                if (freeMap->NumClear() < numSectors){
+                    success = FALSE;
+                    break;
+                }
+                if(size == 3840){
+                    hdr_table[i]->Allocate(freeMap, size-SectorSize); //No space on the disk
+                    hdr_table[i]->indirect(numSectors -1, sector[i+1]);
+                }
+                else
+                    hdr_table[i]->Allocate(freeMap, size);
+                
+                temp_size = temp_size - 3840;
+                printf("temp_size = %d\n", temp_size);
+                if(temp_size < 3840)
+                    size = temp_size;
+            }
+            
+            if(i == numHeader){
+                success = TRUE;
+		                                      // everthing worked, flush all changes back to disk
+                printf("Writing back in header sectors \n");
+                for(i = 0; i < numHeader; i++){
+                        hdr_table[i]->WriteBack(sector[i]); 
+                }
+                directory->WriteBack(currOpenFile);
+                freeMap->WriteBack(freeMapFile);
+            }
+            for(i = 0; i < numHeader; i++)
+                delete hdr_table[i];
+        }
+         delete freeMap;
+    }
+    delete directory;
+
+    return success;
 }
 
 #endif //CHANGED

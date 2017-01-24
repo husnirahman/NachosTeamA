@@ -82,13 +82,22 @@ class OpenFile {
 					// bypassing the implicit position.
     int WriteAt(const char *from, int numBytes, int position);
 
+//#ifdef CHANGED
+    int WriteAtL(const char *from, int numBytes, int position);
+    int ReadAtL(char *into, int numBytes, int position);
+//#endif //CHANGED
+    
     int Length(); 			// Return the number of bytes in the
 					// file (this interface is simpler 
 					// than the UNIX idiom -- lseek to 
 					// end of file, tell, lseek back 
     
   private:
+//#ifndef CHANGED
     FileHeader *hdr;			// Header for this file 
+//#else
+    FileHeader* hdr_table[2];
+//#endif //CHANGED
     int seekPosition;			// Current position within the file
 };
 

@@ -105,6 +105,7 @@ class FileSystem {
 	int filewrite(int fp, char* from, int size);
    	int fileclose(int fp);
     int fileseek(int fp, int position);
+    bool CreateL(const char* name, int initialSize);
 #endif //CHANGED
 
   private:

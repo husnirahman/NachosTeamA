@@ -195,7 +195,13 @@ fseek:
 	j	$31
 	.end fseek
 	
-	
+	.globl fcreate
+	.ent	fcreate
+fcreate:
+	addiu $2,$0,SC_fcreate
+	syscall
+	j	$31
+	.end fcreate
 #endif 
 	.globl Exit
 	.ent	Exit

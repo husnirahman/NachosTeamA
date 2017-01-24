@@ -41,13 +41,19 @@
 bool
 FileHeader::Allocate(BitMap *freeMap, int fileSize)
 { 
+    printf("fileSize = %d\n", fileSize);
     numBytes = fileSize;
+    printf("Number of numBytes = %d\n", numBytes);
     numSectors  = divRoundUp(fileSize, SectorSize);
     if (freeMap->NumClear() < numSectors)
 	return FALSE;		// not enough space
 
-    for (int i = 0; i < numSectors; i++)
-	dataSectors[i] = freeMap->Find();
+	printf("Number of sectors = %d\n", numSectors);
+    for (int i = 0; i < numSectors; i++){
+        int temp = freeMap->Find();
+         printf("Allocate sector[%d] = %d \n", i, temp);
+        dataSectors[i] = temp;
+    }
     return TRUE;
 }
 
@@ -148,3 +154,15 @@ FileHeader::Print()
     }
     delete [] data;
 }
+
+#ifdef CHANGED
+void
+FileHeader::indirect(int index, int sector){
+    dataSectors[index] = sector;
+}
+
+int 
+FileHeader::indirect_sector(int index){
+    return dataSectors[index];
+}
+#endif //CHANGED

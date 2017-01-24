@@ -55,6 +55,10 @@ class FileHeader {
 					// in bytes
 
     void Print();			// Print the contents of the file.
+#ifdef CHANGED
+    void indirect(int index, int sector);
+    int indirect_sector(int index);
+#endif //CHANGED
 
   private:
     int numBytes;			// Number of bytes in the file

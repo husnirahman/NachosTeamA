@@ -48,6 +48,7 @@
 #define SC_fwrite		29
 #define SC_fclose		30
 #define SC_fseek		31
+#define SC_fcreate      32
 #endif //CHANGED
 
 #ifdef IN_USER_MODE
@@ -183,7 +184,8 @@ int fopen(const char* name); //Open file "name"
 int fread(int fp, char* buffer, int numBytes); //Read from file "name" into buffer, num Bytes
 int fwrite(int fp, char* buffer, int numBytes); //write numbytes from buffer into file "name"
 int fclose(int fp); //Close file "name"
-void fseek(int fp,int position); //Close file "name"
+int fseek(int fp,int position); //Close file "name"
+int fcreate(const char* name, int size); //Open file "name"
 #endif //CHANGED
 
 /* Close the file, we're done reading and writing to it. */
