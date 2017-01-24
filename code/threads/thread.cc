@@ -436,4 +436,19 @@ Thread::addFile(const char* name) {
 }*/
 #endif
 
+#ifdef CHANGED
+static void handler(int arg){
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);
+    scheduler->ReadyToRun((Thread *)arg);
+    (void) interrupt->SetLevel (oldLevel);
+}
+
+void Thread::wait(long long fromNow){
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);
+    ASSERT(this == currentThread);
+    interrupt->Schedule(handler, (int)this, fromNow, TimerInt);
+    this->Sleep();
+    (void) interrupt->SetLevel (oldLevel);
+}
+#endif //CHANGED
 
