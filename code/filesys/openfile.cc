@@ -289,27 +289,45 @@ OpenFile::ReadAtL(char *into, int numBytes, int position)
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
     char *buf;
-
-    if ((numBytes <= 0) || (position >= fileLength))
-    	return 0; 				// check request
-    if ((position + numBytes) > fileLength)		
-	numBytes = fileLength - position;
+    int tempBytes = fileLength;
+    int size = fileLength;
+    
+    printf("File length = %d Num bytes = %d\n", fileLength, numBytes);
     DEBUG('f', "Reading %d bytes at %d, from file of length %d.\n", 	
 			numBytes, position, fileLength);
+	
+	while(tempBytes <= numBytes){
+		firstSector = divRoundDown(position, SectorSize);
+		lastSector = divRoundDown(position + size - 1, SectorSize);
+		numSectors = 1 + lastSector - firstSector;
 
-    firstSector = divRoundDown(position, SectorSize);
-    lastSector = divRoundDown(position + numBytes - 1, SectorSize);
-    numSectors = 1 + lastSector - firstSector;
+		// read in all the full and partial sectors that we need
+		buf = new char[numSectors * SectorSize];
+		for (i = firstSector; i <= lastSector; i++)	
+		    synchDisk->ReadSector(hdr->ByteToSector(i * SectorSize), 
+						&buf[(i - firstSector) * SectorSize]);
 
-    // read in all the full and partial sectors that we need
-    buf = new char[numSectors * SectorSize];
-    for (i = firstSector; i <= lastSector; i++)	
-        synchDisk->ReadSector(hdr->ByteToSector(i * SectorSize), 
-					&buf[(i - firstSector) * SectorSize]);
-
-    // copy the part we want
-    bcopy(&buf[position - (firstSector * SectorSize)], into, numBytes);
-    delete [] buf;
+		// copy the part we want
+		bcopy(&buf[position - (firstSector * SectorSize)], into, size);
+		
+		if(numBytes - tempBytes < size){
+            size = numBytes - tempBytes;
+            if(size == 0)
+                break;
+            tempBytes = tempBytes + size;
+        }
+        else
+            tempBytes = tempBytes + size;
+            
+        printf("TempByets = %d\n", tempBytes);
+        int nextHead = hdr->indirect_sector(lastSector+1);
+        delete hdr;
+        if (nextHead < 32*32 && nextHead > 0){
+            hdr = new FileHeader;
+            hdr->FetchFrom(nextHead);
+        }
+    	delete [] buf;
+    }
     return numBytes;
 }
 #endif //CHANGED

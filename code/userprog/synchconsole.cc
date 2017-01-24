@@ -122,7 +122,7 @@ void SynchConsole::SynchGetString(char *s, int n)
     
     for(int i =0; i<n; i++){
         s[i]=InterGetChar();
-         if(s[i]== '\0')
+         if(s[i]== '\0' || s[i] == EOF)
             break;        
     }    
     lockRead->Release();
