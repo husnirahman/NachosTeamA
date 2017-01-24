@@ -184,6 +184,7 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
     sendLock = new Lock("message send lock");
 #ifdef CHANGED
     ack_Lock = new Lock("ack");
+    check = new Lock("check");
 #endif //CHANGED
 // Second, initialize the mailboxes
     netAddr = addr; 
@@ -196,6 +197,8 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
         Boxes_Acks[i] = new BitMap(ack_Max);
     }
     ack_Box = new int[nBoxes];
+    for(i = 0; i < nBoxes; i++)
+        ack_Box[i] = 0;
 #endif //CHANGED
 // Third, initialize the network; tell it which interrupt handlers to call
     network = new Network(addr, reliability, ReadAvail, WriteDone, (int) this);
@@ -227,6 +230,7 @@ PostOffice::~PostOffice()
     delete [] Boxes_Acks;
     delete ack_Box;
     delete ack_Lock;
+    delete check;
 #endif //CHANGED
 }
 
@@ -260,10 +264,16 @@ PostOffice::PostalDelivery()
 	ASSERT(0 <= mailHdr.to && mailHdr.to < numBoxes);
 	ASSERT(mailHdr.length <= MaxMailSize);
 #ifdef CHANGED
-        Boxes_Acks[mailHdr.from]->Mark(mailHdr.ack_number);
+        if(mailHdr.acknowledged == true){ 
+         //   printf("%d\n",mailHdr.acknowledged);
+            Boxes_Acks[mailHdr.to]->Mark(mailHdr.ack_number);
+        }
+        else{
+            SendAck(&pktHdr,&mailHdr);
+            // put into mailbox
+            boxes[mailHdr.to].Put(pktHdr, mailHdr, buffer + sizeof(MailHeader));
+        }
 #endif //CHANGED
-	// put into mailbox
-        boxes[mailHdr.to].Put(pktHdr, mailHdr, buffer + sizeof(MailHeader));
     }
 }
 
@@ -283,23 +293,26 @@ PostOffice::PostalDelivery()
 void
 PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
 {
-    char* buffer = new char[MaxPacketSize];	// space to hold concatenated
-#ifdef CHANGED					// mailHdr + data
-    ack_Lock->Acquire();
-    int ack_number = ack_Box[mailHdr.from];
-    mailHdr.ack_number =  ack_number;
-    ack_Box[mailHdr.from]++;
-    Boxes_Acks[mailHdr.from]->Clear(mailHdr.ack_number);
-    printf("%d\n", mailHdr.from);
-    ack_Lock->Release();
+
+    
+    ASSERT(mailHdr.length <= MaxMailSize);
+    ASSERT(0 <= mailHdr.to && mailHdr.to < numBoxes);
+    #ifdef CHANGED					
+    if(mailHdr.acknowledged != true){
+        ack_Lock->Acquire();
+        int ack_number = ack_Box[mailHdr.from];
+        mailHdr.ack_number =  ack_number;
+        ack_Box[mailHdr.from]++;
+        ack_Lock->Release();
+        Boxes_Acks[mailHdr.from]->Clear(mailHdr.ack_number);
+    }
 #endif //CHANGED
+    char* buffer = new char[MaxPacketSize];	// space to hold concatenated
+                                                // mailHdr + data
     if (DebugIsEnabled('n')) {
 	printf("Post send: ");
 	PrintHeader(pktHdr, mailHdr);
     }
-    ASSERT(mailHdr.length <= MaxMailSize);
-    ASSERT(0 <= mailHdr.to && mailHdr.to < numBoxes);
-    
     // fill in pktHdr, for the Network layer
     pktHdr.from = netAddr;
     pktHdr.length = mailHdr.length + sizeof(MailHeader);
@@ -309,7 +322,10 @@ PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
     bcopy(data, buffer + sizeof(MailHeader), mailHdr.length);
 #ifdef CHANGED
     int i;
-    for(i = 0; i < MAXREEMISSIONS; i++)
+    int send_times = MAXREEMISSIONS;
+    if(mailHdr.acknowledged == true)
+        send_times = 1;
+    for(i = 0; i < send_times; i++)
     {
         sendLock->Acquire();   		// only one message can be sent
                                             // to the network at any one time
@@ -317,14 +333,24 @@ PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
         messageSent->P();			// wait for interrupt to tell us
                                             // ok to send the next message
         sendLock->Release();
-        currentThread->wait(TEMPO);
-        if(Boxes_Acks[mailHdr.from]->Test(mailHdr.ack_number))
-            break;
+        if(mailHdr.acknowledged!=true){
+            printf("sending %d\n",i);
+            currentThread->wait(TEMPO);
+        }
+        //    check->Acquire();
+        if(mailHdr.acknowledged!=true){
+            if(Boxes_Acks[mailHdr.from]->Test(mailHdr.ack_number))
+                break;
+                // check->Release();
+        }
+
     }
-    if(i < MAXREEMISSIONS)
-        printf("message received\n");
-    else
-        printf("message not received\n");
+    if(mailHdr.acknowledged!=true){
+        if(i < send_times)
+            printf("message received\n");
+        else
+            printf("message not received\n");
+    }
 #endif //CHANGED
     delete [] buffer;			// we've sent the message, so
 					// we can delete our buffer
@@ -383,4 +409,18 @@ PostOffice::PacketSent()
 { 
     messageSent->V();
 }
+#ifdef CHANGED
+void
+PostOffice::SendAck(PacketHeader *pktHdr, MailHeader *mailHdr){
+    PacketHeader reply;
+    MailHeader mail;
+    reply.to = pktHdr->from;
+    mail.to = mailHdr->from;
+    mail.from = mailHdr->to;
+    mail.ack_number = mailHdr->ack_number;
+    mail.acknowledged = true;
+    mail.length = 1; //emty strings
+    Send(reply, mail, "");
+}
+#endif //CHANGED
 

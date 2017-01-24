@@ -38,8 +38,8 @@ MailTest(int farAddr)
   //  const char *ack = "Got it!";
     char buffer[MaxMailSize];
 //#ifdef CHANGED
-  //  int i = 0;
-   // for (i = 0; i < 10; i++){
+    int i = 0;
+  for (i = 0; i < 10; i++){
         // construct packet, mail header for original message
     // To: destination machine, mailbox 0
         // From: our machine, reply to: mailbox 1
@@ -47,14 +47,20 @@ MailTest(int farAddr)
         outMailHdr.to = 0;
         outMailHdr.from = 1;
         outMailHdr.length = strlen(data) + 1;
+        #ifdef CHANGED
+
+        outMailHdr.acknowledged = false;
+#endif //CHANGED
 
         // Send the first message
         postOffice->Send(outPktHdr, outMailHdr, data); 
 
         // Wait for the first message from the other machine
         postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
-        printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
+        printf("Got \"%s\" from %d, box %d, message %d\n",buffer,inPktHdr.from,inMailHdr.from,i);
         fflush(stdout);
+}
+//#endif //CHANGED
 /*
         // Send acknowledgement to the other machine (using "reply to" mailbox
         // in the message that just arrived
@@ -70,7 +76,7 @@ MailTest(int farAddr)
  // }
 //#endif //CHANGED
     // Then we're done!*/
-    interrupt->Halt();
+   // interrupt->Halt();
 }
 
 
@@ -89,6 +95,7 @@ void MailRing(int destAddr){
             outMailHdr.to = 1;
             outMailHdr.from = 0;
             outMailHdr.length = strlen(data) + 1;
+            outMailHdr.acknowledged = false;
             postOffice->Send(outPktHdr, outMailHdr, data);
             printf("%s\n","ring started");
             fflush(stdout);
@@ -106,6 +113,7 @@ void MailRing(int destAddr){
             outMailHdr.to = 1;
             outMailHdr.from = 0;
             outMailHdr.length = strlen(data) + 1;
+            outMailHdr.acknowledged = false;
             postOffice->Send(outPktHdr, outMailHdr, data);    
         }
         else{
@@ -117,6 +125,7 @@ void MailRing(int destAddr){
             outMailHdr.to = 1;
             outMailHdr.from = 0;
             outMailHdr.length = strlen(data) + 1;
+            outMailHdr.acknowledged = false;
             postOffice->Send(outPktHdr, outMailHdr, ack);
         }
         interrupt->Halt();

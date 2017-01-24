@@ -37,9 +37,9 @@
 // A mailbox is just a place for temporary storage for messages.
 typedef int MailBoxAddress;
 #ifdef CHANGED
-#define TEMPO 10000
-#define MAXREEMISSIONS 100
-#define ack_Max 1000
+#define TEMPO 1000000
+#define MAXREEMISSIONS 1000
+#define ack_Max 10000
 #endif //CHANGED
 
 // The following class defines part of the message header.  
@@ -53,6 +53,7 @@ class MailHeader {
 				// mail header)
 #ifdef CHANGED
     int ack_number;
+    bool acknowledged;
 #endif //CHANGED
 };
 
@@ -136,8 +137,10 @@ class PostOffice {
    				// packet has arrived and can be pulled
 				// off of network (i.e., time to call 
 				// PostalDelivery)
-
+#ifdef CHANGED
     NetworkAddress getNetAddr(){return netAddr;};
+    void SendAck(PacketHeader *pktHdr, MailHeader *mailHdr);
+#endif //CHANGED
 
   private:
     Network *network;		// Physical network connection
@@ -151,6 +154,7 @@ class PostOffice {
     BitMap **Boxes_Acks;            //to keep track of acknowledgement messages per each boxes
     int *ack_Box;                   //to keep track of the number of acknowledgement messages in each box
     Lock *ack_Lock;
+    Lock *check;
 #endif //CHANGED
 };
 
