@@ -77,7 +77,7 @@ OpenFile::Read(char *into, int numBytes)
 #ifndef CHANGED
      result = ReadAt(into, numBytes, seekPosition);
 #else
-    if(numBytes > 3840)
+    if(numBytes + seekPosition > 3840)
         result= ReadAtL(into, numBytes, seekPosition);
     else
         result = ReadAt(into, numBytes, seekPosition);
@@ -94,7 +94,7 @@ OpenFile::Write(const char *into, int numBytes)
 #ifndef CHANGED
      result = WriteAt(into, numBytes, seekPosition);
 #else
-    if(numBytes > 3840)
+    if(numBytes + seekPosition > 3840)
         result= WriteAtL(into, numBytes, seekPosition);
     else
         result = WriteAt(into, numBytes, seekPosition);
@@ -225,7 +225,7 @@ OpenFile::WriteAtL(const char *from, int numBytes, int position)
     bool firstAligned, lastAligned;
     char *buf;
     int tempBytes = fileLength;
-    int size = fileLength;
+    int size = fileLength - seekPosition;
     
     printf("File length = %d Num bytes = %d\n", fileLength, numBytes);
     
@@ -290,7 +290,7 @@ OpenFile::ReadAtL(char *into, int numBytes, int position)
     int i, firstSector, lastSector, numSectors;
     char *buf;
     int tempBytes = fileLength;
-    int size = fileLength;
+    int size = fileLength - seekPosition;
     
     printf("File length = %d Num bytes = %d\n", fileLength, numBytes);
     DEBUG('f', "Reading %d bytes at %d, from file of length %d.\n", 	
