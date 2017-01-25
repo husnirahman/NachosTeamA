@@ -224,23 +224,23 @@ OpenFile::WriteAtL(const char *from, int numBytes, int position)
     int i, firstSector, lastSector, numSectors;
     bool firstAligned, lastAligned;
     char *buf;
-    int tempBytes = fileLength;
+    int tempBytes = fileLength - seekPosition;
     int size = fileLength - seekPosition;
     
-    printf("File length = %d Num bytes = %d\n", fileLength, numBytes);
+    //printf("File length = %d Num bytes = %d\n", fileLength, numBytes);
     
     DEBUG('f', "Writing %d bytes at %d, from file of length %d.\n", 	
 			numBytes, position, fileLength);
     while(tempBytes <= numBytes){
         firstSector = divRoundDown(position, SectorSize);
-        printf("FirstSector = %d\n", firstSector);
+        //printf("FirstSector = %d\n", firstSector);
         lastSector = divRoundDown(position + size - 1, SectorSize);
-        printf("LastSector = %d\n", lastSector);
-        printf("Checking next sector = %d\n", hdr->indirect_sector(lastSector+1));
+        //printf("LastSector = %d\n", lastSector);
+        //printf("Checking next sector = %d\n", hdr->indirect_sector(lastSector+1));
         numSectors = 1 + lastSector - firstSector;
 
         buf = new char[numSectors * SectorSize];
-        printf("Allocating buffer \n");
+        //printf("Allocating buffer \n");
         firstAligned = (position == (firstSector * SectorSize));
         lastAligned = ((position + size) == ((lastSector + 1) * SectorSize));
 
@@ -260,6 +260,16 @@ OpenFile::WriteAtL(const char *from, int numBytes, int position)
 					&buf[(i - firstSector) * SectorSize]);
         //position = position + size;
         
+        /*
+        tempBytes = tempBytes + fileLength;
+        if(tempBytes > numBytes){
+        	size = numBytes - tempBytes;
+        	
+        }
+        else{
+        	size = fileLength;
+        }*/
+        	
         
         if(numBytes - tempBytes < size){
             size = numBytes - tempBytes;
@@ -267,10 +277,12 @@ OpenFile::WriteAtL(const char *from, int numBytes, int position)
                 break;
             tempBytes = tempBytes + size;
         }
-        else
+        else{
+        	size = fileLength;
             tempBytes = tempBytes + size;
+        }
             
-        printf("TempByets = %d\n", tempBytes);
+        //printf("TempByets = %d\n", tempBytes);
         int nextHead = hdr->indirect_sector(lastSector+1);
         delete hdr;
         if (nextHead < 32*32 && nextHead > 0){
@@ -289,10 +301,10 @@ OpenFile::ReadAtL(char *into, int numBytes, int position)
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
     char *buf;
-    int tempBytes = fileLength;
+    int tempBytes = fileLength - seekPosition;
     int size = fileLength - seekPosition;
     
-    printf("File length = %d Num bytes = %d\n", fileLength, numBytes);
+    //printf("File length = %d Num bytes = %d\n", fileLength, numBytes);
     DEBUG('f', "Reading %d bytes at %d, from file of length %d.\n", 	
 			numBytes, position, fileLength);
 	
@@ -316,10 +328,12 @@ OpenFile::ReadAtL(char *into, int numBytes, int position)
                 break;
             tempBytes = tempBytes + size;
         }
-        else
+        else{
+        	size = fileLength;
             tempBytes = tempBytes + size;
+        }
             
-        printf("TempByets = %d\n", tempBytes);
+        //printf("TempByets = %d\n", tempBytes);
         int nextHead = hdr->indirect_sector(lastSector+1);
         delete hdr;
         if (nextHead < 32*32 && nextHead > 0){

@@ -509,7 +509,7 @@ bool interpret(char* path, char* name ){
     int k = 0;
     char* lpath = new char[MAX_PATH_SIZE];
     
-    printf("Entering Interpreter... \n");
+    //printf("Entering Interpreter... \n");
     if(path[i]=='\0'){
          delete lpath;
         return FALSE;
@@ -540,7 +540,7 @@ bool interpret(char* path, char* name ){
             //strncpy(path, lpath, 1);
             path[0] = '\0';
         }
-        printf("Subname in interpret = %s and path = %s\n", name,path);
+        //printf("Subname in interpret = %s and path = %s\n", name,path);
         delete temp;
         delete lpath;
         return TRUE;
@@ -553,14 +553,14 @@ FileSystem:: ChangeD(const char* name){
     char* path = new char[MAX_PATH_SIZE];
     strncpy(path, name, MAX_PATH_SIZE);
     char* subname = new char[MAX_PATH_SIZE];
-    printf("Path = %s\n", path);
+    //printf("Path = %s\n", path);
     
     while(interpret(path , subname)){
         directory->FetchFrom(currOpenFile);
         printf("Subname in open = %s and path = %s", subname, path);
         
         int sector = directory->Find(subname);
-        printf("Change dir:  name = %s and sector = %d\n", subname, sector);
+        //printf("Change dir:  name = %s and sector = %d\n", subname, sector);
 	
         if(sector == -1){
             success = FALSE;
@@ -569,7 +569,7 @@ FileSystem:: ChangeD(const char* name){
         else{
             success = TRUE;
             delete currOpenFile;
-            printf("Checking sector value = %d\n",sector);
+            //printf("Checking sector value = %d\n",sector);
             if(sector ==1)
                 currOpenFile = new OpenFile(DirectorySector);
             else
@@ -684,7 +684,7 @@ FileSystem :: filewrite(int fp, char* from, int size){
     
 	OpenFile* openFile = table[fp].file;
 	
-	printf("Writing file length = %d \n", openFile->Length());	
+	//printf("Writing file length = %d \n", openFile->Length());	
 	openFile->Write(from, size);
     
     lockTable->Release();
@@ -740,7 +740,7 @@ FileSystem::CreateL(const char *name, int initialSize)
     int numHeader = divRoundUp(initialSize, 3840);
     FileHeader *hdr_table[numHeader];
     int sector[numHeader];
-    printf("Entering CreateL ... number of header = %d\n", numHeader);
+    //printf("Entering CreateL ... number of header = %d\n", numHeader);
      
     DEBUG('f', "Creating file %s, size %d\n", name, initialSize);
 
@@ -754,7 +754,7 @@ FileSystem::CreateL(const char *name, int initialSize)
         freeMap->FetchFrom(freeMapFile);
         for(i = 0; i < numHeader; i++){
             sector[i] = freeMap->Find();	// find a sector to hold the file header
-            printf("Sector1 allocated = %d \n", sector[i]);
+            printf("Sector %d allocated = %d \n", i, sector[i]);
             if(sector[i] == -1){
                 success = FALSE;
                 break;
@@ -773,9 +773,8 @@ FileSystem::CreateL(const char *name, int initialSize)
             int size = 3840;
             for(i = 0; i < numHeader; i++){
                 hdr_table[i] = new FileHeader;
-                printf("hi 1 \n");
-                int numBytes = size;
-                printf("Number of numBytes = %d\n", numBytes);
+                //int numBytes = size;
+                //printf("Number of numBytes = %d\n", numBytes);
                 int numSectors  = divRoundUp(size, SectorSize);
                 if (freeMap->NumClear() < numSectors){
                     success = FALSE;
@@ -789,7 +788,7 @@ FileSystem::CreateL(const char *name, int initialSize)
                     hdr_table[i]->Allocate(freeMap, size);
                 
                 temp_size = temp_size - 3840;
-                printf("temp_size = %d\n", temp_size);
+                //printf("temp_size = %d\n", temp_size);
                 if(temp_size < 3840)
                     size = temp_size;
             }
@@ -797,7 +796,7 @@ FileSystem::CreateL(const char *name, int initialSize)
             if(i == numHeader){
                 success = TRUE;
 		                                      // everthing worked, flush all changes back to disk
-                printf("Writing back in header sectors \n");
+                //printf("Writing back in header sectors \n");
                 for(i = 0; i < numHeader; i++){
                         hdr_table[i]->WriteBack(sector[i]); 
                 }

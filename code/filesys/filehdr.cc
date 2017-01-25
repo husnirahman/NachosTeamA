@@ -41,17 +41,17 @@
 bool
 FileHeader::Allocate(BitMap *freeMap, int fileSize)
 { 
-    printf("fileSize = %d\n", fileSize);
+    //printf("fileSize = %d\n", fileSize);
     numBytes = fileSize;
-    printf("Number of numBytes = %d\n", numBytes);
+    //printf("Number of numBytes = %d\n", numBytes);
     numSectors  = divRoundUp(fileSize, SectorSize);
     if (freeMap->NumClear() < numSectors)
 	return FALSE;		// not enough space
 
-	printf("Number of sectors = %d\n", numSectors);
+	//printf("Number of sectors = %d\n", numSectors);
     for (int i = 0; i < numSectors; i++){
         int temp = freeMap->Find();
-         printf("Allocate sector[%d] = %d \n", i, temp);
+         //printf("Allocate sector[%d] = %d \n", i, temp);
         dataSectors[i] = temp;
     }
     return TRUE;

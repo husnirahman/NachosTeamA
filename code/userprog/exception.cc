@@ -165,7 +165,7 @@ ExceptionHandler (ExceptionType which)
                 int file = machine->ReadRegister (4);
                	copyStringFromMachine(file, buffer, MAX_STRING_SIZE);
             	int n = do_userprocess_create(buffer);
-            	printf("Process id = %d\n", n);
+            	//printf("Process id = %d\n", n);
                 machine->WriteRegister(2, n);
                 break;
             }
@@ -174,7 +174,7 @@ ExceptionHandler (ExceptionType which)
                 ProcessLock->Acquire();
                 if(status == 0){
                     if(proc_counter > 0){
-                        printf("Process Counter = %d\n", proc_counter);
+                        //printf("Process Counter = %d\n", proc_counter);
                         proc_counter--;
                         char*name = (char*)currentThread->getName();
                         std::string str(name);

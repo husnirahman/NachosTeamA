@@ -4,10 +4,10 @@ int main(){
 	int i;
 	int fp = fopen("small");
 	PutInt(fp);
-	char s[45];
-	fread(fp,s,45);
+	char s[38];
+	fread(fp,s,38);
 	Puts("Reading\n");
-	for (i = 0; i<45 ; i++)
+	for (i = 0; i<38 ; i++)
 		PutChar(s[i]);
     
     fclose(fp);

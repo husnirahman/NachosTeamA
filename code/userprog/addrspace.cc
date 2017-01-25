@@ -70,7 +70,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
     NoffHeader noffH;
     unsigned int i, size;
 	
-	printf("hi from Address space\n");
+	//printf("hi from Address space\n");
     executable->ReadAt ((char *) &noffH, sizeof (noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
 	(WordToHost (noffH.noffMagic) == NOFFMAGIC))
@@ -86,7 +86,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
 #ifndef CHANGED
     ASSERT (numPages <= NumPhysPages);	// check we're not trying
 #else
-	printf("Number of Avail frames = %d %d\n",FrameP->NumAvailFrame(), numPages);
+	//printf("Number of Avail frames = %d %d\n",FrameP->NumAvailFrame(), numPages);
 	ASSERT (numPages <= FrameP->NumAvailFrame());
     /*
     unsigned int lower = PageSize * (NumPhysPages - FrameP->NumAvailFrame());
