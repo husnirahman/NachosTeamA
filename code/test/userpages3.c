@@ -3,17 +3,17 @@ void print(void* ch)
 {
     char* p = (char*)ch;
     PutChar(*p +1);
-    PutChar(' ');
+    //PutChar(' ');
     
     UserThreadExit();
 }
 
 int main()
 {	
-	char c = GetChar();
+	char c = 'T';
     int i ;
-    
-    for(i = 0; i < 2; i++){
+    int n = 3;
+    for(i = 0; i < n; i++){
     
 	   ForkExec("./userpages0a");
 	   //PutChar('Z');

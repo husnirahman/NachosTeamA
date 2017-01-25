@@ -30,17 +30,17 @@
 
 #include "network.h"
 #include "synchlist.h"
-#ifdef CHANGED
+
 #include "bitmap.h"
-#endif //CHANGED
+
 // Mailbox address -- uniquely identifies a mailbox on a given machine.
 // A mailbox is just a place for temporary storage for messages.
 typedef int MailBoxAddress;
-#ifdef CHANGED
+
 #define TEMPO 1000000
 #define MAXREEMISSIONS 1000
 #define ack_Max 10000
-#endif //CHANGED
+
 
 // The following class defines part of the message header.  
 // is sent to the Network.
@@ -51,10 +51,10 @@ class MailHeader {
     MailBoxAddress from;	// Mail box to reply to
     unsigned length;		// Bytes of message data (excluding the 
 				// mail header)
-#ifdef CHANGED
+
     int ack_number;
-    bool acknowledged;
-#endif //CHANGED
+    bool acknowledged;          //type of message, true for acknowledgement message, and false for normal message
+
 };
 
 // Maximum "payload" -- real data -- that can included in a single message
@@ -137,10 +137,10 @@ class PostOffice {
    				// packet has arrived and can be pulled
 				// off of network (i.e., time to call 
 				// PostalDelivery)
-#ifdef CHANGED
+
     NetworkAddress getNetAddr(){return netAddr;};
     void SendAck(PacketHeader *pktHdr, MailHeader *mailHdr);
-#endif //CHANGED
+
 
   private:
     Network *network;		// Physical network connection
@@ -150,12 +150,11 @@ class PostOffice {
     Semaphore *messageAvailable;// V'ed when message has arrived from network
     Semaphore *messageSent;	// V'ed when next message can be sent to network
     Lock *sendLock;		// Only one outgoing message at a time
-#ifdef CHANGED
+
     BitMap **Boxes_Acks;            //to keep track of acknowledgement messages per each boxes
     int *ack_Box;                   //to keep track of the number of acknowledgement messages in each box
     Lock *ack_Lock;
-    Lock *check;
-#endif //CHANGED
+
 };
 
 #endif

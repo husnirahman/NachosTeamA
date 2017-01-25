@@ -37,7 +37,7 @@ MailTest(int farAddr)
     const char *data = "Hello there!";
   //  const char *ack = "Got it!";
     char buffer[MaxMailSize];
-//#ifdef CHANGED
+
     int i = 0;
   for (i = 0; i < 10; i++){
         // construct packet, mail header for original message
@@ -47,10 +47,10 @@ MailTest(int farAddr)
         outMailHdr.to = 0;
         outMailHdr.from = 1;
         outMailHdr.length = strlen(data) + 1;
-        #ifdef CHANGED
+
 
         outMailHdr.acknowledged = false;
-#endif //CHANGED
+
 
         // Send the first message
         postOffice->Send(outPktHdr, outMailHdr, data); 
@@ -60,7 +60,7 @@ MailTest(int farAddr)
         printf("Got \"%s\" from %d, box %d, message %d\n",buffer,inPktHdr.from,inMailHdr.from,i);
         fflush(stdout);
 }
-//#endif //CHANGED
+
 /*
         // Send acknowledgement to the other machine (using "reply to" mailbox
         // in the message that just arrived
@@ -74,14 +74,14 @@ MailTest(int farAddr)
         printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
         fflush(stdout);
  // }
-//#endif //CHANGED
+
     // Then we're done!*/
    // interrupt->Halt();
 }
 
 
 
-#ifdef CHANGED
+
 void MailRing(int destAddr){
 	PacketHeader outPktHdr, inPktHdr;
 	MailHeader outMailHdr, inMailHdr;
@@ -90,7 +90,7 @@ void MailRing(int destAddr){
 	char buffer[MaxMailSize];
 	NetworkAddress netAddr = postOffice->getNetAddr();
 	if(netAddr == 0){
-            Delay(5);
+            Delay(3);
             outPktHdr.to = 1;
             outMailHdr.to = 1;
             outMailHdr.from = 0;
@@ -108,7 +108,7 @@ void MailRing(int destAddr){
             postOffice->Receive(1, &inPktHdr, &inMailHdr, buffer);
             printf("Got it from : %d\n",inPktHdr.from);
             fflush(stdout);
-            Delay(5);
+            Delay(3);
             outPktHdr.to = netAddr + 1;
             outMailHdr.to = 1;
             outMailHdr.from = 0;
@@ -120,7 +120,7 @@ void MailRing(int destAddr){
             postOffice->Receive(1, &inPktHdr, &inMailHdr, buffer);
             printf("Got it from : %d\n",inPktHdr.from);
             fflush(stdout);
-            Delay(5);
+            Delay(3);
             outPktHdr.to = 0;
             outMailHdr.to = 1;
             outMailHdr.from = 0;
@@ -130,4 +130,4 @@ void MailRing(int destAddr){
         }
         interrupt->Halt();
 }
-#endif //CHANGED
+

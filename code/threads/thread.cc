@@ -436,7 +436,6 @@ Thread::addFile(const char* name) {
 }*/
 #endif
 
-#ifdef CHANGED
 static void handler(int arg){
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun((Thread *)arg);
@@ -450,5 +449,4 @@ void Thread::wait(long long fromNow){
     this->Sleep();
     (void) interrupt->SetLevel (oldLevel);
 }
-#endif //CHANGED
 
