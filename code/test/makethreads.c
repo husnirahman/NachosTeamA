@@ -22,12 +22,12 @@ void print2(void* ch)
 
 int main()
 {
- 	char c = GetChar();
+ 	char c = 'K';
     int n = 1;
     int Thread_id[2*n +1];
-    int i = 0;;
+    int i = 0;
     //for(i = 0; i<2*n; i+=2){
-    	Thread_id[i] = UserThreadCreate(print, (void*)&c);
+    	Thread_id[i] = UserThreadCreate(print2, (void*)&c);
     	Thread_id[i+1] = UserThreadCreate(print2, (void*)&c);
     	//}
     
@@ -35,7 +35,7 @@ int main()
     
     for( i = 0 ; i<1 ; i++)
     	UserThreadJoin(Thread_id[i]);
-    PutInt(Thread_id[0]);
+   PutInt(Thread_id[0]);
     	
     	
     Puts("Bye");

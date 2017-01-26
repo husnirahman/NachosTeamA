@@ -416,7 +416,7 @@ PostOffice::SendAck(PacketHeader *pktHdr, MailHeader *mailHdr){
     reply.to = pktHdr->from;
     mail.to = mailHdr->from;
     mail.from = mailHdr->to;
-    mail.ack_number = mailHdr->ack_number;
+    mail.ack_number = mailHdr->ack_number % ack_Max;
     mail.acknowledged = true;
     mail.length = 1; //emty strings
     Send(reply, mail, "");

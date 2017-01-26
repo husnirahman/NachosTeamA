@@ -17,11 +17,11 @@ int main(){
     fclose(0);
     
     fopen("file1");
-    char s[4000];
-    fseek(0,2995);
-	fread(0,s,1000);
+    char s[4005];
+    fseek(0,3000);
+	fread(0,s,4000);
 	Puts("Reading\n");
-	for (i = 0; i<1005 ; i++){
+	for (i = 0; i<4005 ; i++){
 		PutChar(s[i]);PutChar('b');
 	}
     
